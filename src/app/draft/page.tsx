@@ -30,6 +30,9 @@ function DraftPageInner() {
   const [searchQuery, setSearchQuery] = useState('');
   const [heroView, setHeroView] = useState<'grid' | 'roles'>('grid');
   const [detailHero, setDetailHero] = useState<Hero | null>(null);
+  const [timerEnabled, setTimerEnabled] = useState(false);
+  const [timerDuration, setTimerDuration] = useState(25);
+  const [timeLeft, setTimeLeft] = useState(25);
 
   useEffect(() => { DraftSettings.load(); }, []);
 
@@ -62,6 +65,26 @@ function DraftPageInner() {
     if (isBan) return engine.generateBanSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount);
     return engine.generateSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount);
   }, [engine, currentTeam, isBan, roleFilter, isComplete, step]);
+
+  useEffect(() => {
+    if (!timerEnabled || isComplete) {
+      return;
+    }
+
+    setTimeLeft(timerDuration);
+  }, [step, timerDuration, timerEnabled, isComplete]);
+
+  useEffect(() => {
+    if (!timerEnabled || isComplete || timeLeft <= 0) {
+      return;
+    }
+
+    const timerId = window.setInterval(() => {
+      setTimeLeft(prev => Math.max(0, prev - 1));
+    }, 1000);
+
+    return () => window.clearInterval(timerId);
+  }, [timerEnabled, isComplete, timeLeft]);
 
   // Keyboard shortcuts (Ctrl+Z undo, Escape reset, 1-9 suggestion quick-pick)
   useEffect(() => {
@@ -165,6 +188,55 @@ function DraftPageInner() {
       <div className="flex flex-col items-center gap-2 py-3" style={{ background: 'rgba(20, 25, 45, 0.5)' }}>
         <span className="text-sm font-bold" style={{ color: isBan ? '#FF6666' : '#00FFFF' }}>{statusText}</span>
         <DraftProgressBar currentStep={step} />
+
+        <div className="flex items-center gap-2 flex-wrap justify-center">
+          <button
+            onClick={() => {
+              setTimerEnabled(prev => {
+                const next = !prev;
+                if (next) {
+                  setTimeLeft(timerDuration);
+                }
+                return next;
+              });
+            }}
+            className="text-xs px-2 py-1 rounded hover:bg-white/10"
+            style={{
+              color: timerEnabled ? '#90EE90' : '#A9A9A9',
+              border: `1px solid ${timerEnabled ? '#90EE9055' : '#A9A9A955'}`,
+            }}
+            title={timerEnabled ? 'Disable draft timer' : 'Enable draft timer'}
+          >
+            ⏱️ Timer {timerEnabled ? 'On' : 'Off'}
+          </button>
+          <button
+            onClick={() => setTimerDuration(v => Math.max(10, v - 5))}
+            className="text-xs px-2 py-1 rounded hover:bg-white/10"
+            style={{ color: '#FFD700', border: '1px solid #FFD70055' }}
+            title="Decrease timer duration"
+          >
+            -5s
+          </button>
+          <button
+            onClick={() => setTimerDuration(v => Math.min(90, v + 5))}
+            className="text-xs px-2 py-1 rounded hover:bg-white/10"
+            style={{ color: '#FFD700', border: '1px solid #FFD70055' }}
+            title="Increase timer duration"
+          >
+            +5s
+          </button>
+          <span
+            className="text-xs font-semibold px-2 py-1 rounded"
+            style={{
+              color: timerEnabled ? (timeLeft <= 5 ? '#FF6666' : '#00FFFF') : '#A9A9A9',
+              border: `1px solid ${timerEnabled ? (timeLeft <= 5 ? '#FF666655' : '#00FFFF55') : '#A9A9A955'}`,
+              background: timerEnabled ? 'rgba(255,255,255,0.04)' : 'transparent',
+            }}
+            title="Per-step draft countdown"
+          >
+            {timerEnabled ? `Time: ${timeLeft}s` : `Duration: ${timerDuration}s`}
+          </span>
+        </div>
       </div>
 
       {/* Mobile Team Panels */}
