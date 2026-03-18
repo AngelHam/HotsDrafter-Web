@@ -33,6 +33,16 @@ function DraftPageInner() {
 
   const forceUpdate = useCallback(() => setTick(t => t + 1), []);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'z') { e.preventDefault(); handleUndo(); }
+      if (e.key === 'Escape') handleReset();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  });
+
   const engine = useMemo(() => new HeroSuggestionEngine(draft, map), [draft, map]);
 
   const currentTeam = step < 16 ? DRAFT_TEAM_ORDER[step] : 0;
@@ -118,13 +128,13 @@ function DraftPageInner() {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }}>
+          <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">
             ← Back
           </button>
-          <button onClick={handleReset} className="text-sm px-3 py-1 rounded" style={{ color: '#FF6666', border: '1px solid #FF666633' }}>
+          <button onClick={handleReset} className="text-sm px-3 py-1 rounded" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Reset entire draft">
             Reset
           </button>
-          <button onClick={handleUndo} disabled={step === 0} className="text-sm px-3 py-1 rounded disabled:opacity-30" style={{ color: '#FFD700', border: '1px solid #FFD70033' }}>
+          <button onClick={handleUndo} disabled={step === 0} className="text-sm px-3 py-1 rounded disabled:opacity-30" style={{ color: '#FFD700', border: '1px solid #FFD70033' }} title="Undo last pick/ban (Ctrl+Z)">
             Undo
           </button>
         </div>

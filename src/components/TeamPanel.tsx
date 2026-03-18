@@ -41,6 +41,32 @@ export default function TeamPanel({ teamNumber, picks, bans }: TeamPanelProps) {
         </div>
       )}
 
+      {/* Composition Alerts */}
+      {picks.length >= 3 && (
+        <div className="mb-2 space-y-1">
+          {!picks.some(h => h.role === 'Tank') && (
+            <div className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(255,0,0,0.15)', color: '#FF6666', border: '1px solid #FF666633' }}>
+              ⚠️ No Tank!
+            </div>
+          )}
+          {!picks.some(h => h.role === 'Healer') && (
+            <div className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(255,0,0,0.15)', color: '#FF6666', border: '1px solid #FF666633' }}>
+              ⚠️ No Healer!
+            </div>
+          )}
+          {picks.filter(h => h.role === 'Healer').length >= 2 && (
+            <div className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(255,165,0,0.15)', color: '#FFA500', border: '1px solid #FFA50033' }}>
+              ⚠️ Double Healer
+            </div>
+          )}
+          {picks.filter(h => h.role === 'Tank').length >= 2 && (
+            <div className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(255,165,0,0.15)', color: '#FFA500', border: '1px solid #FFA50033' }}>
+              ⚠️ Double Tank
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Bans */}
       <div className="mb-3">
         <span className="text-xs font-semibold" style={{ color: '#FF6666' }}>BANS</span>
@@ -71,7 +97,11 @@ export default function TeamPanel({ teamNumber, picks, bans }: TeamPanelProps) {
                 {picks[i] && <HeroPortrait hero={picks[i]} size="sm" selected />}
               </div>
               <span className="text-xs truncate opacity-80">
-                {picks[i]?.nicknames[0] || `Pick ${i + 1}`}
+                {picks[i]?.nicknames[0] || (
+                  <span className="opacity-40 italic">
+                    {i === 0 ? '🛡️ Tank?' : i === 1 ? '✚ Healer?' : i === 2 ? '⚔️ DPS?' : i === 3 ? '⚙️ Offlane?' : '✨ Flex?'}
+                  </span>
+                )}
               </span>
             </div>
           ))}
