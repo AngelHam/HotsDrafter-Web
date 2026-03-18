@@ -6,6 +6,7 @@ import { ALL_HEROES, ALL_MAPS, findHeroByName } from '@/data/HeroData';
 import { TeamComposition } from '@/data/TeamComposition';
 import { analyzeWinCondition } from '@/data/WinConditionAnalyzer';
 import { winConditionToString } from '@/data/SuggestionTypes';
+import { ROLE_COLORS } from '@/components/RoleFilterBar';
 import HeroPortrait from '@/components/HeroPortrait';
 import { Specialty } from '@/data/Specialty';
 import type { Hero } from '@/data/Hero';
@@ -190,7 +191,9 @@ export default function TeamBuilderPage() {
               if (roleHeroes.length === 0) return null;
               return (
                 <div key={role} className="mb-3">
-                  <h4 className="text-xs font-bold mb-1 opacity-60">{role}s</h4>
+                  <h4 className="text-xs font-bold mb-1" style={{ color: ROLE_COLORS[role] || '#A9A9A9' }}>
+                    {role}s <span className="opacity-50">({roleHeroes.length})</span>
+                  </h4>
                   <div className="flex flex-wrap gap-1">
                     {roleHeroes.map(hero => (
                       <HeroPortrait key={hero.name} hero={hero} size="md" showName onClick={() => { handlePick(hero); setPickerSearch(''); }} />
