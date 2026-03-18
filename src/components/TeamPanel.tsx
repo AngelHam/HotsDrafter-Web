@@ -2,6 +2,7 @@
 
 import type { Hero } from '@/data/Hero';
 import { Specialty } from '@/data/Specialty';
+import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import HeroPortrait from './HeroPortrait';
 
 interface TeamPanelProps {
@@ -130,6 +131,9 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive }: TeamPan
           ))}
         </div>
       </div>
+
+      {/* Synergy Lines */}
+      {picks.length >= 2 && <SynergyLines picks={picks} />}
     </div>
   );
 }
@@ -163,4 +167,35 @@ function computeCompScore(picks: Hero[]): number {
   if (healerCount >= 2) score -= 15;
 
   return Math.max(0, Math.min(100, score));
+}
+
+function SynergyLines({ picks }: { picks: Hero[] }) {
+  const icyVeins = IcyVeinsDatabase.getInstance();
+  const synergies: string[] = [];
+
+  for (let i = 0; i < picks.length; i++) {
+    for (let j = i + 1; j < picks.length; j++) {
+      const a = picks[i].nicknames[0];
+      const b = picks[j].nicknames[0];
+      if (icyVeins.hasSynergy(a, b)) {
+        synergies.push(`${a} + ${b}`);
+      }
+    }
+  }
+
+  if (synergies.length === 0) return null;
+
+  return (
+    <div className="mt-2 pt-2" style={{ borderTop: '1px solid rgba(68,102,136,0.3)' }}>
+      <span className="text-[10px] font-semibold" style={{ color: '#90EE90' }}>SYNERGIES</span>
+      <div className="mt-0.5 space-y-0.5">
+        {synergies.slice(0, 3).map(s => (
+          <p key={s} className="text-[10px]" style={{ color: '#90EE90' }}>✦ {s}</p>
+        ))}
+        {synergies.length > 3 && (
+          <p className="text-[10px] opacity-50">+{synergies.length - 3} more</p>
+        )}
+      </div>
+    </div>
+  );
 }
