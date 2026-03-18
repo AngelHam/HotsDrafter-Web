@@ -269,6 +269,30 @@ function DraftPageInner() {
         </div>
       </div>
 
+      {/* Counter Threat Warnings */}
+      {!isComplete && draft.team1Picks.length > 0 && draft.team2Picks.length > 0 && (() => {
+        const threats: string[] = [];
+        for (const enemy of draft.team2Picks) {
+          for (const ally of draft.team1Picks) {
+            if (icyVeins.counters(enemy.nicknames[0], ally.nicknames[0])) {
+              threats.push(`${enemy.nicknames[0]} counters your ${ally.nicknames[0]}`);
+            }
+          }
+        }
+        if (threats.length === 0) return null;
+        return (
+          <div className="px-4 py-1.5 flex items-center gap-2 flex-wrap justify-center" style={{ background: 'rgba(255,99,71,0.1)', borderBottom: '1px solid #FF634733' }}>
+            <span className="text-[10px] font-bold" style={{ color: '#FF6347' }}>⚠️ THREATS:</span>
+            {threats.slice(0, 3).map(t => (
+              <span key={t} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,99,71,0.15)', color: '#FF6347', border: '1px solid #FF634722' }}>
+                {t}
+              </span>
+            ))}
+            {threats.length > 3 && <span className="text-[10px] opacity-50">+{threats.length - 3} more</span>}
+          </div>
+        );
+      })()}
+
       {/* Mobile Team Panels */}
       <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-2 px-3 py-2" style={{ background: 'rgba(20, 25, 45, 0.35)' }}>
         <TeamPanel teamNumber={1} picks={[...draft.team1Picks]} bans={[...draft.team1Bans]} isActive={!isComplete && currentTeam === 1} />
