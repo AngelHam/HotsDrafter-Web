@@ -357,6 +357,32 @@ function DraftPageInner() {
                 team1Bans={[...draft.team1Bans]}
                 team2Bans={[...draft.team2Bans]}
               />
+              <div className="flex gap-3 justify-center flex-wrap">
+                <button
+                  onClick={handleReset}
+                  className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
+                  style={{ background: '#00FFFF22', border: '2px solid #00FFFF', color: '#00FFFF' }}
+                  title="Start a new draft on this map"
+                >
+                  🔄 Same Map Again
+                </button>
+                <button
+                  onClick={() => router.push('/')}
+                  className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
+                  style={{ background: '#FFD70022', border: '2px solid #FFD700', color: '#FFD700' }}
+                  title="Pick a different map"
+                >
+                  🗺️ New Map
+                </button>
+                <button
+                  onClick={() => router.push('/history')}
+                  className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
+                  style={{ background: '#BA55D322', border: '2px solid #BA55D3', color: '#BA55D3' }}
+                  title="View saved drafts"
+                >
+                  📜 History
+                </button>
+              </div>
             </div>
           )}
         </div>
