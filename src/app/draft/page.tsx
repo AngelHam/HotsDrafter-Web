@@ -205,7 +205,14 @@ function DraftPageInner() {
             Undo
           </button>
         </div>
-        <span className="text-sm font-semibold" style={{ color: '#FFD700' }}>📍 {map.name}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold" style={{ color: '#FFD700' }}>📍 {map.name}</span>
+          {isQuickDraft && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(144,238,144,0.15)', color: '#90EE90', border: '1px solid #90EE9033' }}>
+              ⚡ Quick
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           <button onClick={() => router.push('/settings')} className="text-sm px-2 py-1 rounded hover:bg-white/10" style={{ color: '#A9A9A9', border: '1px solid #A9A9A933' }} title="Settings">
             ⚙️
