@@ -7,6 +7,7 @@ import { TeamComposition } from '@/data/TeamComposition';
 import { analyzeWinCondition } from '@/data/WinConditionAnalyzer';
 import { winConditionToString } from '@/data/SuggestionTypes';
 import HeroPortrait from '@/components/HeroPortrait';
+import { Specialty } from '@/data/Specialty';
 import type { Hero } from '@/data/Hero';
 
 function shuffleArray<T>(arr: T[]): T[] {
@@ -71,7 +72,7 @@ function SampleDraftInner() {
       <div className="flex-1 flex gap-4 p-4">
         {/* Team 1 */}
         <div className="flex-1">
-          <h2 className="font-bold mb-3" style={{ color: '#4488FF' }}>TEAM 1</h2>
+          <h2 className="font-bold mb-3" style={{ color: '#4488FF' }}>TEAM 1 <ScoreBadge picks={draft.team1Picks} /></h2>
           <div className="mb-3">
             <span className="text-xs font-semibold" style={{ color: '#FF6666' }}>BANS</span>
             <div className="flex gap-2 mt-1">
@@ -118,7 +119,7 @@ function SampleDraftInner() {
 
         {/* Team 2 */}
         <div className="flex-1">
-          <h2 className="font-bold mb-3" style={{ color: '#FF6666' }}>TEAM 2</h2>
+          <h2 className="font-bold mb-3" style={{ color: '#FF6666' }}>TEAM 2 <ScoreBadge picks={draft.team2Picks} /></h2>
           <div className="mb-3">
             <span className="text-xs font-semibold" style={{ color: '#FF6666' }}>BANS</span>
             <div className="flex gap-2 mt-1">
@@ -153,5 +154,29 @@ export default function SampleDraftPage() {
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p>Loading...</p></div>}>
       <SampleDraftInner />
     </Suspense>
+  );
+}
+
+function sampleCompScore(picks: Hero[]): number {
+  let score = 20;
+  if (picks.some(h => h.role === 'Tank')) score += 15;
+  if (picks.some(h => h.role === 'Healer')) score += 15;
+  if (picks.some(h => h.role === 'DPS' || h.role === 'Mage')) score += 10;
+  if (picks.some(h => h.role === 'Offlane')) score += 10;
+  if (picks.some(h => h.specialties.includes(Specialty.WAVECLEAR))) score += 10;
+  if (picks.some(h => h.specialties.includes(Specialty.ENGAGE))) score += 10;
+  if (picks.some(h => h.specialties.includes(Specialty.HARD_CC))) score += 10;
+  if (picks.filter(h => h.role === 'Tank').length >= 2) score -= 10;
+  if (picks.filter(h => h.role === 'Healer').length >= 2) score -= 15;
+  return Math.max(0, Math.min(100, score));
+}
+
+function ScoreBadge({ picks }: { picks: Hero[] }) {
+  const score = sampleCompScore(picks);
+  const color = score >= 80 ? '#90EE90' : score >= 50 ? '#FFD700' : '#FF6666';
+  return (
+    <span className="text-xs font-bold px-1.5 py-0.5 rounded ml-2" style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
+      {score}
+    </span>
   );
 }
