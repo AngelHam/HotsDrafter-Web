@@ -62,17 +62,19 @@ export default function StartupPage() {
         </div>
       </div>
 
-      <div className="animate-fade-slide-up mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 w-full max-w-4xl" style={{ animationDelay: '350ms' }}>
+      <div className="animate-fade-slide-up mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 w-full max-w-4xl" style={{ animationDelay: '350ms' }}>
         <ActionButton label="Interactive Draft" icon="⚔️" color="#00FFFF" onClick={() => router.push(`/draft?map=${getMapParam()}`)} primary
           tooltip={useRandom ? 'Start a draft with a random map' : `Draft on ${ALL_MAPS[selectedMapIdx]?.name}`} />
         <ActionButton label="Sample Draft" icon="🎲" color="#FFD700" onClick={() => router.push(`/sample?map=${getMapParam()}`)}
           tooltip="Watch an AI-generated random draft with analysis" />
         <ActionButton label="Team Builder" icon="🏗️" color="#90EE90" onClick={() => router.push('/team-builder')}
           tooltip="Manually build 5v5 teams and compare compositions" />
-        <ActionButton label="Draft History" icon="📜" color="#BA55D3" onClick={() => router.push('/history')}
-          tooltip="View your previously completed drafts" />
+        <ActionButton label="Hero Compare" icon="⚖️" color="#87CEEB" onClick={() => router.push('/compare')}
+          tooltip="Compare two heroes side by side" />
         <ActionButton label="Tier List" icon="🏆" color="#FFD700" onClick={() => router.push('/tier-list')}
           tooltip="View hero rankings across all maps" />
+        <ActionButton label="Draft History" icon="📜" color="#BA55D3" onClick={() => router.push('/history')}
+          tooltip="View your previously completed drafts" />
         <ActionButton label="Settings" icon="⚙️" color="#A9A9A9" onClick={() => router.push('/settings')}
           tooltip="Configure suggestions, analysis mode, and shortcuts" />
       </div>
