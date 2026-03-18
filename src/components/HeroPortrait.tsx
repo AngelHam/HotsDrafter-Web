@@ -14,7 +14,11 @@ const ROLE_COLORS: Record<string, string> = {
 
 function getPortraitFilename(hero: Hero): string {
   const name = hero.nicknames[0];
-  return name.replace(/'/g, '').replace(/ /g, '-');
+  // Handle special cases: "Lt. Morales" → "Lt-Morales", "Sgt. Hammer" → "Sgt-Hammer"
+  return name
+    .replace(/'/g, '')
+    .replace(/\. /g, '-')
+    .replace(/ /g, '-');
 }
 
 interface HeroPortraitProps {
@@ -32,10 +36,12 @@ export default function HeroPortrait({ hero, size = 'md', selected, banned, dimm
   const px = SIZE_MAP[size];
   const borderColor = selected ? '#FFD700' : banned ? '#FF6666' : ROLE_COLORS[hero.role] || '#666';
 
+  const Tag = onClick ? 'button' : 'div';
+
   return (
-    <button
+    <Tag
       onClick={onClick}
-      className="relative flex-shrink-0 rounded transition-transform hover:scale-110 focus:outline-none"
+      className="relative flex-shrink-0 rounded transition-transform hover:scale-110 focus:outline-none cursor-pointer"
       style={{
         width: px, height: px,
         border: `2px solid ${borderColor}`,
@@ -52,10 +58,10 @@ export default function HeroPortrait({ hero, size = 'md', selected, banned, dimm
         className="rounded"
       />
       {banned && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-red text-2xl font-bold">✕</span>
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded">
+          <span className="text-2xl font-bold" style={{ color: '#FF6666' }}>✕</span>
         </div>
       )}
-    </button>
+    </Tag>
   );
 }

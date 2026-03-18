@@ -32,7 +32,7 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
             <span className="text-xs font-bold w-5 text-center" style={{ color: '#FFD700' }}>
               {i + 1}
             </span>
-            <HeroPortrait hero={s.hero} size="sm" />
+            <HeroPortrait hero={s.hero} size="sm" onClick={undefined} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold truncate">{s.hero.nicknames[0]}</span>

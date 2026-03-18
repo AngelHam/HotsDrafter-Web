@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, Suspense } from 'react';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
 import { TeamComposition } from '@/data/TeamComposition';
@@ -28,13 +28,26 @@ function generateRandomDraft() {
   };
 }
 
+// Stable initial draft for SSR (avoids hydration mismatch)
+const INITIAL_DRAFT = {
+  team1Bans: ALL_HEROES.slice(0, 3),
+  team2Bans: ALL_HEROES.slice(3, 6),
+  team1Picks: ALL_HEROES.slice(6, 11),
+  team2Picks: ALL_HEROES.slice(11, 16),
+};
+
 function SampleDraftInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mapIdx = parseInt(searchParams.get('map') || '0', 10);
   const map = ALL_MAPS[mapIdx] || ALL_MAPS[0];
 
-  const [draft, setDraft] = useState(generateRandomDraft);
+  const [draft, setDraft] = useState(INITIAL_DRAFT);
+
+  // Randomize on mount to avoid hydration mismatch
+  useEffect(() => {
+    setDraft(generateRandomDraft());
+  }, []);
 
   const analysis = useMemo(() => {
     const t1 = new TeamComposition(draft.team1Picks);

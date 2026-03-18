@@ -26,6 +26,7 @@ function DraftPageInner() {
   const [draft] = useState(() => new DraftingTool(ALL_HEROES));
   const [step, setStep] = useState(0);
   const [roleFilter, setRoleFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
   const [, setTick] = useState(0); // Force re-render
 
   useEffect(() => { DraftSettings.load(); }, []);
@@ -39,7 +40,14 @@ function DraftPageInner() {
   const isComplete = step >= 16;
 
   const available = draft.getAvailableHeroes();
-  const filtered = available.filter(h => matchesRoleFilter(h, roleFilter));
+  const filtered = available.filter(h => {
+    if (!matchesRoleFilter(h, roleFilter)) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return h.nicknames.some(n => n.toLowerCase().includes(q)) || h.name.toLowerCase().includes(q);
+    }
+    return true;
+  });
 
   const suggestions = useMemo(() => {
     if (isComplete || step >= 16) return [];
@@ -63,20 +71,7 @@ function DraftPageInner() {
     const prevStep = step - 1;
     const prevTeam = DRAFT_TEAM_ORDER[prevStep];
     const wasBan = DRAFT_IS_BAN[prevStep];
-
-    if (wasBan) {
-      const bans = draft.getTeamBans(prevTeam);
-      if (bans.length > 0) {
-        const hero = bans.pop()!;
-        (draft as any).availableHeroes?.add(hero); // Re-add
-      }
-    } else {
-      const picks = draft.getTeamPicks(prevTeam);
-      if (picks.length > 0) {
-        const hero = picks.pop()!;
-        (draft as any).availableHeroes?.add(hero);
-      }
-    }
+    draft.undoBanOrPick(prevTeam, wasBan);
     setStep(prevStep);
     forceUpdate();
   };
@@ -146,7 +141,7 @@ function DraftPageInner() {
       <div className="flex flex-1 gap-3 p-3 overflow-hidden">
         {/* Team 1 Panel */}
         <div className="w-48 flex-shrink-0">
-          <TeamPanel teamNumber={1} picks={draft.team1Picks} bans={draft.team1Bans} />
+          <TeamPanel teamNumber={1} picks={[...draft.team1Picks]} bans={[...draft.team1Bans]} />
         </div>
 
         {/* Center: Hero Grid + Suggestions */}
@@ -158,9 +153,17 @@ function DraftPageInner() {
             title={isBan ? '🚫 Ban Suggestions' : '✅ Pick Suggestions'}
           />
 
-          {/* Hero Grid */}
+          {/* Hero Search + Grid */}
           {!isComplete && (
             <div className="flex-1 overflow-auto p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
+              <input
+                type="text"
+                placeholder="🔍 Search heroes..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full px-3 py-1.5 mb-2 rounded text-sm focus:outline-none"
+                style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff' }}
+              />
               <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
                 {filtered.map(hero => (
                   <HeroPortrait key={hero.name} hero={hero} size="md" onClick={() => handleHeroClick(hero)} />
@@ -180,7 +183,7 @@ function DraftPageInner() {
 
         {/* Team 2 Panel */}
         <div className="w-48 flex-shrink-0">
-          <TeamPanel teamNumber={2} picks={draft.team2Picks} bans={draft.team2Bans} />
+          <TeamPanel teamNumber={2} picks={[...draft.team2Picks]} bans={[...draft.team2Bans]} />
         </div>
       </div>
     </div>

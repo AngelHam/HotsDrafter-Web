@@ -50,16 +50,14 @@ export class DraftingTool {
     return this.availableHeroes.has(hero);
   }
 
-  undoLast(): { type: 'pick' | 'ban'; team: number; hero: Hero } | null {
-    // Try undoing in reverse order: check all arrays for the last action
-    const actions: { arr: Hero[]; type: 'pick' | 'ban'; team: number }[] = [
-      { arr: this.team1Picks, type: 'pick', team: 1 },
-      { arr: this.team2Picks, type: 'pick', team: 2 },
-      { arr: this.team1Bans, type: 'ban', team: 1 },
-      { arr: this.team2Bans, type: 'ban', team: 2 },
-    ];
-    // We need the draft step order to undo properly — this is handled by the page
-    return null;
+  undoBanOrPick(team: number, wasBan: boolean): Hero | null {
+    const arr = wasBan
+      ? (team === 1 ? this.team1Bans : this.team2Bans)
+      : (team === 1 ? this.team1Picks : this.team2Picks);
+    if (arr.length === 0) return null;
+    const hero = arr.pop()!;
+    this.availableHeroes.add(hero);
+    return hero;
   }
 
   reset(heroPool: Hero[]): void {
