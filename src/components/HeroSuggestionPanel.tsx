@@ -52,6 +52,22 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
                 </div>
               </div>
               <p className="text-xs opacity-70 truncate">{s.explanation}</p>
+              {/* Component Score Breakdown */}
+              <div className="flex gap-0.5 mt-1">
+                {[
+                  { label: 'Syn', val: s.synergyScore, color: '#90EE90' },
+                  { label: 'Ctr', val: s.counterScore, color: '#FF6347' },
+                  { label: 'Map', val: s.mapFitnessScore, color: '#87CEEB' },
+                  { label: 'Role', val: s.roleNeedScore, color: '#BA55D3' },
+                  { label: 'Win', val: s.winConditionScore, color: '#FFD700' },
+                ].map(({ label, val, color }) => (
+                  <div key={label} className="flex-1 min-w-0" title={`${label}: ${val.toFixed(1)}`}>
+                    <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      <div className="h-full rounded-full" style={{ width: `${Math.min(val * 5, 100)}%`, background: color + '99' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
               {(s.synergyCount > 0 || s.counterCount > 0) && (
                 <div className="flex gap-2 mt-0.5">
                   {s.synergyCount > 0 && (
