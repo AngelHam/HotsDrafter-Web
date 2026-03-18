@@ -154,7 +154,38 @@ export default function SettingsPage() {
             Reset All Settings
           </button>
 
-          <p className="text-center text-xs opacity-30 mt-4">HotsDrafter v2 Web — Settings are saved automatically</p>
+          {/* Keyboard Shortcuts */}
+          <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>⌨️ Keyboard Shortcuts</h3>
+            <div className="space-y-2 text-xs">
+              {[
+                { keys: 'Ctrl + Z', desc: 'Undo last pick or ban' },
+                { keys: 'Escape', desc: 'Reset the entire draft' },
+                { keys: '1 – 9', desc: 'Quick-pick the numbered suggestion' },
+                { keys: 'Right-click', desc: 'Open hero detail popup' },
+              ].map(({ keys, desc }) => (
+                <div key={keys} className="flex items-center justify-between gap-2">
+                  <span className="px-1.5 py-0.5 rounded font-mono" style={{ background: 'rgba(0,255,255,0.1)', color: '#00FFFF', border: '1px solid #00FFFF33' }}>
+                    {keys}
+                  </span>
+                  <span className="opacity-70 text-right">{desc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* About */}
+          <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+            <h3 className="font-bold mb-2" style={{ color: '#FFD700' }}>About</h3>
+            <div className="text-xs space-y-1 opacity-70">
+              <p>HotsDrafter v2 Web — Heroes of the Storm Draft Assistant</p>
+              <p>90 Heroes • 11 Maps • 8 Win Conditions</p>
+              <p>Data sourced from Icy Veins community guides</p>
+              <p>Scoring: Synergy 30% + Counter 25% + Map 20% + Role 15% + Win Condition 10%</p>
+            </div>
+          </div>
+
+          <p className="text-center text-xs opacity-30 mt-4">Settings are saved automatically</p>
         </div>
       </div>
     </div>
