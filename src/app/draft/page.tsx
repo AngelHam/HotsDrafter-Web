@@ -47,6 +47,7 @@ function DraftPageInner() {
   const [heroView, setHeroView] = useState<'grid' | 'roles'>('grid');
   const [detailHero, setDetailHero] = useState<Hero | null>(null);
   const [suggestionsCollapsed, setSuggestionsCollapsed] = useState(false);
+  const [exportCopied, setExportCopied] = useState(false);
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [timerDuration, setTimerDuration] = useState(25);
   const [timeLeft, setTimeLeft] = useState(25);
@@ -481,6 +482,37 @@ function DraftPageInner() {
                   title="View saved drafts"
                 >
                   📜 History
+                </button>
+                <button
+                  onClick={() => {
+                    const t1Picks = draft.team1Picks.map(h => h.nicknames[0]).join(', ');
+                    const t2Picks = draft.team2Picks.map(h => h.nicknames[0]).join(', ');
+                    const t1Bans = draft.team1Bans.map(h => h.nicknames[0]).join(', ');
+                    const t2Bans = draft.team2Bans.map(h => h.nicknames[0]).join(', ');
+                    const wc1 = analysis ? winConditionToString(analysis.team1.primary) : '';
+                    const wc2 = analysis ? winConditionToString(analysis.team2.primary) : '';
+                    const text = [
+                      `HotsDrafter — ${map.name}`,
+                      ``,
+                      `Team 1 Bans: ${t1Bans}`,
+                      `Team 1 Picks: ${t1Picks}`,
+                      `Team 1 Strategy: ${wc1}`,
+                      `Score: ${computeCompScore(draft.team1Picks)}`,
+                      ``,
+                      `Team 2 Bans: ${t2Bans}`,
+                      `Team 2 Picks: ${t2Picks}`,
+                      `Team 2 Strategy: ${wc2}`,
+                      `Score: ${computeCompScore(draft.team2Picks)}`,
+                    ].join('\n');
+                    navigator.clipboard.writeText(text);
+                    setExportCopied(true);
+                    setTimeout(() => setExportCopied(false), 2000);
+                  }}
+                  className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
+                  style={{ background: '#90EE9022', border: '2px solid #90EE90', color: '#90EE90' }}
+                  title="Copy draft summary to clipboard"
+                >
+                  {exportCopied ? '✅ Copied!' : '📋 Export'}
                 </button>
               </div>
             </div>
