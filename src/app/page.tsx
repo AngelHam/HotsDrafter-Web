@@ -62,7 +62,7 @@ export default function StartupPage() {
         </div>
       </div>
 
-      <div className="animate-fade-slide-up mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 w-full max-w-4xl" style={{ animationDelay: '350ms' }}>
+      <div className="animate-fade-slide-up mt-8 flex flex-wrap gap-2 justify-center w-full max-w-4xl" style={{ animationDelay: '350ms' }}>
         <ActionButton label="Interactive Draft" icon="⚔️" color="#00FFFF" onClick={() => router.push(`/draft?map=${getMapParam()}`)} primary
           tooltip={useRandom ? 'Start a draft with a random map' : `Draft on ${ALL_MAPS[selectedMapIdx]?.name}`} />
         <ActionButton label="Sample Draft" icon="🎲" color="#FFD700" onClick={() => router.push(`/sample?map=${getMapParam()}`)}
@@ -101,8 +101,8 @@ function ActionButton({ label, icon, color, onClick, primary, tooltip }: {
   label: string; icon: string; color: string; onClick: () => void; primary?: boolean; tooltip?: string;
 }) {
   return (
-    <button onClick={onClick} className="px-4 py-3 rounded-lg font-semibold text-sm transition-all hover:scale-105 w-full"
-      style={{ background: primary ? `${color}22` : 'rgba(30, 40, 70, 0.7)', border: `2px solid ${color}`, color }}
+    <button onClick={onClick} className="px-4 py-3 rounded-lg font-semibold text-sm transition-all hover:scale-105"
+      style={{ background: primary ? `${color}22` : 'rgba(30, 40, 70, 0.7)', border: `2px solid ${color}`, color, minWidth: 155 }}
       title={tooltip || label}>
       {icon} {label}
     </button>
