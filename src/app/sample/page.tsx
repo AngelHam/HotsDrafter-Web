@@ -102,11 +102,19 @@ function SampleDraftInner() {
         {/* Center Analysis */}
         <div className="w-80 flex flex-col gap-4">
           <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-            <h3 className="font-bold mb-2" style={{ color: '#00FFFF' }}>Draft Analysis</h3>
-            <p className="text-sm mb-2"><span style={{ color: '#4488FF' }}>Team 1:</span> {winConditionToString(analysis.team1.primary)}</p>
-            <p className="text-xs opacity-80 mb-3">{analysis.team1.keyFocus}</p>
-            <p className="text-sm mb-2"><span style={{ color: '#FF6666' }}>Team 2:</span> {winConditionToString(analysis.team2.primary)}</p>
-            <p className="text-xs opacity-80">{analysis.team2.keyFocus}</p>
+            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Draft Analysis</h3>
+            <div className="mb-3 pb-3" style={{ borderBottom: '1px solid rgba(68,102,136,0.3)' }}>
+              <p className="text-sm font-semibold mb-1"><span style={{ color: '#4488FF' }}>Team 1:</span> {winConditionToString(analysis.team1.primary)}</p>
+              <p className="text-xs opacity-70 mb-1">{analysis.team1.description}</p>
+              <p className="text-[10px]"><span style={{ color: '#00FFFF' }}>Focus:</span> <span className="opacity-70">{analysis.team1.keyFocus}</span></p>
+              <p className="text-[10px]"><span style={{ color: '#FF6666' }}>Counter:</span> <span className="opacity-70">{analysis.team1.enemyCounterStrategy}</span></p>
+            </div>
+            <div>
+              <p className="text-sm font-semibold mb-1"><span style={{ color: '#FF6666' }}>Team 2:</span> {winConditionToString(analysis.team2.primary)}</p>
+              <p className="text-xs opacity-70 mb-1">{analysis.team2.description}</p>
+              <p className="text-[10px]"><span style={{ color: '#00FFFF' }}>Focus:</span> <span className="opacity-70">{analysis.team2.keyFocus}</span></p>
+              <p className="text-[10px]"><span style={{ color: '#FF6666' }}>Counter:</span> <span className="opacity-70">{analysis.team2.enemyCounterStrategy}</span></p>
+            </div>
           </div>
           <button
             onClick={() => setDraft(generateRandomDraft())}
