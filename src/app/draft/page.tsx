@@ -184,6 +184,7 @@ function DraftPageInner() {
                       hero={hero}
                       size="md"
                       dimmed={!isAvail}
+                      showName
                       onClick={isAvail ? () => handleHeroClick(hero) : undefined}
                     />
                   );

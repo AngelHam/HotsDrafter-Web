@@ -27,29 +27,32 @@ interface HeroPortraitProps {
   selected?: boolean;
   banned?: boolean;
   dimmed?: boolean;
+  showName?: boolean;
   onClick?: () => void;
 }
 
 const SIZE_MAP = { sm: 40, md: 56, lg: 80 };
 
-export default function HeroPortrait({ hero, size = 'md', selected, banned, dimmed, onClick }: HeroPortraitProps) {
+export default function HeroPortrait({ hero, size = 'md', selected, banned, dimmed, showName, onClick }: HeroPortraitProps) {
   const px = SIZE_MAP[size];
   const borderColor = selected ? '#FFD700' : banned ? '#FF6666' : ROLE_COLORS[hero.role] || '#666';
 
   const Tag = onClick ? 'button' : 'div';
 
   return (
-    <Tag
-      onClick={onClick}
-      className="relative flex-shrink-0 rounded transition-transform hover:scale-110 focus:outline-none cursor-pointer"
-      style={{
-        width: px, height: px,
-        border: `2px solid ${borderColor}`,
-        opacity: dimmed ? 0.3 : 1,
-        filter: banned ? 'grayscale(80%)' : undefined,
-      }}
-      title={hero.nicknames[0]}
-    >
+    <div className="flex flex-col items-center" style={{ width: showName ? px + 8 : undefined }}>
+      <Tag
+        onClick={onClick}
+        className="relative flex-shrink-0 rounded transition-all focus:outline-none cursor-pointer"
+        style={{
+          width: px, height: px,
+          border: `2px solid ${borderColor}`,
+          opacity: dimmed ? 0.3 : 1,
+          filter: banned ? 'grayscale(80%)' : undefined,
+          boxShadow: selected ? `0 0 8px ${borderColor}` : undefined,
+        }}
+        title={hero.nicknames[0]}
+      >
       <Image
         src={`/hero_portraits/${getPortraitFilename(hero)}.png`}
         alt={hero.nicknames[0]}
@@ -62,6 +65,12 @@ export default function HeroPortrait({ hero, size = 'md', selected, banned, dimm
           <span className="text-2xl font-bold" style={{ color: '#FF6666' }}>✕</span>
         </div>
       )}
-    </Tag>
+      </Tag>
+      {showName && (
+        <span className="text-[9px] mt-0.5 text-center truncate w-full" style={{ opacity: dimmed ? 0.3 : 0.7 }}>
+          {hero.nicknames[0]}
+        </span>
+      )}
+    </div>
   );
 }
