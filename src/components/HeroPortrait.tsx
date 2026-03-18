@@ -29,12 +29,17 @@ interface HeroPortraitProps {
   banned?: boolean;
   dimmed?: boolean;
   showName?: boolean;
+  tierBadge?: string;
   onClick?: () => void;
 }
 
 const SIZE_MAP = { sm: 40, md: 56, lg: 80 };
 
-export default function HeroPortrait({ hero, size = 'md', selected, banned, dimmed, showName, onClick }: HeroPortraitProps) {
+const TIER_COLORS: Record<string, string> = {
+  S: '#FFD700', A: '#90EE90', B: '#87CEEB', C: '#FFA500', D: '#FF6666',
+};
+
+export default function HeroPortrait({ hero, size = 'md', selected, banned, dimmed, showName, tierBadge, onClick }: HeroPortraitProps) {
   const px = SIZE_MAP[size];
   const borderColor = selected ? '#FFD700' : banned ? '#FF6666' : ROLE_COLORS[hero.role] || '#666';
   const [imgError, setImgError] = useState(false);
@@ -75,6 +80,16 @@ export default function HeroPortrait({ hero, size = 'md', selected, banned, dimm
       {banned && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded">
           <span className="text-2xl font-bold" style={{ color: '#FF6666' }}>✕</span>
+        </div>
+      )}
+      {tierBadge && !dimmed && (
+        <div className="absolute -top-1 -right-1 text-[8px] font-bold px-1 rounded" style={{
+          background: TIER_COLORS[tierBadge] + '33',
+          color: TIER_COLORS[tierBadge] || '#888',
+          border: `1px solid ${TIER_COLORS[tierBadge] || '#888'}66`,
+          lineHeight: '14px',
+        }}>
+          {tierBadge}
         </div>
       )}
       </Tag>

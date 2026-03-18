@@ -16,6 +16,7 @@ import HeroSuggestionPanel from '@/components/HeroSuggestionPanel';
 import TeamPanel from '@/components/TeamPanel';
 import DraftProgressBar from '@/components/DraftProgressBar';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
+import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import type { Hero } from '@/data/Hero';
 
 function DraftPageInner() {
@@ -48,6 +49,7 @@ function DraftPageInner() {
   const realStep = step < totalSteps ? activeSteps[step] : 16;
 
   const engine = useMemo(() => new HeroSuggestionEngine(draft, map), [draft, map]);
+  const icyVeins = useMemo(() => IcyVeinsDatabase.getInstance(), []);
 
   const currentTeam = realStep < 16 ? DRAFT_TEAM_ORDER[realStep] : 0;
   const isBan = realStep < 16 ? DRAFT_IS_BAN[realStep] : false;
@@ -329,6 +331,7 @@ function DraftPageInner() {
                 <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))' }}>
                   {filtered.map(hero => {
                     const isAvail = draft.isAvailable(hero);
+                    const tier = icyVeins.getHeroTierOnMap(hero.nicknames[0], map.name);
                     return (
                       <div key={hero.name} onContextMenu={e => { e.preventDefault(); setDetailHero(hero); }}>
                         <HeroPortrait
@@ -336,6 +339,7 @@ function DraftPageInner() {
                           size="md"
                           dimmed={!isAvail}
                           showName
+                          tierBadge={tier !== 'B' ? tier : undefined}
                           onClick={isAvail ? () => handleHeroClick(hero) : undefined}
                         />
                       </div>
@@ -352,6 +356,7 @@ function DraftPageInner() {
                       <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))' }}>
                         {group.heroes.map(hero => {
                           const isAvail = draft.isAvailable(hero);
+                          const tier = icyVeins.getHeroTierOnMap(hero.nicknames[0], map.name);
                           return (
                             <div key={hero.name} onContextMenu={e => { e.preventDefault(); setDetailHero(hero); }}>
                               <HeroPortrait
@@ -359,6 +364,7 @@ function DraftPageInner() {
                                 size="md"
                                 dimmed={!isAvail}
                                 showName
+                                tierBadge={tier !== 'B' ? tier : undefined}
                                 onClick={isAvail ? () => handleHeroClick(hero) : undefined}
                               />
                             </div>
