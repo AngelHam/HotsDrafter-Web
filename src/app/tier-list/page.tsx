@@ -108,6 +108,21 @@ export default function TierListPage() {
             className="text-sm px-3 py-1 rounded ml-auto" style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff', width: 150 }} />
         </div>
 
+        {/* Tier Distribution Bar */}
+        <div className="flex gap-0.5 mb-4 rounded overflow-hidden" style={{ height: 6 }}>
+          {tiers.map(tier => {
+            const count = entries.filter(e => e.tier === tier).length;
+            if (count === 0) return null;
+            return (
+              <div key={tier} title={`${tier}-tier: ${count} heroes`} style={{
+                flex: count,
+                background: TIER_COLORS[tier],
+                opacity: 0.7,
+              }} />
+            );
+          })}
+        </div>
+
         {/* Tier Sections */}
         {tiers.map(tier => {
           const tierEntries = entries.filter(e => e.tier === tier);
