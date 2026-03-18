@@ -15,6 +15,7 @@ export default function TeamBuilderPage() {
   const [team2, setTeam2] = useState<(Hero | null)[]>([null, null, null, null, null]);
   const [mapIdx, setMapIdx] = useState(0);
   const [pickerOpen, setPickerOpen] = useState<{ team: number; slot: number } | null>(null);
+  const [pickerSearch, setPickerSearch] = useState('');
 
   const pickedNames = new Set([
     ...team1.filter(Boolean).map(h => h!.name),
@@ -101,13 +102,33 @@ export default function TeamBuilderPage() {
           <div className="rounded-lg p-4 max-w-3xl max-h-[80vh] overflow-auto" style={{ background: '#1a1a2e', border: '2px solid #00FFFF' }}>
             <div className="flex justify-between mb-3">
               <h3 className="font-bold" style={{ color: '#00FFFF' }}>Select Hero</h3>
-              <button onClick={() => setPickerOpen(null)} className="text-sm px-2 py-1" style={{ color: '#FF6666' }}>✕ Close</button>
+              <button onClick={() => { setPickerOpen(null); setPickerSearch(''); }} className="text-sm px-2 py-1" style={{ color: '#FF6666' }}>✕ Close</button>
             </div>
-            <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
-              {ALL_HEROES.filter(h => !pickedNames.has(h.name)).map(hero => (
-                <HeroPortrait key={hero.name} hero={hero} size="md" onClick={() => handlePick(hero)} />
-              ))}
-            </div>
+            <input
+              type="text"
+              placeholder="🔍 Search heroes..."
+              value={pickerSearch}
+              onChange={e => setPickerSearch(e.target.value)}
+              className="w-full px-3 py-1.5 mb-3 rounded text-sm focus:outline-none"
+              style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff' }}
+              autoFocus
+            />
+            {['Tank', 'Healer', 'Offlane', 'Mage', 'DPS', 'Specialist'].map(role => {
+              const roleHeroes = ALL_HEROES
+                .filter(h => h.role === role && !pickedNames.has(h.name))
+                .filter(h => !pickerSearch || h.nicknames.some(n => n.toLowerCase().includes(pickerSearch.toLowerCase())));
+              if (roleHeroes.length === 0) return null;
+              return (
+                <div key={role} className="mb-3">
+                  <h4 className="text-xs font-bold mb-1 opacity-60">{role}s</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {roleHeroes.map(hero => (
+                      <HeroPortrait key={hero.name} hero={hero} size="md" showName onClick={() => { handlePick(hero); setPickerSearch(''); }} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
