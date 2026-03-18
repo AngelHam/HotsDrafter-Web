@@ -1,0 +1,3213 @@
+{
+  "heroes": {
+    "Abathur": {
+      "synergies": [
+        "Illidan",
+        "Zeratul",
+        "Tracer",
+        "Greymane",
+        "Genji",
+        "Malthael",
+        "Yrel",
+        "Sonya"
+      ],
+      "counters": [
+        "Dehaka",
+        "Falstad",
+        "Ragnaros",
+        "Zarya",
+        "Sylvanas",
+        "Sgt. Hammer"
+      ]
+    },
+    "Alarak": {
+      "synergies": [
+        "Raynor",
+        "Jaina",
+        "E.T.C.",
+        "Garrosh"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Johanna",
+        "Deathwing",
+        "Medivh"
+      ]
+    },
+    "Alexstrasza": {
+      "synergies": [
+        "Johanna",
+        "Blaze",
+        "Kael'thas",
+        "Azmodan"
+      ],
+      "counters": [
+        "Anub'arak",
+        "Yrel",
+        "Junkrat",
+        "Sylvanas",
+        "Ana"
+      ]
+    },
+    "Ana": {
+      "synergies": [
+        "E.T.C.",
+        "Li-Ming"
+      ],
+      "counters": [
+        "Anub'arak",
+        "Zeratul",
+        "Hanzo",
+        "Lúcio"
+      ]
+    },
+    "Anduin": {
+      "synergies": [
+        "Johanna",
+        "Blaze",
+        "The Butcher",
+        "Alarak",
+        "Genji",
+        "Sylvanas"
+      ],
+      "counters": [
+        "Varian",
+        "Sonya",
+        "Lunara",
+        "Kael'thas",
+        "Stukov"
+      ]
+    },
+    "Anub'arak": {
+      "synergies": [
+        "Greymane",
+        "Jaina",
+        "Kael'thas",
+        "Kerrigan",
+        "Rehgar",
+        "The Butcher"
+      ],
+      "counters": [
+        "Leoric",
+        "Malthael",
+        "Tracer",
+        "Valla",
+        "Varian",
+        "Zul'jin"
+      ]
+    },
+    "Artanis": {
+      "synergies": [
+        "Garrosh",
+        "Arthas",
+        "Kael'thas",
+        "Lunara",
+        "Medivh",
+        "Malfurion"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Arthas",
+        "Varian",
+        "Jaina",
+        "Lunara",
+        "Li Li"
+      ]
+    },
+    "Arthas": {
+      "synergies": [
+        "Diablo",
+        "Tyrael",
+        "Maiev",
+        "Greymane",
+        "Raynor",
+        "Chromie",
+        "Zarya",
+        "Stukov",
+        "Rehgar"
+      ],
+      "counters": [
+        "Garrosh",
+        "Sonya",
+        "Tracer",
+        "Raynor",
+        "Jaina",
+        "Ana"
+      ]
+    },
+    "Auriel": {
+      "synergies": [
+        "Diablo",
+        "Leoric",
+        "Valla",
+        "Tassadar"
+      ],
+      "counters": [
+        "Anub'arak",
+        "Chen",
+        "Junkrat",
+        "Chromie",
+        "Deckard Cain"
+      ]
+    },
+    "Azmodan": {
+      "synergies": [
+        "Jaina",
+        "Johanna",
+        "Maiev",
+        "Malfurion"
+      ],
+      "counters": [
+        "Artanis",
+        "Anub'arak",
+        "Diablo",
+        "Leoric",
+        "Malthael",
+        "Muradin",
+        "Sonya",
+        "The Butcher"
+      ]
+    },
+    "Blaze": {
+      "synergies": [
+        "Arthas",
+        "Kerrigan",
+        "Maiev",
+        "Malfurion"
+      ],
+      "counters": [
+        "Leoric",
+        "Lunara",
+        "Malthael",
+        "Nova",
+        "Tracer",
+        "Valla"
+      ]
+    },
+    "Brightwing": {
+      "synergies": [
+        "Diablo",
+        "Cho",
+        "Stitches",
+        "Tracer",
+        "Genji"
+      ],
+      "counters": [
+        "Anub'arak",
+        "Johanna",
+        "E.T.C."
+      ]
+    },
+    "The Butcher": {
+      "synergies": [
+        "Abathur",
+        "Tyrande",
+        "Uther",
+        "Tyrael"
+      ],
+      "counters": [
+        "Johanna",
+        "E.T.C.",
+        "Brightwing",
+        "Uther"
+      ]
+    },
+    "Cassia": {
+      "synergies": [
+        "Li Li",
+        "Johanna",
+        "Artanis",
+        "Thrall",
+        "Jaina"
+      ],
+      "counters": [
+        "Kael'thas",
+        "Xul",
+        "Imperius",
+        "E.T.C.",
+        "Mal'Ganis",
+        "Johanna"
+      ]
+    },
+    "Chen": {
+      "synergies": [
+        "Tyrael",
+        "Greymane",
+        "Li-Ming",
+        "Abathur",
+        "Rehgar"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Yrel",
+        "Raynor",
+        "Li-Ming",
+        "The Lost Vikings",
+        "Lúcio"
+      ]
+    },
+    "Cho": {
+      "synergies": [
+        "Alexstrasza",
+        "Ana",
+        "Auriel",
+        "Brightwing",
+        "Yrel",
+        "Blaze"
+      ],
+      "counters": [
+        "Anub'arak",
+        "Garrosh",
+        "Greymane",
+        "Imperius",
+        "Kharazim",
+        "Leoric",
+        "Maiev",
+        "Malthael",
+        "Raynor"
+      ]
+    },
+    "Chromie": {
+      "synergies": [
+        "Johanna",
+        "Ana",
+        "Malfurion"
+      ],
+      "counters": [
+        "Illidan",
+        "Diablo",
+        "Zeratul",
+        "Tracer"
+      ]
+    },
+    "Deathwing": {
+      "synergies": [
+        "E.T.C.",
+        "Arthas",
+        "Johanna",
+        "Muradin"
+      ],
+      "counters": [
+        "Tychus",
+        "Greymane",
+        "Valla",
+        "Zeratul",
+        "Tracer"
+      ]
+    },
+    "Deckard": {
+      "synergies": [
+        "Johanna",
+        "Blaze",
+        "Sgt. Hammer",
+        "Jaina"
+      ],
+      "counters": [
+        "Johanna",
+        "Deathwing",
+        "Tracer",
+        "Li-Ming",
+        "Malfurion"
+      ]
+    },
+    "Dehaka": {
+      "synergies": [
+        "Anub'arak",
+        "Jaina",
+        "Hanzo",
+        "Maiev"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Valla",
+        "Raynor",
+        "Sgt. Hammer",
+        "Lúcio"
+      ]
+    },
+    "Diablo": {
+      "synergies": [
+        "Thrall",
+        "Tassadar",
+        "Medivh",
+        "Tyrande"
+      ],
+      "counters": [
+        "Garrosh",
+        "Leoric",
+        "Malthael",
+        "Raynor",
+        "Tychus"
+      ]
+    },
+    "D.Va": {
+      "synergies": [
+        "Garrosh",
+        "Maiev",
+        "Falstad",
+        "Deckard Cain"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Malthael",
+        "Raynor",
+        "Kael'thas",
+        "Stukov"
+      ]
+    },
+    "E.T.C.": {
+      "synergies": [
+        "Blaze",
+        "Alarak",
+        "Greymane",
+        "Kael'thas",
+        "Uther"
+      ],
+      "counters": [
+        "Johanna",
+        "Deathwing",
+        "Raynor",
+        "Kael'thas",
+        "Brightwing"
+      ]
+    },
+    "Falstad": {
+      "synergies": [
+        "Arthas",
+        "E.T.C.",
+        "Tassadar",
+        "Uther"
+      ],
+      "counters": [
+        "Genji",
+        "Greymane",
+        "Illidan",
+        "Nova",
+        "Valeera",
+        "Zeratul"
+      ]
+    },
+    "Fenix": {
+      "synergies": [
+        "Johanna",
+        "Maiev",
+        "Thrall",
+        "Diablo"
+      ],
+      "counters": [
+        "Varian",
+        "E.T.C.",
+        "Genji",
+        "Zeratul",
+        "Lúcio"
+      ]
+    },
+    "Gall": {
+      "synergies": [
+        "Alexstrasza",
+        "Ana",
+        "Auriel",
+        "Brightwing",
+        "Yrel",
+        "Blaze"
+      ],
+      "counters": [
+        "Anub'arak",
+        "Garrosh",
+        "Greymane",
+        "Imperius",
+        "Kharazim",
+        "Leoric",
+        "Maiev",
+        "Malthael",
+        "Raynor"
+      ]
+    },
+    "Garrosh": {
+      "synergies": [
+        "Hanzo",
+        "Jaina",
+        "Zarya",
+        "Malfurion"
+      ],
+      "counters": [
+        "Johanna",
+        "Malthael",
+        "Hanzo",
+        "Jaina",
+        "Anduin"
+      ]
+    },
+    "Gazlowe": {
+      "synergies": [
+        "Diablo",
+        "E.T.C.",
+        "Jaina",
+        "Johanna",
+        "Kael'thas",
+        "Malfurion"
+      ],
+      "counters": [
+        "Raynor",
+        "Lunara",
+        "Gul'dan",
+        "Chromie",
+        "Hanzo",
+        "Li-Ming"
+      ]
+    },
+    "Genji": {
+      "synergies": [
+        "Jaina",
+        "Uther",
+        "E.T.C."
+      ],
+      "counters": [
+        "Varian",
+        "Malfurion",
+        "Lunara",
+        "Uther"
+      ]
+    },
+    "Greymane": {
+      "synergies": [
+        "Abathur",
+        "E.T.C.",
+        "Garrosh",
+        "Tyrael",
+        "Uther",
+        "Rehgar",
+        "Malthael"
+      ],
+      "counters": [
+        "Arthas",
+        "Brightwing",
+        "Johanna",
+        "Muradin",
+        "The Butcher",
+        "Uther",
+        "Xul"
+      ]
+    },
+    "Gul'dan": {
+      "synergies": [
+        "E.T.C.",
+        "Malfurion",
+        "Auriel"
+      ],
+      "counters": [
+        "Illidan",
+        "Greymane",
+        "Kerrigan",
+        "Tracer"
+      ]
+    },
+    "Hanzo": {
+      "synergies": [
+        "Zeratul",
+        "E.T.C.",
+        "Diablo",
+        "Blaze",
+        "Johanna",
+        "Mal'Ganis"
+      ],
+      "counters": [
+        "Genji",
+        "Illidan",
+        "Zeratul"
+      ]
+    },
+    "Hogger": {
+      "synergies": [
+        "Diablo",
+        "Sonya",
+        "Hanzo",
+        "Li-Ming",
+        "Stukov"
+      ],
+      "counters": [
+        "Diablo",
+        "Malthael",
+        "Tychus",
+        "Lunara",
+        "Uther"
+      ]
+    },
+    "Illidan": {
+      "synergies": [
+        "Abathur",
+        "Medivh",
+        "Rehgar",
+        "Tyrael",
+        "Uther",
+        "Zarya"
+      ],
+      "counters": [
+        "Arthas",
+        "Brightwing",
+        "E.T.C.",
+        "Li Li",
+        "Johanna",
+        "Muradin",
+        "Sonya",
+        "Uther",
+        "Varian"
+      ]
+    },
+    "Imperius": {
+      "synergies": [
+        "Jaina",
+        "Fenix",
+        "Rehgar",
+        "Mal'Ganis",
+        "E.T.C.",
+        "Yrel",
+        "Blaze"
+      ],
+      "counters": [
+        "Jaina",
+        "Raynor",
+        "Sgt. Hammer",
+        "Zul'jin",
+        "E.T.C.",
+        "Lúcio"
+      ]
+    },
+    "Jaina": {
+      "synergies": [
+        "E.T.C.",
+        "Johanna",
+        "Maiev",
+        "Malfurion",
+        "Muradin",
+        "Varian",
+        "Xul"
+      ],
+      "counters": [
+        "Alarak",
+        "Anub'arak",
+        "Chen",
+        "Genji",
+        "Nova",
+        "Tracer",
+        "Valeera",
+        "Zeratul"
+      ]
+    },
+    "Johanna": {
+      "synergies": [
+        "Blaze",
+        "Maiev",
+        "Hanzo",
+        "Jaina",
+        "Deckard Cain"
+      ],
+      "counters": [
+        "Varian",
+        "Leoric",
+        "Hanzo",
+        "Zeratul"
+      ]
+    },
+    "Junkrat": {
+      "synergies": [
+        "E.T.C.",
+        "Garrosh",
+        "Uther",
+        "Malfurion",
+        "Zeratul"
+      ],
+      "counters": [
+        "Illidan",
+        "Tracer",
+        "Zeratul",
+        "Tyrael",
+        "Genji"
+      ]
+    },
+    "Kael'thas": {
+      "synergies": [
+        "E.T.C.",
+        "Arthas",
+        "Malfurion",
+        "Uther"
+      ],
+      "counters": [
+        "Illidan",
+        "Zeratul",
+        "Kerrigan",
+        "Tracer"
+      ]
+    },
+    "Kel'Thuzad": {
+      "synergies": [
+        "Anduin",
+        "Arthas",
+        "Johanna",
+        "Malfurion",
+        "The Butcher",
+        "Valeera",
+        "Varian",
+        "Xul"
+      ],
+      "counters": [
+        "Anub'arak",
+        "Chen",
+        "Genji",
+        "Nova",
+        "Samuro",
+        "Tracer",
+        "Valeera",
+        "Zeratul"
+      ]
+    },
+    "Kerrigan": {
+      "synergies": [
+        "Tyrael",
+        "Uther",
+        "Medivh",
+        "Tyrande"
+      ],
+      "counters": [
+        "Tyrael",
+        "E.T.C.",
+        "Garrosh",
+        "Uther",
+        "Medivh",
+        "Auriel",
+        "Lúcio"
+      ]
+    },
+    "Kharazim": {
+      "synergies": [
+        "Garrosh",
+        "E.T.C.",
+        "Anub'arak",
+        "Genji"
+      ],
+      "counters": [
+        "Johanna",
+        "Auriel",
+        "Medivh",
+        "Uther"
+      ]
+    },
+    "Leoric": {
+      "synergies": [
+        "Diablo",
+        "Orphea",
+        "Stukov"
+      ],
+      "counters": [
+        "Dehaka",
+        "Samuro",
+        "Tracer",
+        "Falstad",
+        "Ana"
+      ]
+    },
+    "Li Li": {
+      "synergies": [
+        "Johanna",
+        "Blaze",
+        "Hanzo",
+        "Kael'thas",
+        "Uther"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Yrel",
+        "Sylvanas",
+        "Jaina",
+        "Stukov"
+      ]
+    },
+    "Li-Ming": {
+      "synergies": [
+        "Arthas",
+        "E.T.C.",
+        "Johanna",
+        "Malfurion",
+        "Valeera",
+        "Varian",
+        "Xul"
+      ],
+      "counters": [
+        "Anub'arak",
+        "Chen",
+        "Genji",
+        "Samuro",
+        "Tracer",
+        "Valeera",
+        "Zeratul"
+      ]
+    },
+    "The Lost Vikings": {
+      "synergies": [
+        "Zarya",
+        "Garrosh",
+        "Sylvanas",
+        "Raynor",
+        "Sgt. Hammer"
+      ],
+      "counters": [
+        "Zagara",
+        "Sonya",
+        "Zeratul",
+        "Nova",
+        "Falstad",
+        "Dehaka",
+        "Li-Ming"
+      ]
+    },
+    "Lt. Morales": {
+      "synergies": [
+        "Johanna",
+        "Raynor"
+      ],
+      "counters": [
+        "Garrosh",
+        "Chen",
+        "Chromie",
+        "Lunara",
+        "Auriel"
+      ]
+    },
+    "Lucio": {
+      "synergies": [
+        "Arthas",
+        "Diablo",
+        "Greymane",
+        "Valla"
+      ],
+      "counters": [
+        "Deckard Cain",
+        "Malfurion",
+        "Sgt. Hammer",
+        "Raynor"
+      ]
+    },
+    "Lunara": {
+      "synergies": [
+        "Arthas",
+        "Muradin",
+        "Jaina"
+      ],
+      "counters": [
+        "Illidan",
+        "Genji",
+        "Malfurion",
+        "Stukov"
+      ]
+    },
+    "Maiev": {
+      "synergies": [
+        "E.T.C.",
+        "Blaze",
+        "Jaina",
+        "Tassadar",
+        "Deckard Cain",
+        "Malfurion"
+      ],
+      "counters": [
+        "Arthas",
+        "Tyrael",
+        "E.T.C.",
+        "Johanna",
+        "Lunara",
+        "Tracer",
+        "Lúcio",
+        "Brightwing"
+      ]
+    },
+    "Mal'Ganis": {
+      "synergies": [
+        "Jaina",
+        "Zeratul",
+        "Malfurion"
+      ],
+      "counters": [
+        "Garrosh",
+        "Hanzo",
+        "Zeratul",
+        "Malfurion"
+      ]
+    },
+    "Malfurion": {
+      "synergies": [
+        "Blaze",
+        "Chromie",
+        "Gul'dan",
+        "Jaina",
+        "Kael'thas",
+        "Kel'Thuzad",
+        "Li-Ming",
+        "Nazeebo",
+        "Ragnaros"
+      ],
+      "counters": [
+        "Alarak",
+        "Anub'arak",
+        "Artanis",
+        "Jaina",
+        "Kerrigan",
+        "Li-Ming",
+        "Tracer"
+      ]
+    },
+    "Malthael": {
+      "synergies": [
+        "E.T.C.",
+        "Garrosh",
+        "Greymane",
+        "Tychus",
+        "Medivh",
+        "Ana",
+        "Malfurion"
+      ],
+      "counters": [
+        "Blaze",
+        "Falstad",
+        "Fenix",
+        "Lunara",
+        "Tracer",
+        "Valla"
+      ]
+    },
+    "Medivh": {
+      "synergies": [
+        "Illidan",
+        "Greymane",
+        "Genji",
+        "Tracer",
+        "Diablo",
+        "Stitches"
+      ],
+      "counters": [
+        "Gul'dan",
+        "Lunara",
+        "Garrosh",
+        "Malfurion"
+      ]
+    },
+    "Mei": {
+      "synergies": [
+        "Xul",
+        "Lunara",
+        "Jaina",
+        "Deckard Cain"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Yrel",
+        "Hanzo",
+        "Junkrat",
+        "Zeratul",
+        "Ana"
+      ]
+    },
+    "Mephisto": {
+      "synergies": [
+        "Deckard Cain",
+        "E.T.C.",
+        "Zarya",
+        "Diablo"
+      ],
+      "counters": [
+        "Kael'thas",
+        "Kel'Thuzad",
+        "Junkrat",
+        "Stitches",
+        "Anub'arak"
+      ]
+    },
+    "Muradin": {
+      "synergies": [
+        "Blaze",
+        "Kerrigan",
+        "Kael'thas",
+        "Hanzo",
+        "Malfurion"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Thrall",
+        "Raynor",
+        "Jaina",
+        "Malfurion"
+      ]
+    },
+    "Murky": {
+      "synergies": [
+        "Johanna",
+        "Zarya",
+        "Brightwing"
+      ],
+      "counters": [
+        "Sonya",
+        "Falstad"
+      ]
+    },
+    "Nazeebo": {
+      "synergies": [
+        "Johanna",
+        "Raynor",
+        "Stukov"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Sylvanas"
+      ]
+    },
+    "Nova": {
+      "synergies": [
+        "Johanna",
+        "Blaze",
+        "Sylvanas",
+        "Stukov"
+      ],
+      "counters": [
+        "Anub'arak",
+        "Chen",
+        "Genji",
+        "Zarya",
+        "Brightwing"
+      ]
+    },
+    "Orphea": {
+      "synergies": [
+        "Blaze",
+        "Johanna",
+        "Maiev",
+        "Mal'Ganis",
+        "Varian",
+        "Xul"
+      ],
+      "counters": [
+        "Anub'arak",
+        "Chen",
+        "Genji",
+        "Johanna",
+        "Lunara",
+        "Muradin"
+      ]
+    },
+    "Probius": {
+      "synergies": [
+        "E.T.C.",
+        "Diablo",
+        "Anub'arak",
+        "Arthas",
+        "Malfurion"
+      ],
+      "counters": [
+        "Kerrigan",
+        "Alarak",
+        "Zeratul",
+        "Tracer"
+      ]
+    },
+    "Qhira": {
+      "synergies": [
+        "Uther",
+        "Rehgar",
+        "Abathur",
+        "Anub'arak"
+      ],
+      "counters": [
+        "Lúcio",
+        "Uther",
+        "E.T.C.",
+        "Diablo",
+        "Garrosh",
+        "Tracer"
+      ]
+    },
+    "Ragnaros": {
+      "synergies": [
+        "E.T.C.",
+        "Hanzo",
+        "Kael'thas",
+        "Ana"
+      ],
+      "counters": [
+        "Garrosh",
+        "Chen",
+        "Lunara",
+        "Jaina",
+        "Stukov"
+      ]
+    },
+    "Raynor": {
+      "synergies": [
+        "E.T.C.",
+        "Garrosh",
+        "Thrall",
+        "Lt. Morales"
+      ],
+      "counters": [
+        "Johanna",
+        "Artanis",
+        "Cassia"
+      ]
+    },
+    "Rehgar": {
+      "synergies": [
+        "Sonya",
+        "Illidan",
+        "Greymane"
+      ],
+      "counters": [
+        "Muradin",
+        "Varian",
+        "Ana",
+        "Tracer"
+      ]
+    },
+    "Rexxar": {
+      "synergies": [
+        "Johanna",
+        "Jaina",
+        "Malfurion"
+      ],
+      "counters": [
+        "Tyrael",
+        "Illidan",
+        "Qhira",
+        "Zeratul",
+        "Kharazim"
+      ]
+    },
+    "Samuro": {
+      "synergies": [
+        "Abathur",
+        "Deckard Cain",
+        "Malfurion",
+        "Sylvanas"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Lúcio",
+        "Yrel",
+        "Cassia",
+        "Orphea",
+        "Medivh",
+        "Diablo",
+        "Stukov"
+      ]
+    },
+    "Sgt. Hammer": {
+      "synergies": [
+        "E.T.C.",
+        "Johanna",
+        "Lt. Morales",
+        "Ana"
+      ],
+      "counters": [
+        "Artanis",
+        "Chromie",
+        "Kel'Thuzad",
+        "Li-Ming",
+        "Stitches"
+      ]
+    },
+    "Sonya": {
+      "synergies": [
+        "Muradin",
+        "Jaina",
+        "Tracer",
+        "Medivh",
+        "Rehgar"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Leoric",
+        "Sylvanas",
+        "Tychus",
+        "Brightwing"
+      ]
+    },
+    "Stitches": {
+      "synergies": [
+        "Blaze",
+        "Falstad",
+        "Kael'thas",
+        "Malfurion"
+      ],
+      "counters": [
+        "Johanna",
+        "Malthael",
+        "Greymane",
+        "Tychus",
+        "Anduin"
+      ]
+    },
+    "Stukov": {
+      "synergies": [
+        "Raynor",
+        "E.T.C.",
+        "Sgt. Hammer"
+      ],
+      "counters": [
+        "Anub'arak",
+        "Genji",
+        "Uther"
+      ]
+    },
+    "Sylvanas": {
+      "synergies": [
+        "Diablo",
+        "E.T.C.",
+        "Maiev",
+        "Genji",
+        "Blaze",
+        "Malthael",
+        "Malfurion"
+      ],
+      "counters": [
+        "Chen",
+        "Genji",
+        "Nova",
+        "Valeera",
+        "Zeratul"
+      ]
+    },
+    "Tassadar": {
+      "synergies": [
+        "Maiev",
+        "Johanna",
+        "E.T.C.",
+        "Genji",
+        "Zeratul"
+      ],
+      "counters": [
+        "Tracer",
+        "Greymane",
+        "Zeratul",
+        "Anub'arak",
+        "Kerrigan"
+      ]
+    },
+    "Thrall": {
+      "synergies": [
+        "Diablo",
+        "Fenix",
+        "Chromie",
+        "Rehgar"
+      ],
+      "counters": [
+        "Johanna",
+        "Arthas",
+        "Kael'thas",
+        "Lunara",
+        "Malfurion"
+      ]
+    },
+    "Tracer": {
+      "synergies": [
+        "Tassadar",
+        "Jaina",
+        "Gul'dan",
+        "Kael'thas",
+        "Malfurion",
+        "Anduin",
+        "Abathur"
+      ],
+      "counters": [
+        "Varian",
+        "Diablo",
+        "Medivh",
+        "Raynor",
+        "Sgt. Hammer"
+      ]
+    },
+    "Tychus": {
+      "synergies": [
+        "Garrosh",
+        "E.T.C.",
+        "Dehaka",
+        "Uther"
+      ],
+      "counters": [
+        "Anub'arak",
+        "Johanna",
+        "Lúcio"
+      ]
+    },
+    "Tyrael": {
+      "synergies": [
+        "Blaze",
+        "Illidan",
+        "Alarak",
+        "Sgt. Hammer",
+        "Lt. Morales"
+      ],
+      "counters": [
+        "Garrosh",
+        "Blaze",
+        "Zeratul",
+        "Medivh",
+        "Brightwing"
+      ]
+    },
+    "Tyrande": {
+      "synergies": [
+        "Diablo",
+        "E.T.C.",
+        "Varian",
+        "Anub'arak",
+        "Li-Ming"
+      ],
+      "counters": [
+        "Anub'arak",
+        "Muradin",
+        "Zeratul",
+        "Maiev",
+        "Fenix",
+        "Lunara"
+      ]
+    },
+    "Uther": {
+      "synergies": [
+        "E.T.C.",
+        "Kerrigan",
+        "Illidan",
+        "The Butcher",
+        "Zul'jin",
+        "Malfurion"
+      ],
+      "counters": [
+        "Gul'dan",
+        "Lunara",
+        "Malthael",
+        "Nazeebo",
+        "Sylvanas",
+        "Zagara"
+      ]
+    },
+    "Valeera": {
+      "synergies": [
+        "Garrosh",
+        "E.T.C.",
+        "Thrall",
+        "Jaina",
+        "Abathur"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Arthas",
+        "Medivh",
+        "Lúcio"
+      ]
+    },
+    "Valla": {
+      "synergies": [
+        "Arthas",
+        "Garrosh",
+        "Auriel",
+        "Uther"
+      ],
+      "counters": [
+        "Greymane",
+        "Illidan",
+        "Nova",
+        "The Butcher",
+        "Valeera",
+        "Zeratul"
+      ]
+    },
+    "Varian": {
+      "synergies": [
+        "E.T.C.",
+        "Blaze",
+        "Li-Ming",
+        "Tyrande"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Arthas",
+        "Lunara",
+        "Medivh",
+        "Rehgar"
+      ]
+    },
+    "Whitemane": {
+      "synergies": [
+        "Johanna",
+        "Sonya",
+        "Chromie",
+        "Hanzo"
+      ],
+      "counters": [
+        "Alarak",
+        "Li-Ming",
+        "Raynor"
+      ]
+    },
+    "Xul": {
+      "synergies": [
+        "Tyrande",
+        "Medivh",
+        "Li-Ming",
+        "Falstad"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Johanna",
+        "Jaina",
+        "Sgt. Hammer",
+        "Auriel"
+      ]
+    },
+    "Yrel": {
+      "synergies": [
+        "Garrosh",
+        "Johanna",
+        "Maiev",
+        "Abathur"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Lúcio",
+        "Raynor",
+        "Johanna"
+      ]
+    },
+    "Zagara": {
+      "synergies": [
+        "E.T.C.",
+        "Jaina",
+        "Deckard Cain"
+      ],
+      "counters": [
+        "Illidan",
+        "Falstad",
+        "Chen",
+        "Zeratul"
+      ]
+    },
+    "Zarya": {
+      "synergies": [
+        "Garrosh",
+        "Sonya",
+        "Valla",
+        "Malfurion"
+      ],
+      "counters": [
+        "Garrosh",
+        "Yrel",
+        "Lunara",
+        "Maiev",
+        "Auriel"
+      ]
+    },
+    "Zeratul": {
+      "synergies": [
+        "Abathur",
+        "Diablo",
+        "Garrosh",
+        "Malfurion",
+        "Kharazim",
+        "Jaina",
+        "Li-Ming",
+        "Junkrat",
+        "Hanzo"
+      ],
+      "counters": [
+        "Brightwing",
+        "Uther",
+        "Varian",
+        "Diablo",
+        "E.T.C.",
+        "Medivh"
+      ]
+    },
+    "Zul'jin": {
+      "synergies": [
+        "Tyrael",
+        "E.T.C.",
+        "Tassadar",
+        "Uther",
+        "Medivh",
+        "Arthas"
+      ],
+      "counters": [
+        "E.T.C.",
+        "Dehaka",
+        "Diablo",
+        "Garrosh",
+        "Uther"
+      ]
+    }
+  },
+  "maps": {
+    "Battlefield Of Eternity": {
+      "S": {
+        "Tank": [
+          "Diablo",
+          "E.T.C.",
+          "Garrosh"
+        ],
+        "Bruiser": [
+          "Blaze",
+          "Dehaka",
+          "Hogger"
+        ],
+        "Melee Assassin": [
+          "Thrall"
+        ],
+        "Ranged Assassin": [
+          "Li-Ming",
+          "Valla",
+          "Zul'jin"
+        ],
+        "Healer": [
+          "Auriel"
+        ]
+      },
+      "A": {
+        "Tank": [
+          "Johanna",
+          "Muradin",
+          "Tyrael"
+        ],
+        "Bruiser": [
+          "Artanis",
+          "Arthas",
+          "Sonya"
+        ],
+        "Melee Assassin": [
+          "Alarak"
+        ],
+        "Ranged Assassin": [
+          "Cassia",
+          "Chromie",
+          "Falstad",
+          "Hanzo",
+          "Mephisto",
+          "Raynor",
+          "Sgt. Hammer",
+          "Sylvanas",
+          "Tracer"
+        ],
+        "Healer": [
+          "Anduin",
+          "Brightwing",
+          "Deckard Cain",
+          "Lúcio",
+          "Malfurion",
+          "Rehgar",
+          "Stukov",
+          "Tyrande"
+        ]
+      },
+      "B": {
+        "Tank": [
+          "Anub'arak",
+          "Arthas",
+          "Cho",
+          "Mal'Ganis"
+        ],
+        "Bruiser": [
+          "Chen",
+          "Imperius",
+          "Leoric",
+          "Rexxar",
+          "Samuro",
+          "Yrel"
+        ],
+        "Melee Assassin": [
+          "Imperius",
+          "Kerrigan",
+          "Maiev",
+          "Qhira"
+        ],
+        "Ranged Assassin": [
+          "Fenix",
+          "Gall",
+          "Genji",
+          "Greymane",
+          "Gul'dan",
+          "Jaina",
+          "Kael'thas",
+          "Kel'Thuzad",
+          "Lunara",
+          "Orphea",
+          "Tychus",
+          "Zagara"
+        ],
+        "Support": [
+          "Zarya"
+        ],
+        "Healer": [
+          "Kharazim",
+          "Lt. Morales"
+        ]
+      },
+      "C": {
+        "Tank": [
+          "Mei",
+          "Varian"
+        ],
+        "Bruiser": [
+          "D.Va",
+          "E.T.C.",
+          "Gazlowe",
+          "Illidan",
+          "Johanna",
+          "Ragnaros",
+          "Varian",
+          "Xul"
+        ],
+        "Melee Assassin": [
+          "Valeera",
+          "Zeratul"
+        ],
+        "Ranged Assassin": [
+          "Azmodan",
+          "Deathwing",
+          "Junkrat",
+          "Nazeebo",
+          "Tassadar"
+        ],
+        "Healer": [
+          "Alexstrasza",
+          "Ana",
+          "Uther",
+          "Whitemane"
+        ]
+      },
+      "D": {
+        "Tank": [
+          "Blaze",
+          "Stitches"
+        ],
+        "Bruiser": [
+          "The Lost Vikings",
+          "Malthael",
+          "Murky"
+        ],
+        "Melee Assassin": [
+          "The Butcher",
+          "Varian"
+        ],
+        "Ranged Assassin": [
+          "Nova",
+          "Probius"
+        ],
+        "Support": [
+          "Abathur",
+          "Medivh"
+        ],
+        "Healer": [
+          "Li Li"
+        ]
+      }
+    },
+    "Tomb Of The Spider Queen": {
+      "S": {
+        "Tank": [
+          "Diablo",
+          "Garrosh",
+          "Johanna"
+        ],
+        "Bruiser": [
+          "Blaze",
+          "Dehaka",
+          "Hogger"
+        ],
+        "Melee Assassin": [
+          "Kerrigan",
+          "Maiev"
+        ],
+        "Ranged Assassin": [
+          "Mephisto",
+          "Valla"
+        ],
+        "Healer": [
+          "Rehgar"
+        ]
+      },
+      "A": {
+        "Tank": [
+          "Cho",
+          "E.T.C.",
+          "Muradin",
+          "Tyrael"
+        ],
+        "Bruiser": [
+          "D.Va",
+          "Johanna",
+          "Ragnaros",
+          "Rexxar",
+          "Sonya",
+          "Xul"
+        ],
+        "Ranged Assassin": [
+          "Azmodan",
+          "Cassia",
+          "Chromie",
+          "Falstad",
+          "Fenix",
+          "Gall",
+          "Gul'dan",
+          "Kael'thas",
+          "Nazeebo",
+          "Sgt. Hammer",
+          "Sylvanas",
+          "Tassadar",
+          "Zul'jin"
+        ],
+        "Healer": [
+          "Anduin",
+          "Auriel",
+          "Tyrande"
+        ]
+      },
+      "B": {
+        "Tank": [
+          "Anub'arak",
+          "Arthas",
+          "Stitches"
+        ],
+        "Bruiser": [
+          "Arthas",
+          "Illidan",
+          "Leoric",
+          "Malthael",
+          "Yrel"
+        ],
+        "Melee Assassin": [
+          "Alarak",
+          "The Butcher",
+          "Imperius",
+          "Thrall"
+        ],
+        "Ranged Assassin": [
+          "Greymane",
+          "Hanzo",
+          "Jaina",
+          "Junkrat",
+          "Orphea",
+          "Tychus",
+          "Zagara"
+        ],
+        "Healer": [
+          "Alexstrasza",
+          "Ana",
+          "Brightwing",
+          "Deckard Cain",
+          "Lúcio",
+          "Malfurion",
+          "Stukov"
+        ]
+      },
+      "C": {
+        "Tank": [
+          "Mei",
+          "Varian"
+        ],
+        "Bruiser": [
+          "Artanis",
+          "Chen",
+          "Gazlowe",
+          "Imperius",
+          "Samuro"
+        ],
+        "Melee Assassin": [
+          "Qhira",
+          "Zeratul"
+        ],
+        "Ranged Assassin": [
+          "Deathwing",
+          "Genji",
+          "Kel'Thuzad",
+          "Li-Ming",
+          "Lunara",
+          "Raynor",
+          "Tracer"
+        ],
+        "Support": [
+          "Zarya"
+        ],
+        "Healer": [
+          "Uther",
+          "Whitemane"
+        ]
+      },
+      "D": {
+        "Tank": [
+          "Blaze",
+          "Mal'Ganis"
+        ],
+        "Bruiser": [
+          "E.T.C.",
+          "The Lost Vikings",
+          "Murky",
+          "Varian"
+        ],
+        "Melee Assassin": [
+          "Valeera",
+          "Varian"
+        ],
+        "Ranged Assassin": [
+          "Nova",
+          "Probius"
+        ],
+        "Support": [
+          "Abathur",
+          "Medivh"
+        ],
+        "Healer": [
+          "Kharazim",
+          "Li Li",
+          "Lt. Morales"
+        ]
+      }
+    },
+    "Infernal Shrines": {
+      "S": {
+        "Tank": [
+          "Diablo",
+          "Johanna",
+          "Tyrael"
+        ],
+        "Bruiser": [
+          "Blaze",
+          "Dehaka",
+          "Hogger"
+        ],
+        "Melee Assassin": [
+          "Kerrigan",
+          "Maiev"
+        ],
+        "Ranged Assassin": [
+          "Mephisto",
+          "Valla"
+        ],
+        "Healer": [
+          "Rehgar"
+        ]
+      },
+      "A": {
+        "Tank": [
+          "Anub'arak",
+          "E.T.C.",
+          "Garrosh"
+        ],
+        "Bruiser": [
+          "D.Va",
+          "Johanna",
+          "Leoric",
+          "Ragnaros",
+          "Samuro",
+          "Sonya",
+          "Xul",
+          "Yrel"
+        ],
+        "Melee Assassin": [
+          "Alarak",
+          "Thrall",
+          "Zeratul"
+        ],
+        "Ranged Assassin": [
+          "Azmodan",
+          "Cassia",
+          "Chromie",
+          "Falstad",
+          "Fenix",
+          "Genji",
+          "Kael'thas",
+          "Raynor",
+          "Sgt. Hammer",
+          "Sylvanas",
+          "Tassadar",
+          "Tychus",
+          "Zul'jin"
+        ],
+        "Healer": [
+          "Alexstrasza",
+          "Anduin",
+          "Auriel",
+          "Brightwing",
+          "Deckard Cain",
+          "Malfurion",
+          "Tyrande",
+          "Whitemane"
+        ]
+      },
+      "B": {
+        "Tank": [
+          "Arthas",
+          "Cho",
+          "Mal'Ganis",
+          "Muradin"
+        ],
+        "Bruiser": [
+          "Arthas",
+          "Gazlowe",
+          "Illidan",
+          "Malthael",
+          "Murky",
+          "Rexxar"
+        ],
+        "Melee Assassin": [
+          "Imperius"
+        ],
+        "Ranged Assassin": [
+          "Gall",
+          "Gul'dan",
+          "Hanzo",
+          "Jaina",
+          "Junkrat",
+          "Nazeebo",
+          "Orphea",
+          "Zagara"
+        ],
+        "Healer": [
+          "Lúcio",
+          "Stukov",
+          "Uther"
+        ]
+      },
+      "C": {
+        "Tank": [
+          "Blaze",
+          "Mei",
+          "Stitches",
+          "Varian"
+        ],
+        "Bruiser": [
+          "Artanis",
+          "Chen",
+          "E.T.C.",
+          "Imperius",
+          "The Lost Vikings"
+        ],
+        "Melee Assassin": [
+          "The Butcher",
+          "Qhira",
+          "Valeera"
+        ],
+        "Ranged Assassin": [
+          "Deathwing",
+          "Greymane",
+          "Kel'Thuzad",
+          "Li-Ming",
+          "Lunara",
+          "Tracer"
+        ],
+        "Support": [
+          "Zarya"
+        ],
+        "Healer": [
+          "Ana",
+          "Kharazim",
+          "Lt. Morales"
+        ]
+      },
+      "D": {
+        "Bruiser": [
+          "Varian"
+        ],
+        "Melee Assassin": [
+          "Varian"
+        ],
+        "Ranged Assassin": [
+          "Nova",
+          "Probius"
+        ],
+        "Support": [
+          "Abathur",
+          "Medivh"
+        ],
+        "Healer": [
+          "Li Li"
+        ]
+      }
+    },
+    "Dragon Shire": {
+      "S": {
+        "Bruiser": [
+          "Dehaka",
+          "Hogger",
+          "Rexxar"
+        ],
+        "Melee Assassin": [
+          "Kerrigan",
+          "Maiev",
+          "Zeratul"
+        ],
+        "Ranged Assassin": [
+          "Falstad",
+          "Valla"
+        ],
+        "Healer": [
+          "Rehgar"
+        ]
+      },
+      "A": {
+        "Tank": [
+          "Anub'arak",
+          "Diablo",
+          "E.T.C.",
+          "Garrosh",
+          "Johanna",
+          "Muradin",
+          "Tyrael",
+          "Varian"
+        ],
+        "Bruiser": [
+          "Blaze",
+          "Leoric",
+          "Samuro",
+          "Sonya",
+          "Yrel"
+        ],
+        "Melee Assassin": [
+          "Alarak",
+          "Thrall"
+        ],
+        "Ranged Assassin": [
+          "Cassia",
+          "Chromie",
+          "Kael'thas",
+          "Li-Ming",
+          "Nazeebo",
+          "Raynor",
+          "Sgt. Hammer",
+          "Sylvanas",
+          "Tracer",
+          "Zul'jin"
+        ],
+        "Healer": [
+          "Anduin",
+          "Auriel",
+          "Brightwing",
+          "Tyrande"
+        ]
+      },
+      "B": {
+        "Tank": [
+          "Arthas",
+          "Cho"
+        ],
+        "Bruiser": [
+          "Artanis",
+          "D.Va",
+          "E.T.C.",
+          "Illidan",
+          "Malthael",
+          "Murky",
+          "Ragnaros",
+          "Xul"
+        ],
+        "Melee Assassin": [
+          "The Butcher",
+          "Imperius",
+          "Qhira",
+          "Valeera"
+        ],
+        "Ranged Assassin": [
+          "Azmodan",
+          "Fenix",
+          "Gall",
+          "Genji",
+          "Greymane",
+          "Gul'dan",
+          "Hanzo",
+          "Jaina",
+          "Junkrat",
+          "Mephisto",
+          "Orphea",
+          "Tassadar",
+          "Tychus",
+          "Zagara"
+        ],
+        "Healer": [
+          "Alexstrasza",
+          "Deckard Cain",
+          "Kharazim",
+          "Lúcio",
+          "Malfurion",
+          "Stukov"
+        ]
+      },
+      "C": {
+        "Tank": [
+          "Mal'Ganis",
+          "Mei",
+          "Stitches"
+        ],
+        "Bruiser": [
+          "Arthas",
+          "Chen",
+          "Gazlowe",
+          "Imperius",
+          "Johanna",
+          "The Lost Vikings",
+          "Varian"
+        ],
+        "Melee Assassin": [
+          "Varian"
+        ],
+        "Ranged Assassin": [
+          "Deathwing",
+          "Kel'Thuzad",
+          "Lunara"
+        ],
+        "Support": [
+          "Zarya"
+        ],
+        "Healer": [
+          "Ana",
+          "Lt. Morales",
+          "Uther",
+          "Whitemane"
+        ]
+      },
+      "D": {
+        "Tank": [
+          "Blaze"
+        ],
+        "Ranged Assassin": [
+          "Nova",
+          "Probius"
+        ],
+        "Support": [
+          "Abathur",
+          "Medivh"
+        ],
+        "Healer": [
+          "Li Li"
+        ]
+      }
+    },
+    "Towers Of Doom": {
+      "S": {
+        "Tank": [
+          "Diablo",
+          "Johanna"
+        ],
+        "Bruiser": [
+          "Blaze",
+          "Dehaka",
+          "Hogger"
+        ],
+        "Melee Assassin": [
+          "Kerrigan",
+          "Thrall"
+        ],
+        "Ranged Assassin": [
+          "Falstad",
+          "Mephisto",
+          "Valla"
+        ],
+        "Healer": [
+          "Brightwing",
+          "Rehgar"
+        ]
+      },
+      "A": {
+        "Tank": [
+          "Anub'arak",
+          "E.T.C.",
+          "Garrosh",
+          "Muradin",
+          "Tyrael"
+        ],
+        "Bruiser": [
+          "Johanna",
+          "Leoric",
+          "Sonya"
+        ],
+        "Melee Assassin": [
+          "Maiev",
+          "Zeratul"
+        ],
+        "Ranged Assassin": [
+          "Cassia",
+          "Chromie",
+          "Kael'thas",
+          "Li-Ming",
+          "Raynor",
+          "Sgt. Hammer",
+          "Sylvanas",
+          "Tracer",
+          "Zagara",
+          "Zul'jin"
+        ],
+        "Healer": [
+          "Anduin",
+          "Auriel",
+          "Lúcio",
+          "Whitemane"
+        ]
+      },
+      "B": {
+        "Tank": [
+          "Arthas",
+          "Cho",
+          "Mal'Ganis",
+          "Stitches",
+          "Varian"
+        ],
+        "Bruiser": [
+          "Arthas",
+          "D.Va",
+          "The Lost Vikings",
+          "Malthael",
+          "Murky",
+          "Rexxar",
+          "Samuro",
+          "Xul",
+          "Yrel"
+        ],
+        "Melee Assassin": [
+          "Alarak",
+          "The Butcher",
+          "Imperius"
+        ],
+        "Ranged Assassin": [
+          "Azmodan",
+          "Fenix",
+          "Gall",
+          "Genji",
+          "Gul'dan",
+          "Hanzo",
+          "Jaina",
+          "Junkrat",
+          "Kel'Thuzad",
+          "Nazeebo",
+          "Orphea",
+          "Tassadar",
+          "Tychus"
+        ],
+        "Healer": [
+          "Alexstrasza",
+          "Ana",
+          "Deckard Cain",
+          "Malfurion",
+          "Stukov",
+          "Tyrande"
+        ]
+      },
+      "C": {
+        "Tank": [
+          "Mei"
+        ],
+        "Bruiser": [
+          "Artanis",
+          "Illidan",
+          "Ragnaros"
+        ],
+        "Melee Assassin": [
+          "Qhira",
+          "Valeera",
+          "Varian"
+        ],
+        "Ranged Assassin": [
+          "Deathwing",
+          "Greymane",
+          "Lunara"
+        ],
+        "Support": [
+          "Zarya"
+        ],
+        "Healer": [
+          "Kharazim",
+          "Lt. Morales",
+          "Uther"
+        ]
+      },
+      "D": {
+        "Tank": [
+          "Blaze"
+        ],
+        "Bruiser": [
+          "Chen",
+          "E.T.C.",
+          "Gazlowe",
+          "Imperius",
+          "Varian"
+        ],
+        "Ranged Assassin": [
+          "Nova",
+          "Probius"
+        ],
+        "Support": [
+          "Abathur",
+          "Medivh"
+        ],
+        "Healer": [
+          "Li Li"
+        ]
+      }
+    },
+    "Cursed Hollow": {
+      "S": {
+        "Tank": [
+          "Diablo",
+          "Johanna",
+          "Tyrael"
+        ],
+        "Bruiser": [
+          "Blaze",
+          "Dehaka",
+          "Hogger"
+        ],
+        "Melee Assassin": [
+          "Maiev",
+          "Zeratul"
+        ],
+        "Ranged Assassin": [
+          "Falstad",
+          "Valla"
+        ],
+        "Healer": [
+          "Brightwing",
+          "Rehgar"
+        ]
+      },
+      "A": {
+        "Tank": [
+          "Anub'arak",
+          "E.T.C.",
+          "Garrosh",
+          "Muradin"
+        ],
+        "Bruiser": [
+          "Illidan",
+          "Leoric",
+          "Samuro",
+          "Sonya",
+          "Xul"
+        ],
+        "Melee Assassin": [
+          "Kerrigan",
+          "Thrall"
+        ],
+        "Ranged Assassin": [
+          "Cassia",
+          "Chromie",
+          "Genji",
+          "Li-Ming",
+          "Mephisto",
+          "Sylvanas",
+          "Tracer",
+          "Zagara",
+          "Zul'jin"
+        ],
+        "Healer": [
+          "Anduin",
+          "Auriel",
+          "Deckard Cain",
+          "Lúcio"
+        ]
+      },
+      "B": {
+        "Tank": [
+          "Arthas",
+          "Cho",
+          "Mei",
+          "Stitches",
+          "Varian"
+        ],
+        "Bruiser": [
+          "Artanis",
+          "Arthas",
+          "E.T.C.",
+          "Johanna",
+          "The Lost Vikings",
+          "Ragnaros",
+          "Rexxar",
+          "Yrel"
+        ],
+        "Melee Assassin": [
+          "Imperius",
+          "Valeera"
+        ],
+        "Ranged Assassin": [
+          "Azmodan",
+          "Deathwing",
+          "Fenix",
+          "Gall",
+          "Gul'dan",
+          "Hanzo",
+          "Jaina",
+          "Junkrat",
+          "Kael'thas",
+          "Nazeebo",
+          "Orphea",
+          "Raynor",
+          "Sgt. Hammer",
+          "Tychus"
+        ],
+        "Healer": [
+          "Alexstrasza",
+          "Malfurion",
+          "Stukov",
+          "Tyrande",
+          "Whitemane"
+        ]
+      },
+      "C": {
+        "Tank": [
+          "Blaze",
+          "Mal'Ganis"
+        ],
+        "Bruiser": [
+          "D.Va",
+          "Gazlowe",
+          "Imperius",
+          "Malthael",
+          "Murky",
+          "Varian"
+        ],
+        "Melee Assassin": [
+          "Alarak",
+          "The Butcher",
+          "Qhira"
+        ],
+        "Ranged Assassin": [
+          "Greymane",
+          "Kel'Thuzad",
+          "Lunara",
+          "Tassadar"
+        ],
+        "Support": [
+          "Abathur"
+        ],
+        "Healer": [
+          "Kharazim",
+          "Lt. Morales",
+          "Uther"
+        ]
+      },
+      "D": {
+        "Bruiser": [
+          "Chen"
+        ],
+        "Melee Assassin": [
+          "Varian"
+        ],
+        "Ranged Assassin": [
+          "Nova",
+          "Probius"
+        ],
+        "Support": [
+          "Medivh",
+          "Zarya"
+        ],
+        "Healer": [
+          "Ana",
+          "Li Li"
+        ]
+      }
+    },
+    "Alterac Pass": {
+      "S": {
+        "Tank": [
+          "Anub'arak",
+          "Johanna",
+          "Tyrael"
+        ],
+        "Bruiser": [
+          "Blaze",
+          "Hogger"
+        ],
+        "Melee Assassin": [
+          "Kerrigan"
+        ],
+        "Ranged Assassin": [
+          "Falstad",
+          "Valla"
+        ],
+        "Healer": [
+          "Brightwing",
+          "Rehgar"
+        ]
+      },
+      "A": {
+        "Tank": [
+          "Diablo",
+          "E.T.C."
+        ],
+        "Bruiser": [
+          "Dehaka",
+          "Johanna",
+          "Sonya"
+        ],
+        "Melee Assassin": [
+          "Maiev",
+          "Thrall"
+        ],
+        "Ranged Assassin": [
+          "Cassia",
+          "Chromie",
+          "Kael'thas",
+          "Li-Ming",
+          "Mephisto",
+          "Sylvanas",
+          "Zagara",
+          "Zul'jin"
+        ],
+        "Healer": [
+          "Anduin",
+          "Auriel",
+          "Deckard Cain",
+          "Lúcio",
+          "Malfurion"
+        ]
+      },
+      "B": {
+        "Tank": [
+          "Arthas",
+          "Cho",
+          "Garrosh",
+          "Mal'Ganis",
+          "Muradin",
+          "Stitches",
+          "Varian"
+        ],
+        "Bruiser": [
+          "Artanis",
+          "Arthas",
+          "D.Va",
+          "E.T.C.",
+          "Gazlowe",
+          "Illidan",
+          "Leoric",
+          "The Lost Vikings",
+          "Ragnaros",
+          "Rexxar",
+          "Samuro",
+          "Xul",
+          "Yrel"
+        ],
+        "Melee Assassin": [
+          "Alarak",
+          "The Butcher",
+          "Imperius",
+          "Zeratul"
+        ],
+        "Ranged Assassin": [
+          "Azmodan",
+          "Fenix",
+          "Gall",
+          "Genji",
+          "Gul'dan",
+          "Hanzo",
+          "Jaina",
+          "Junkrat",
+          "Nazeebo",
+          "Orphea",
+          "Raynor",
+          "Sgt. Hammer",
+          "Tassadar",
+          "Tracer",
+          "Tychus"
+        ],
+        "Healer": [
+          "Alexstrasza",
+          "Stukov",
+          "Tyrande",
+          "Whitemane"
+        ]
+      },
+      "C": {
+        "Tank": [
+          "Blaze",
+          "Mei"
+        ],
+        "Bruiser": [
+          "Chen",
+          "Imperius",
+          "Malthael",
+          "Murky",
+          "Varian"
+        ],
+        "Melee Assassin": [
+          "Qhira",
+          "Valeera",
+          "Varian"
+        ],
+        "Ranged Assassin": [
+          "Deathwing",
+          "Greymane",
+          "Lunara"
+        ],
+        "Support": [
+          "Abathur",
+          "Zarya"
+        ],
+        "Healer": [
+          "Ana",
+          "Kharazim",
+          "Uther"
+        ]
+      },
+      "D": {
+        "Ranged Assassin": [
+          "Kel'Thuzad",
+          "Nova",
+          "Probius"
+        ],
+        "Support": [
+          "Medivh"
+        ],
+        "Healer": [
+          "Li Li",
+          "Lt. Morales"
+        ]
+      }
+    },
+    "Garden Of Terror": {
+      "S": {
+        "Tank": [
+          "Diablo",
+          "Johanna"
+        ],
+        "Bruiser": [
+          "Blaze",
+          "Dehaka",
+          "Hogger"
+        ],
+        "Melee Assassin": [
+          "Kerrigan",
+          "Maiev",
+          "Zeratul"
+        ],
+        "Ranged Assassin": [
+          "Falstad",
+          "Valla"
+        ],
+        "Healer": [
+          "Rehgar"
+        ]
+      },
+      "A": {
+        "Tank": [
+          "Anub'arak",
+          "E.T.C.",
+          "Garrosh",
+          "Muradin",
+          "Tyrael"
+        ],
+        "Bruiser": [
+          "Illidan",
+          "Leoric",
+          "Samuro",
+          "Sonya",
+          "Xul"
+        ],
+        "Ranged Assassin": [
+          "Cassia",
+          "Chromie",
+          "Genji",
+          "Mephisto",
+          "Sylvanas",
+          "Tassadar",
+          "Zagara",
+          "Zul'jin"
+        ],
+        "Healer": [
+          "Anduin",
+          "Auriel",
+          "Brightwing",
+          "Deckard Cain",
+          "Malfurion"
+        ]
+      },
+      "B": {
+        "Tank": [
+          "Arthas",
+          "Cho",
+          "Varian"
+        ],
+        "Bruiser": [
+          "Artanis",
+          "D.Va",
+          "Johanna",
+          "The Lost Vikings",
+          "Malthael",
+          "Murky",
+          "Ragnaros",
+          "Rexxar",
+          "Yrel"
+        ],
+        "Melee Assassin": [
+          "The Butcher",
+          "Imperius",
+          "Thrall"
+        ],
+        "Ranged Assassin": [
+          "Azmodan",
+          "Deathwing",
+          "Fenix",
+          "Gall",
+          "Greymane",
+          "Gul'dan",
+          "Hanzo",
+          "Jaina",
+          "Junkrat",
+          "Kael'thas",
+          "Li-Ming",
+          "Nazeebo",
+          "Orphea",
+          "Raynor",
+          "Tracer",
+          "Tychus"
+        ],
+        "Healer": [
+          "Alexstrasza",
+          "Lúcio",
+          "Stukov",
+          "Tyrande",
+          "Whitemane"
+        ]
+      },
+      "C": {
+        "Tank": [
+          "Blaze",
+          "Mal'Ganis",
+          "Mei",
+          "Stitches"
+        ],
+        "Bruiser": [
+          "Arthas",
+          "E.T.C.",
+          "Gazlowe",
+          "Varian"
+        ],
+        "Melee Assassin": [
+          "Alarak",
+          "Qhira",
+          "Valeera",
+          "Varian"
+        ],
+        "Ranged Assassin": [
+          "Kel'Thuzad",
+          "Lunara",
+          "Sgt. Hammer"
+        ],
+        "Support": [
+          "Abathur"
+        ],
+        "Healer": [
+          "Kharazim",
+          "Uther"
+        ]
+      },
+      "D": {
+        "Bruiser": [
+          "Chen",
+          "Imperius"
+        ],
+        "Ranged Assassin": [
+          "Nova",
+          "Probius"
+        ],
+        "Support": [
+          "Medivh",
+          "Zarya"
+        ],
+        "Healer": [
+          "Ana",
+          "Li Li",
+          "Lt. Morales"
+        ]
+      }
+    },
+    "Braxis Holdout": {
+      "S": {
+        "Tank": [
+          "Garrosh"
+        ],
+        "Bruiser": [
+          "Dehaka",
+          "Hogger",
+          "Rexxar"
+        ],
+        "Melee Assassin": [
+          "Maiev",
+          "Thrall"
+        ],
+        "Ranged Assassin": [
+          "Chromie",
+          "Falstad",
+          "Genji",
+          "Valla",
+          "Zul'jin"
+        ],
+        "Healer": [
+          "Auriel"
+        ]
+      },
+      "A": {
+        "Tank": [
+          "E.T.C.",
+          "Johanna",
+          "Muradin",
+          "Tyrael"
+        ],
+        "Bruiser": [
+          "Artanis",
+          "Blaze",
+          "Sonya",
+          "Yrel"
+        ],
+        "Melee Assassin": [
+          "Alarak"
+        ],
+        "Ranged Assassin": [
+          "Cassia",
+          "Fenix",
+          "Gul'dan",
+          "Kael'thas",
+          "Mephisto",
+          "Sgt. Hammer",
+          "Sylvanas",
+          "Tassadar",
+          "Zagara"
+        ],
+        "Healer": [
+          "Anduin",
+          "Brightwing",
+          "Malfurion",
+          "Rehgar",
+          "Stukov",
+          "Tyrande"
+        ]
+      },
+      "B": {
+        "Tank": [
+          "Anub'arak",
+          "Arthas",
+          "Cho",
+          "Diablo",
+          "Mal'Ganis",
+          "Mei",
+          "Varian"
+        ],
+        "Bruiser": [
+          "Chen",
+          "Gazlowe",
+          "Imperius",
+          "Samuro"
+        ],
+        "Melee Assassin": [
+          "Imperius",
+          "Kerrigan"
+        ],
+        "Ranged Assassin": [
+          "Gall",
+          "Hanzo",
+          "Jaina",
+          "Junkrat",
+          "Kel'Thuzad",
+          "Li-Ming",
+          "Orphea",
+          "Raynor",
+          "Tracer",
+          "Tychus"
+        ],
+        "Support": [
+          "Zarya"
+        ],
+        "Healer": [
+          "Deckard Cain",
+          "Lt. Morales",
+          "Lúcio"
+        ]
+      },
+      "C": {
+        "Bruiser": [
+          "Arthas",
+          "D.Va",
+          "E.T.C.",
+          "Illidan",
+          "Leoric",
+          "Malthael",
+          "Ragnaros",
+          "Varian",
+          "Xul"
+        ],
+        "Melee Assassin": [
+          "Qhira",
+          "Valeera",
+          "Varian",
+          "Zeratul"
+        ],
+        "Ranged Assassin": [
+          "Azmodan",
+          "Deathwing",
+          "Greymane",
+          "Lunara",
+          "Nazeebo",
+          "Probius"
+        ],
+        "Healer": [
+          "Alexstrasza",
+          "Ana",
+          "Whitemane"
+        ]
+      },
+      "D": {
+        "Tank": [
+          "Blaze",
+          "Stitches"
+        ],
+        "Bruiser": [
+          "Johanna",
+          "The Lost Vikings",
+          "Murky"
+        ],
+        "Melee Assassin": [
+          "The Butcher"
+        ],
+        "Ranged Assassin": [
+          "Nova"
+        ],
+        "Support": [
+          "Abathur",
+          "Medivh"
+        ],
+        "Healer": [
+          "Kharazim",
+          "Li Li",
+          "Uther"
+        ]
+      }
+    },
+    "Sky Temple": {
+      "S": {
+        "Tank": [
+          "Johanna",
+          "Tyrael"
+        ],
+        "Bruiser": [
+          "Blaze",
+          "Dehaka",
+          "Hogger"
+        ],
+        "Melee Assassin": [
+          "Kerrigan",
+          "Zeratul"
+        ],
+        "Ranged Assassin": [
+          "Falstad",
+          "Valla"
+        ],
+        "Healer": [
+          "Brightwing",
+          "Rehgar"
+        ]
+      },
+      "A": {
+        "Tank": [
+          "Anub'arak",
+          "Diablo",
+          "E.T.C.",
+          "Garrosh",
+          "Muradin"
+        ],
+        "Bruiser": [
+          "Illidan",
+          "Ragnaros",
+          "Samuro",
+          "Sonya",
+          "Xul",
+          "Yrel"
+        ],
+        "Melee Assassin": [
+          "Maiev",
+          "Thrall"
+        ],
+        "Ranged Assassin": [
+          "Cassia",
+          "Chromie",
+          "Sylvanas",
+          "Tracer",
+          "Zagara",
+          "Zul'jin"
+        ],
+        "Healer": [
+          "Anduin",
+          "Auriel"
+        ]
+      },
+      "B": {
+        "Tank": [
+          "Arthas",
+          "Cho",
+          "Mal'Ganis"
+        ],
+        "Bruiser": [
+          "Artanis",
+          "Arthas",
+          "Chen",
+          "D.Va",
+          "E.T.C.",
+          "Gazlowe",
+          "Johanna",
+          "The Lost Vikings",
+          "Malthael",
+          "Rexxar"
+        ],
+        "Melee Assassin": [
+          "The Butcher",
+          "Imperius",
+          "Valeera"
+        ],
+        "Ranged Assassin": [
+          "Azmodan",
+          "Fenix",
+          "Gall",
+          "Genji",
+          "Greymane",
+          "Gul'dan",
+          "Hanzo",
+          "Jaina",
+          "Junkrat",
+          "Kael'thas",
+          "Li-Ming",
+          "Mephisto",
+          "Orphea",
+          "Raynor",
+          "Sgt. Hammer",
+          "Tassadar"
+        ],
+        "Healer": [
+          "Alexstrasza",
+          "Kharazim",
+          "Lúcio",
+          "Malfurion",
+          "Stukov",
+          "Tyrande"
+        ]
+      },
+      "C": {
+        "Tank": [
+          "Mei",
+          "Varian"
+        ],
+        "Bruiser": [
+          "Leoric",
+          "Murky",
+          "Varian"
+        ],
+        "Melee Assassin": [
+          "Alarak",
+          "Qhira"
+        ],
+        "Ranged Assassin": [
+          "Deathwing",
+          "Kel'Thuzad",
+          "Lunara",
+          "Nazeebo",
+          "Tychus"
+        ],
+        "Support": [
+          "Abathur",
+          "Zarya"
+        ],
+        "Healer": [
+          "Deckard Cain",
+          "Lt. Morales",
+          "Uther",
+          "Whitemane"
+        ]
+      },
+      "D": {
+        "Tank": [
+          "Blaze",
+          "Stitches"
+        ],
+        "Bruiser": [
+          "Imperius"
+        ],
+        "Melee Assassin": [
+          "Varian"
+        ],
+        "Ranged Assassin": [
+          "Nova",
+          "Probius"
+        ],
+        "Support": [
+          "Medivh"
+        ],
+        "Healer": [
+          "Ana",
+          "Li Li"
+        ]
+      }
+    },
+    "Volskaya Foundry": {
+      "S": {
+        "Tank": [
+          "Johanna"
+        ],
+        "Bruiser": [
+          "Blaze",
+          "Hogger"
+        ],
+        "Melee Assassin": [
+          "Kerrigan",
+          "Thrall",
+          "Zeratul"
+        ],
+        "Ranged Assassin": [
+          "Valla"
+        ],
+        "Healer": [
+          "Rehgar"
+        ]
+      },
+      "A": {
+        "Tank": [
+          "Anub'arak",
+          "Diablo",
+          "E.T.C.",
+          "Garrosh",
+          "Muradin"
+        ],
+        "Bruiser": [
+          "Johanna",
+          "Leoric",
+          "Ragnaros",
+          "Samuro",
+          "Sonya",
+          "Yrel"
+        ],
+        "Melee Assassin": [
+          "Maiev"
+        ],
+        "Ranged Assassin": [
+          "Azmodan",
+          "Cassia",
+          "Chromie",
+          "Falstad",
+          "Kael'thas",
+          "Mephisto",
+          "Nazeebo",
+          "Sylvanas",
+          "Tassadar",
+          "Tracer",
+          "Zul'jin"
+        ],
+        "Healer": [
+          "Anduin",
+          "Auriel",
+          "Brightwing",
+          "Deckard Cain",
+          "Lúcio"
+        ]
+      },
+      "B": {
+        "Tank": [
+          "Arthas",
+          "Cho",
+          "Stitches",
+          "Tyrael",
+          "Varian"
+        ],
+        "Bruiser": [
+          "Artanis",
+          "Arthas",
+          "D.Va",
+          "Gazlowe",
+          "The Lost Vikings",
+          "Murky",
+          "Rexxar",
+          "Xul"
+        ],
+        "Melee Assassin": [
+          "Alarak",
+          "The Butcher",
+          "Imperius"
+        ],
+        "Ranged Assassin": [
+          "Fenix",
+          "Gall",
+          "Genji",
+          "Gul'dan",
+          "Hanzo",
+          "Jaina",
+          "Junkrat",
+          "Li-Ming",
+          "Orphea",
+          "Raynor",
+          "Sgt. Hammer",
+          "Tychus",
+          "Zagara"
+        ],
+        "Healer": [
+          "Alexstrasza",
+          "Malfurion",
+          "Stukov",
+          "Tyrande",
+          "Whitemane"
+        ]
+      },
+      "C": {
+        "Tank": [
+          "Mal'Ganis",
+          "Mei"
+        ],
+        "Bruiser": [
+          "Chen",
+          "Dehaka",
+          "E.T.C.",
+          "Illidan",
+          "Imperius",
+          "Malthael"
+        ],
+        "Melee Assassin": [
+          "Qhira",
+          "Valeera",
+          "Varian"
+        ],
+        "Ranged Assassin": [
+          "Deathwing",
+          "Greymane",
+          "Kel'Thuzad",
+          "Lunara"
+        ],
+        "Support": [
+          "Zarya"
+        ],
+        "Healer": [
+          "Ana",
+          "Kharazim",
+          "Lt. Morales",
+          "Uther"
+        ]
+      },
+      "D": {
+        "Tank": [
+          "Blaze"
+        ],
+        "Bruiser": [
+          "Varian"
+        ],
+        "Ranged Assassin": [
+          "Nova",
+          "Probius"
+        ],
+        "Support": [
+          "Abathur",
+          "Medivh"
+        ],
+        "Healer": [
+          "Li Li"
+        ]
+      }
+    }
+  },
+  "metadata": {
+    "heroes_scraped": 90,
+    "maps_scraped": 11,
+    "failed_heroes": []
+  }
+}

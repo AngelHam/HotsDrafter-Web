@@ -1,0 +1,58 @@
+'use client';
+
+import type { Hero } from '@/data/Hero';
+import HeroPortrait from './HeroPortrait';
+
+interface TeamPanelProps {
+  teamNumber: number;
+  picks: Hero[];
+  bans: Hero[];
+}
+
+export default function TeamPanel({ teamNumber, picks, bans }: TeamPanelProps) {
+  const teamColor = teamNumber === 1 ? '#4488FF' : '#FF6666';
+  const teamLabel = teamNumber === 1 ? 'TEAM 1 (You)' : 'TEAM 2 (Enemy)';
+
+  return (
+    <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+      <h3 className="text-sm font-bold mb-3" style={{ color: teamColor }}>{teamLabel}</h3>
+
+      {/* Bans */}
+      <div className="mb-3">
+        <span className="text-xs font-semibold" style={{ color: '#FF6666' }}>BANS</span>
+        <div className="flex gap-1 mt-1">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="rounded" style={{
+              width: 40, height: 40,
+              background: 'rgba(255,102,102,0.1)',
+              border: '1px solid rgba(255,102,102,0.3)',
+            }}>
+              {bans[i] && <HeroPortrait hero={bans[i]} size="sm" banned />}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Picks */}
+      <div>
+        <span className="text-xs font-semibold" style={{ color: '#FFD700' }}>PICKS</span>
+        <div className="flex flex-col gap-1.5 mt-1">
+          {[0, 1, 2, 3, 4].map(i => (
+            <div key={i} className="flex items-center gap-2">
+              <div className="rounded" style={{
+                width: 40, height: 40,
+                background: 'rgba(255,215,0,0.1)',
+                border: `1px solid ${picks[i] ? '#FFD700' : 'rgba(255,215,0,0.2)'}`,
+              }}>
+                {picks[i] && <HeroPortrait hero={picks[i]} size="sm" selected />}
+              </div>
+              <span className="text-xs truncate opacity-80">
+                {picks[i]?.nicknames[0] || `Pick ${i + 1}`}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
