@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { loadHistory, clearHistory, deleteDraft, type DraftRecord } from '@/data/DraftHistory';
+import { findHeroByName } from '@/data/HeroData';
+import HeroPortrait from '@/components/HeroPortrait';
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -51,17 +53,25 @@ export default function HistoryPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-xs">
                     <div>
-                      <span style={{ color: '#4488FF' }}>Team 1:</span>{' '}
-                      {record.team1Picks.join(', ')}
-                      <br />
+                      <span style={{ color: '#4488FF' }}>Team 1:</span>
+                      <div className="flex gap-0.5 mt-1 flex-wrap">
+                        {record.team1Picks.map(name => {
+                          const hero = findHeroByName(name);
+                          return hero ? <HeroPortrait key={name} hero={hero} size="sm" /> : <span key={name} className="text-xs">{name}</span>;
+                        })}
+                      </div>
                       <span className="opacity-50">Bans: {record.team1Bans.join(', ')}</span>
                       <br />
                       <span style={{ color: '#00FFFF' }}>{record.team1WinCondition}</span>
                     </div>
                     <div>
-                      <span style={{ color: '#FF6666' }}>Team 2:</span>{' '}
-                      {record.team2Picks.join(', ')}
-                      <br />
+                      <span style={{ color: '#FF6666' }}>Team 2:</span>
+                      <div className="flex gap-0.5 mt-1 flex-wrap">
+                        {record.team2Picks.map(name => {
+                          const hero = findHeroByName(name);
+                          return hero ? <HeroPortrait key={name} hero={hero} size="sm" /> : <span key={name} className="text-xs">{name}</span>;
+                        })}
+                      </div>
                       <span className="opacity-50">Bans: {record.team2Bans.join(', ')}</span>
                       <br />
                       <span style={{ color: '#00FFFF' }}>{record.team2WinCondition}</span>

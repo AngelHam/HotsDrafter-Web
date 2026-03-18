@@ -5,16 +5,19 @@ import { useRouter } from 'next/navigation';
 import { ALL_MAPS } from '@/data/HeroData';
 import { DraftSettings } from '@/data/DraftSettings';
 import MapCard from '@/components/MapCard';
+import FirstRunTutorial, { shouldShowTutorial } from '@/components/FirstRunTutorial';
 
 export default function StartupPage() {
   const router = useRouter();
   const [selectedMapIdx, setSelectedMapIdx] = useState(-1);
   const [useRandom, setUseRandom] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     DraftSettings.load();
     setSelectedMapIdx(DraftSettings.selectedMapIndex);
     setUseRandom(DraftSettings.useRandomMap);
+    if (shouldShowTutorial()) setShowTutorial(true);
   }, []);
 
   const handleMapSelect = (idx: number) => {
@@ -39,6 +42,7 @@ export default function StartupPage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center px-4 py-8">
+      {showTutorial && <FirstRunTutorial onClose={() => setShowTutorial(false)} />}
       <div className="animate-fade-slide-up" style={{ animationDelay: '0ms' }}>
         <h1 className="text-4xl font-bold tracking-wider mb-2 text-center" style={{ color: '#00FFFF' }}>
           HOTS DRAFTER
