@@ -46,6 +46,17 @@ class IcyVeinsDatabase {
     return data.heroes[heroName]?.counters || [];
   }
 
+  getCountersFor(heroName: string): string[] {
+    // Find heroes that this hero counters (i.e., heroName appears in their counters list)
+    const result: string[] = [];
+    for (const [name, info] of Object.entries(data.heroes)) {
+      if ((info as { counters?: string[] }).counters?.includes(heroName)) {
+        result.push(name);
+      }
+    }
+    return result;
+  }
+
   hasSynergy(hero1: string, hero2: string): boolean {
     const syn1 = this.getSynergies(hero1);
     const syn2 = this.getSynergies(hero2);
