@@ -8,6 +8,7 @@ import { HeroSuggestionEngine } from '@/data/HeroSuggestionEngine';
 import { DraftSettings } from '@/data/DraftSettings';
 import { TeamComposition } from '@/data/TeamComposition';
 import { analyzeWinCondition } from '@/data/WinConditionAnalyzer';
+import { Specialty } from '@/data/Specialty';
 import { saveDraft } from '@/data/DraftHistory';
 import { winConditionToString } from '@/data/SuggestionTypes';
 import HeroPortrait from '@/components/HeroPortrait';
@@ -18,6 +19,20 @@ import DraftProgressBar from '@/components/DraftProgressBar';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import type { Hero } from '@/data/Hero';
+
+function computeCompScore(picks: Hero[]): number {
+  let score = 20;
+  if (picks.some(h => h.role === 'Tank')) score += 15;
+  if (picks.some(h => h.role === 'Healer')) score += 15;
+  if (picks.some(h => h.role === 'DPS' || h.role === 'Mage')) score += 10;
+  if (picks.some(h => h.role === 'Offlane')) score += 10;
+  if (picks.some(h => h.specialties.includes(Specialty.WAVECLEAR))) score += 10;
+  if (picks.some(h => h.specialties.includes(Specialty.ENGAGE))) score += 10;
+  if (picks.some(h => h.specialties.includes(Specialty.HARD_CC))) score += 10;
+  if (picks.filter(h => h.role === 'Tank').length >= 2) score -= 10;
+  if (picks.filter(h => h.role === 'Healer').length >= 2) score -= 15;
+  return Math.max(0, Math.min(100, score));
+}
 
 function DraftPageInner() {
   const router = useRouter();
@@ -394,6 +409,44 @@ function DraftPageInner() {
           {/* Analysis + Replay (when complete) */}
           {isComplete && analysis && (
             <div className="space-y-3">
+              {/* Team Comparison Header */}
+              <div className="grid grid-cols-3 gap-2 items-center">
+                <div className="p-3 rounded text-center" style={{ background: 'rgba(68,136,255,0.1)', border: '1px solid #4488FF44' }}>
+                  <p className="text-xs font-semibold mb-1" style={{ color: '#4488FF' }}>Team 1</p>
+                  <p className="text-lg font-bold" style={{ color: '#FFD700' }}>{computeCompScore(draft.team1Picks)}</p>
+                  <p className="text-[10px] opacity-60">Comp Score</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold" style={{ color: '#FFD700' }}>VS</p>
+                  <p className="text-[10px] opacity-50">📍 {map.name}</p>
+                </div>
+                <div className="p-3 rounded text-center" style={{ background: 'rgba(255,102,102,0.1)', border: '1px solid #FF666644' }}>
+                  <p className="text-xs font-semibold mb-1" style={{ color: '#FF6666' }}>Team 2</p>
+                  <p className="text-lg font-bold" style={{ color: '#FFD700' }}>{computeCompScore(draft.team2Picks)}</p>
+                  <p className="text-[10px] opacity-60">Comp Score</p>
+                </div>
+              </div>
+
+              {/* Team Picks Side by Side */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid #4488FF44' }}>
+                  <div className="flex gap-1 justify-center mb-2">
+                    {draft.team1Picks.map(h => (
+                      <HeroPortrait key={h.name} hero={h} size="sm" selected />
+                    ))}
+                  </div>
+                  <p className="text-xs text-center opacity-70">{draft.team1Picks.map(h => h.nicknames[0]).join(' · ')}</p>
+                </div>
+                <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid #FF666644' }}>
+                  <div className="flex gap-1 justify-center mb-2">
+                    {draft.team2Picks.map(h => (
+                      <HeroPortrait key={h.name} hero={h} size="sm" selected />
+                    ))}
+                  </div>
+                  <p className="text-xs text-center opacity-70">{draft.team2Picks.map(h => h.nicknames[0]).join(' · ')}</p>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <AnalysisCard title="Team 1 Strategy" analysis={analysis.team1} color="#4488FF" />
                 <AnalysisCard title="Team 2 Strategy" analysis={analysis.team2} color="#FF6666" />
