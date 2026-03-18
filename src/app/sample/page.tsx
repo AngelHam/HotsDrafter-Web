@@ -72,8 +72,9 @@ function SampleDraftInner() {
       <div className="flex-1 flex gap-4 p-4">
         {/* Team 1 */}
         <div className="flex-1">
-          <h2 className="font-bold mb-3" style={{ color: '#4488FF' }}>TEAM 1 <ScoreBadge picks={draft.team1Picks} /></h2>
-          <div className="mb-3">
+          <h2 className="font-bold mb-2" style={{ color: '#4488FF' }}>TEAM 1 <ScoreBadge picks={draft.team1Picks} /></h2>
+          <RoleBadges picks={draft.team1Picks} />
+          <div className="mb-3 mt-2">
             <span className="text-xs font-semibold" style={{ color: '#FF6666' }}>BANS</span>
             <div className="flex gap-2 mt-1">
               {draft.team1Bans.map(h => (
@@ -119,8 +120,9 @@ function SampleDraftInner() {
 
         {/* Team 2 */}
         <div className="flex-1">
-          <h2 className="font-bold mb-3" style={{ color: '#FF6666' }}>TEAM 2 <ScoreBadge picks={draft.team2Picks} /></h2>
-          <div className="mb-3">
+          <h2 className="font-bold mb-2" style={{ color: '#FF6666' }}>TEAM 2 <ScoreBadge picks={draft.team2Picks} /></h2>
+          <RoleBadges picks={draft.team2Picks} />
+          <div className="mb-3 mt-2">
             <span className="text-xs font-semibold" style={{ color: '#FF6666' }}>BANS</span>
             <div className="flex gap-2 mt-1">
               {draft.team2Bans.map(h => (
@@ -178,5 +180,29 @@ function ScoreBadge({ picks }: { picks: Hero[] }) {
     <span className="text-xs font-bold px-1.5 py-0.5 rounded ml-2" style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
       {score}
     </span>
+  );
+}
+
+const SAMPLE_ROLE_CHECKS = [
+  { label: 'Tank', icon: '🛡️', check: (h: Hero) => h.role === 'Tank' },
+  { label: 'Healer', icon: '✚', check: (h: Hero) => h.role === 'Healer' },
+  { label: 'DPS', icon: '⚔️', check: (h: Hero) => h.role === 'DPS' || h.role === 'Mage' },
+  { label: 'Offlane', icon: '⚙️', check: (h: Hero) => h.role === 'Offlane' },
+  { label: 'Waveclear', icon: '🌊', check: (h: Hero) => h.specialties.includes(Specialty.WAVECLEAR) },
+];
+
+function RoleBadges({ picks }: { picks: Hero[] }) {
+  return (
+    <div className="flex gap-1 flex-wrap">
+      {SAMPLE_ROLE_CHECKS.map(({ label, icon, check }) => {
+        const filled = picks.some(check);
+        return (
+          <span key={label} className="text-xs px-1 py-0.5 rounded" title={label}
+            style={{ background: filled ? 'rgba(0,255,0,0.15)' : 'rgba(255,0,0,0.15)', color: filled ? '#90EE90' : '#FF6666', border: `1px solid ${filled ? '#90EE9044' : '#FF666644'}` }}>
+            {icon}{filled ? '✓' : '✗'}
+          </span>
+        );
+      })}
+    </div>
   );
 }

@@ -8,6 +8,7 @@ interface TeamPanelProps {
   teamNumber: number;
   picks: Hero[];
   bans: Hero[];
+  isActive?: boolean;
 }
 
 const ROLE_CHECKS = [
@@ -18,7 +19,7 @@ const ROLE_CHECKS = [
   { label: 'Waveclear', icon: '🌊', check: (h: Hero) => h.specialties.includes(Specialty.WAVECLEAR) },
 ];
 
-export default function TeamPanel({ teamNumber, picks, bans }: TeamPanelProps) {
+export default function TeamPanel({ teamNumber, picks, bans, isActive }: TeamPanelProps) {
   const teamColor = teamNumber === 1 ? '#4488FF' : '#FF6666';
   const teamLabel = teamNumber === 1 ? 'TEAM 1 (You)' : 'TEAM 2 (Enemy)';
 
@@ -27,7 +28,11 @@ export default function TeamPanel({ teamNumber, picks, bans }: TeamPanelProps) {
   const scoreColor = compScore !== null ? (compScore >= 80 ? '#90EE90' : compScore >= 50 ? '#FFD700' : '#FF6666') : '#666';
 
   return (
-    <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+    <div className={`p-3 rounded transition-all ${isActive ? 'team-panel-active' : ''}`} style={{
+      background: 'rgba(30, 40, 70, 0.7)',
+      border: isActive ? `2px solid ${teamColor}` : '1px solid rgba(68,102,136,0.5)',
+      boxShadow: isActive ? `0 0 15px ${teamColor}33, inset 0 0 20px ${teamColor}11` : 'none',
+    }}>
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-bold" style={{ color: teamColor }}>{teamLabel}</h3>
         {compScore !== null && (

@@ -37,16 +37,17 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold truncate">{s.hero.nicknames[0]}</span>
-                <span className="text-xs px-1.5 py-0.5 rounded" style={{
+                <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{
                   background: s.totalScore >= 50 ? '#00FF0022' : s.totalScore >= 30 ? '#FFD70022' : '#FF666622',
                   color: s.totalScore >= 50 ? '#90EE90' : s.totalScore >= 30 ? '#FFD700' : '#FF6666',
+                  border: `1px solid ${s.totalScore >= 50 ? '#90EE9044' : s.totalScore >= 30 ? '#FFD70044' : '#FF666644'}`,
                 }}>
                   {s.totalScore.toFixed(0)}
                 </span>
-                <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                  <div className="h-full rounded-full" style={{
+                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', minWidth: 60 }}>
+                  <div className="h-full rounded-full transition-all" style={{
                     width: `${Math.min(s.totalScore, 100)}%`,
-                    background: s.totalScore >= 50 ? '#90EE90' : s.totalScore >= 30 ? '#FFD700' : '#FF6666',
+                    background: `linear-gradient(90deg, ${s.totalScore >= 50 ? '#90EE90' : s.totalScore >= 30 ? '#FFD700' : '#FF6666'}, ${s.totalScore >= 50 ? '#90EE9088' : s.totalScore >= 30 ? '#FFD70088' : '#FF666688'})`,
                   }} />
                 </div>
               </div>

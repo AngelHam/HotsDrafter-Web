@@ -67,3 +67,23 @@ body {
 .animate-slide-in-right {
   animation: slideInRight 0.3s ease-out forwards;
 }
+
+/* Active team panel pulse */
+@keyframes panelPulse {
+  0%, 100% { box-shadow: 0 0 15px var(--panel-color, rgba(68,136,255,0.2)); }
+  50% { box-shadow: 0 0 25px var(--panel-color, rgba(68,136,255,0.35)); }
+}
+
+.team-panel-active {
+  animation: panelPulse 2s ease-in-out infinite;
+}
+
+/* Progress bar current step pulse */
+@keyframes progressPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(255,215,0,0.5); }
+  50% { box-shadow: 0 0 20px rgba(255,215,0,0.75); }
+}
+
+.progress-pulse {
+  animation: progressPulse 1.5s ease-in-out infinite;
+}
