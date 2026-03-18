@@ -344,11 +344,19 @@ function DraftPageInner() {
             </div>
           )}
 
-          {/* Analysis (when complete) */}
+          {/* Analysis + Replay (when complete) */}
           {isComplete && analysis && (
-            <div className="grid grid-cols-2 gap-3">
-              <AnalysisCard title="Team 1 Strategy" analysis={analysis.team1} color="#4488FF" />
-              <AnalysisCard title="Team 2 Strategy" analysis={analysis.team2} color="#FF6666" />
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <AnalysisCard title="Team 1 Strategy" analysis={analysis.team1} color="#4488FF" />
+                <AnalysisCard title="Team 2 Strategy" analysis={analysis.team2} color="#FF6666" />
+              </div>
+              <DraftReplay
+                team1Picks={[...draft.team1Picks]}
+                team2Picks={[...draft.team2Picks]}
+                team1Bans={[...draft.team1Bans]}
+                team2Bans={[...draft.team2Bans]}
+              />
             </div>
           )}
         </div>
@@ -381,5 +389,98 @@ export default function DraftPage() {
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p>Loading draft...</p></div>}>
       <DraftPageInner />
     </Suspense>
+  );
+}
+
+function DraftReplay({ team1Picks, team2Picks, team1Bans, team2Bans }: {
+  team1Picks: Hero[]; team2Picks: Hero[]; team1Bans: Hero[]; team2Bans: Hero[];
+}) {
+  const [replayStep, setReplayStep] = useState(0);
+
+  // Reconstruct the timeline from draft order
+  const timeline = useMemo(() => {
+    const t1b = [...team1Bans], t2b = [...team2Bans];
+    const t1p = [...team1Picks], t2p = [...team2Picks];
+    const steps: { team: number; isBan: boolean; hero: Hero | null }[] = [];
+
+    for (let i = 0; i < DRAFT_TEAM_ORDER.length; i++) {
+      const team = DRAFT_TEAM_ORDER[i];
+      const isBan = DRAFT_IS_BAN[i];
+      const arr = isBan
+        ? (team === 1 ? t1b : t2b)
+        : (team === 1 ? t1p : t2p);
+      steps.push({ team, isBan, hero: arr.shift() ?? null });
+    }
+    return steps;
+  }, [team1Picks, team2Picks, team1Bans, team2Bans]);
+
+  const current = timeline[replayStep];
+
+  return (
+    <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+      <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Draft Replay</h3>
+
+      <div className="flex items-center gap-3 mb-3">
+        <button
+          onClick={() => setReplayStep(s => Math.max(0, s - 1))}
+          disabled={replayStep === 0}
+          className="text-sm px-3 py-1 rounded hover:bg-white/10 disabled:opacity-30"
+          style={{ color: '#FFD700', border: '1px solid #FFD70055' }}
+          title="Previous step"
+        >
+          ← Prev
+        </button>
+        <span className="text-sm font-semibold" style={{ color: current?.isBan ? '#FF6666' : '#00FFFF' }}>
+          Step {replayStep + 1}/16 — Team {current?.team} {current?.isBan ? 'BAN' : 'PICK'}
+        </span>
+        <button
+          onClick={() => setReplayStep(s => Math.min(15, s + 1))}
+          disabled={replayStep >= 15}
+          className="text-sm px-3 py-1 rounded hover:bg-white/10 disabled:opacity-30"
+          style={{ color: '#FFD700', border: '1px solid #FFD70055' }}
+          title="Next step"
+        >
+          Next →
+        </button>
+      </div>
+
+      <div className="flex gap-1 mb-3 flex-wrap">
+        {timeline.map((s, i) => {
+          const teamColor = s.team === 1 ? '#4488FF' : '#FF4444';
+          return (
+            <button
+              key={i}
+              onClick={() => setReplayStep(i)}
+              className="rounded-sm flex items-center justify-center"
+              style={{
+                width: i === replayStep ? 28 : 20,
+                height: i === replayStep ? 22 : 16,
+                background: i <= replayStep ? (s.isBan ? '#FF666699' : teamColor + '99') : (s.isBan ? '#FF666633' : teamColor + '33'),
+                border: i === replayStep ? '2px solid #FFD700' : '1px solid transparent',
+                fontSize: 9,
+                color: '#fff',
+                fontWeight: i === replayStep ? 'bold' : 'normal',
+              }}
+              title={`Step ${i + 1}: Team ${s.team} ${s.isBan ? 'BAN' : 'PICK'} ${s.hero?.nicknames[0] || '?'}`}
+            >
+              {i + 1}
+            </button>
+          );
+        })}
+      </div>
+
+      {current?.hero && (
+        <div className="flex items-center gap-3 p-3 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: `1px solid ${current.isBan ? '#FF666644' : '#FFD70044'}` }}>
+          <HeroPortrait hero={current.hero} size="lg" banned={current.isBan} selected={!current.isBan} />
+          <div>
+            <span className="text-lg font-bold">{current.hero.nicknames[0]}</span>
+            <span className="text-sm ml-2 opacity-60">{current.hero.role}</span>
+            <p className="text-xs mt-1 opacity-70">
+              {current.isBan ? `Banned by Team ${current.team}` : `Picked by Team ${current.team}`}
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
