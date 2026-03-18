@@ -31,6 +31,7 @@ function DraftPageInner() {
   const [searchQuery, setSearchQuery] = useState('');
   const [heroView, setHeroView] = useState<'grid' | 'roles'>('grid');
   const [detailHero, setDetailHero] = useState<Hero | null>(null);
+  const [suggestionsCollapsed, setSuggestionsCollapsed] = useState(false);
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [timerDuration, setTimerDuration] = useState(25);
   const [timeLeft, setTimeLeft] = useState(25);
@@ -268,11 +269,23 @@ function DraftPageInner() {
         {/* Center: Hero Grid + Suggestions */}
         <div className="flex-1 flex flex-col gap-3 min-w-0">
           {/* Suggestions */}
-          <HeroSuggestionPanel
-            suggestions={suggestions}
-            onSelect={(s) => handleHeroClick(s.hero)}
-            title={isBan ? '🚫 Ban Suggestions' : '✅ Pick Suggestions'}
-          />
+          <div>
+            <button
+              onClick={() => setSuggestionsCollapsed(c => !c)}
+              className="w-full text-left text-xs font-semibold px-3 py-1.5 rounded-t flex items-center justify-between lg:hidden"
+              style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)', borderBottom: suggestionsCollapsed ? '1px solid rgba(68,102,136,0.5)' : 'none', color: '#00FFFF' }}
+            >
+              <span>{isBan ? '🚫 Ban Suggestions' : '✅ Pick Suggestions'} ({suggestions.length})</span>
+              <span>{suggestionsCollapsed ? '▶' : '▼'}</span>
+            </button>
+            <div className={`${suggestionsCollapsed ? 'hidden lg:block' : ''}`}>
+              <HeroSuggestionPanel
+                suggestions={suggestions}
+                onSelect={(s) => handleHeroClick(s.hero)}
+                title={isBan ? '🚫 Ban Suggestions' : '✅ Pick Suggestions'}
+              />
+            </div>
+          </div>
 
           {/* Hero Search + Grid */}
           {!isComplete && (
@@ -328,7 +341,7 @@ function DraftPageInner() {
               </div>
 
               {heroView === 'grid' ? (
-                <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))' }}>
+                <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
                   {filtered.map(hero => {
                     const isAvail = draft.isAvailable(hero);
                     const tier = icyVeins.getHeroTierOnMap(hero.nicknames[0], map.name);
@@ -353,7 +366,7 @@ function DraftPageInner() {
                       <h4 className="text-xs font-bold mb-1" style={{ color: ROLE_COLORS[group.role] || '#FFD700' }}>
                         {group.role} <span className="opacity-50">({group.heroes.filter(h => draft.isAvailable(h)).length}/{group.heroes.length})</span>
                       </h4>
-                      <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))' }}>
+                      <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
                         {group.heroes.map(hero => {
                           const isAvail = draft.isAvailable(hero);
                           const tier = icyVeins.getHeroTierOnMap(hero.nicknames[0], map.name);
