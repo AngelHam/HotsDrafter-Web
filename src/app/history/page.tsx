@@ -32,6 +32,7 @@ function HeroNameStrip({ names, banned = false }: { names: string[]; banned?: bo
 export default function HistoryPage() {
   const router = useRouter();
   const [history, setHistory] = useState<DraftRecord[]>([]);
+  const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
 
   useEffect(() => {
     setHistory(loadHistory());
@@ -45,13 +46,14 @@ export default function HistoryPage() {
   const handleDelete = (idx: number) => {
     deleteDraft(idx);
     setHistory(loadHistory());
+    if (expandedIdx === idx) setExpandedIdx(null);
   };
 
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
-        <h1 className="text-lg font-bold" style={{ color: '#BA55D3' }}>📜 Draft History</h1>
+        <h1 className="text-lg font-bold" style={{ color: '#BA55D3' }}>📜 Draft History {history.length > 0 && <span className="text-xs font-normal opacity-60 ml-1">({history.length} draft{history.length !== 1 ? 's' : ''})</span>}</h1>
         {history.length > 0 && (
           <button onClick={handleClear} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Delete all saved drafts">
             Clear All
@@ -67,38 +69,56 @@ export default function HistoryPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {history.map((record, i) => (
-              <div key={i} className="p-4 rounded flex items-start gap-4" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-sm font-bold" style={{ color: '#FFD700' }}>📍 {record.mapName}</span>
-                    <span className="text-xs opacity-50">{new Date(record.timestamp).toLocaleString()}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-xs">
-                    <div>
-                      <span style={{ color: '#4488FF' }}>Team 1:</span>
-                      <HeroNameStrip names={record.team1Picks} />
-                      <span className="opacity-50 block mt-1">Bans:</span>
-                      <HeroNameStrip names={record.team1Bans} banned />
-                      <br />
-                      <span style={{ color: '#00FFFF' }}>{record.team1WinCondition}</span>
+            {history.map((record, i) => {
+              const isExpanded = expandedIdx === i;
+              return (
+              <div key={i}
+                className="p-4 rounded cursor-pointer transition-all hover:brightness-110"
+                style={{ background: 'rgba(30, 40, 70, 0.7)', border: `1px solid ${isExpanded ? '#00FFFF44' : 'rgba(68,102,136,0.5)'}` }}
+                onClick={() => setExpandedIdx(isExpanded ? null : i)}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-sm font-bold" style={{ color: '#FFD700' }}>📍 {record.mapName}</span>
+                      <span className="text-xs opacity-50">{new Date(record.timestamp).toLocaleString()}</span>
+                      <span className="text-[10px] ml-auto opacity-40">{isExpanded ? '▼' : '▶'} Details</span>
                     </div>
-                    <div>
-                      <span style={{ color: '#FF6666' }}>Team 2:</span>
-                      <HeroNameStrip names={record.team2Picks} />
-                      <span className="opacity-50 block mt-1">Bans:</span>
-                      <HeroNameStrip names={record.team2Bans} banned />
-                      <br />
-                      <span style={{ color: '#00FFFF' }}>{record.team2WinCondition}</span>
+                    <div className="grid grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <span style={{ color: '#4488FF' }}>Team 1:</span>
+                        <HeroNameStrip names={record.team1Picks} />
+                      </div>
+                      <div>
+                        <span style={{ color: '#FF6666' }}>Team 2:</span>
+                        <HeroNameStrip names={record.team2Picks} />
+                      </div>
                     </div>
+                    {isExpanded && (
+                      <div className="mt-3 pt-3 text-xs space-y-2 animate-fade-slide-up" style={{ borderTop: '1px solid rgba(68,102,136,0.3)' }}>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <span className="opacity-50">Bans:</span>
+                            <HeroNameStrip names={record.team1Bans} banned />
+                            <p className="mt-1" style={{ color: '#00FFFF' }}>{record.team1WinCondition}</p>
+                          </div>
+                          <div>
+                            <span className="opacity-50">Bans:</span>
+                            <HeroNameStrip names={record.team2Bans} banned />
+                            <p className="mt-1" style={{ color: '#00FFFF' }}>{record.team2WinCondition}</p>
+                          </div>
+                        </div>
+                        <p className="opacity-70">{record.verdict}</p>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-xs mt-2 opacity-70">{record.verdict}</p>
+                  <button onClick={(e) => { e.stopPropagation(); handleDelete(i); }} className="text-xs px-2 py-1 rounded hover:bg-white/10" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Delete this draft record">
+                    ✕
+                  </button>
                 </div>
-                <button onClick={() => handleDelete(i)} className="text-xs px-2 py-1 rounded hover:bg-white/10" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Delete this draft record">
-                  ✕
-                </button>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
