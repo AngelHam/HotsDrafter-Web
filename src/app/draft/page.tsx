@@ -308,6 +308,9 @@ function DraftPageInner() {
                 >
                   Role View
                 </button>
+                <span className="text-[10px] ml-auto opacity-50">
+                  {filtered.filter(h => draft.isAvailable(h)).length}/{filtered.length} available
+                </span>
               </div>
 
               {heroView === 'grid' ? (

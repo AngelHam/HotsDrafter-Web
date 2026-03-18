@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ALL_MAPS } from '@/data/HeroData';
+import { ALL_MAPS, ALL_HEROES } from '@/data/HeroData';
 import { DraftSettings } from '@/data/DraftSettings';
 import MapCard from '@/components/MapCard';
 import FirstRunTutorial, { shouldShowTutorial } from '@/components/FirstRunTutorial';
@@ -72,7 +72,7 @@ export default function StartupPage() {
 
       <div className="animate-fade-slide-up mt-12 text-xs opacity-40 text-center" style={{ animationDelay: '500ms' }}>
         <p>HotsDrafter v2 Web — Data from Icy Veins</p>
-        <p className="mt-1">{ALL_MAPS.length} Maps • 89 Heroes • 8 Win Conditions</p>
+        <p className="mt-1">{ALL_MAPS.length} Maps • {ALL_HEROES.length} Heroes • 8 Win Conditions</p>
       </div>
     </main>
   );
