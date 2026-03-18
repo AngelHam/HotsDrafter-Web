@@ -7,6 +7,7 @@ import { TeamComposition } from '@/data/TeamComposition';
 import { analyzeWinCondition } from '@/data/WinConditionAnalyzer';
 import { winConditionToString } from '@/data/SuggestionTypes';
 import HeroPortrait from '@/components/HeroPortrait';
+import { Specialty } from '@/data/Specialty';
 import type { Hero } from '@/data/Hero';
 
 const TEAM_TEMPLATES: Record<string, string[]> = {
@@ -205,13 +206,59 @@ export default function TeamBuilderPage() {
   );
 }
 
+const BUILDER_ROLE_CHECKS = [
+  { label: 'Tank', icon: '🛡️', check: (h: Hero) => h.role === 'Tank' },
+  { label: 'Healer', icon: '✚', check: (h: Hero) => h.role === 'Healer' },
+  { label: 'DPS', icon: '⚔️', check: (h: Hero) => h.role === 'DPS' || h.role === 'Mage' },
+  { label: 'Offlane', icon: '⚙️', check: (h: Hero) => h.role === 'Offlane' || h.specialties.includes(Specialty.DOUBLE_SOAKING) },
+  { label: 'Waveclear', icon: '🌊', check: (h: Hero) => h.specialties.includes(Specialty.WAVECLEAR) },
+];
+
+function computeBuilderScore(heroes: Hero[]): number {
+  let score = 20;
+  if (heroes.some(h => h.role === 'Tank')) score += 15;
+  if (heroes.some(h => h.role === 'Healer')) score += 15;
+  if (heroes.some(h => h.role === 'DPS' || h.role === 'Mage')) score += 10;
+  if (heroes.some(h => h.role === 'Offlane')) score += 10;
+  if (heroes.some(h => h.specialties.includes(Specialty.WAVECLEAR))) score += 10;
+  if (heroes.some(h => h.specialties.includes(Specialty.ENGAGE))) score += 10;
+  if (heroes.some(h => h.specialties.includes(Specialty.HARD_CC))) score += 10;
+  if (heroes.filter(h => h.role === 'Tank').length >= 2) score -= 10;
+  if (heroes.filter(h => h.role === 'Healer').length >= 2) score -= 15;
+  return Math.max(0, Math.min(100, score));
+}
+
 function TeamSlots({ label, color, slots, onSlotClick, onClear }: {
   label: string; color: string; slots: (Hero | null)[];
   onSlotClick: (i: number) => void; onClear: (i: number) => void;
 }) {
+  const picks = slots.filter(Boolean) as Hero[];
+  const compScore = picks.length > 0 ? computeBuilderScore(picks) : null;
+  const scoreColor = compScore !== null ? (compScore >= 80 ? '#90EE90' : compScore >= 50 ? '#FFD700' : '#FF6666') : '#666';
+
   return (
     <div className="w-56 flex-shrink-0">
-      <h2 className="font-bold mb-3" style={{ color }}>{label}</h2>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="font-bold" style={{ color }}>{label}</h2>
+        {compScore !== null && (
+          <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ background: scoreColor + '22', color: scoreColor, border: `1px solid ${scoreColor}44` }}>
+            {compScore}
+          </span>
+        )}
+      </div>
+      {picks.length > 0 && (
+        <div className="flex gap-1 mb-2 flex-wrap">
+          {BUILDER_ROLE_CHECKS.map(({ label: rl, icon, check }) => {
+            const filled = picks.some(check);
+            return (
+              <span key={rl} className="text-xs px-1 py-0.5 rounded" title={rl}
+                style={{ background: filled ? 'rgba(0,255,0,0.15)' : 'rgba(255,0,0,0.15)', color: filled ? '#90EE90' : '#FF6666', border: `1px solid ${filled ? '#90EE9044' : '#FF666644'}` }}>
+                {icon}{filled ? '✓' : '✗'}
+              </span>
+            );
+          })}
+        </div>
+      )}
       <div className="flex flex-col gap-2">
         {slots.map((hero, i) => (
           <div key={i} className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-white/5"
