@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { loadHistory, clearHistory, deleteDraft, type DraftRecord } from '@/data/DraftHistory';
-import { findHeroByName } from '@/data/HeroData';
+import { findHeroByName, ALL_MAPS } from '@/data/HeroData';
 import HeroPortrait from '@/components/HeroPortrait';
 
 function HeroNameStrip({ names, banned = false }: { names: string[]; banned?: boolean }) {
@@ -109,6 +109,38 @@ export default function HistoryPage() {
                           </div>
                         </div>
                         <p className="opacity-70">{record.verdict}</p>
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const mapIdx = ALL_MAPS.findIndex(m => m.name === record.mapName);
+                              router.push(`/draft?map=${mapIdx >= 0 ? mapIdx : 0}`);
+                            }}
+                            className="text-[10px] px-2 py-1 rounded hover:bg-white/10"
+                            style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }}
+                            title="Start a new draft on the same map"
+                          >
+                            🔄 Re-draft
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const text = [
+                                `HotsDrafter — ${record.mapName}`,
+                                `Team 1: ${record.team1Picks.join(', ')} (${record.team1WinCondition})`,
+                                `Team 2: ${record.team2Picks.join(', ')} (${record.team2WinCondition})`,
+                                `Bans: ${record.team1Bans.join(', ')} | ${record.team2Bans.join(', ')}`,
+                                record.verdict,
+                              ].join('\n');
+                              navigator.clipboard.writeText(text);
+                            }}
+                            className="text-[10px] px-2 py-1 rounded hover:bg-white/10"
+                            style={{ color: '#90EE90', border: '1px solid #90EE9033' }}
+                            title="Copy draft summary to clipboard"
+                          >
+                            📋 Copy
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
