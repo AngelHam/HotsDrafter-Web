@@ -92,10 +92,20 @@ export default function TeamBuilderPage() {
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
         <h1 className="text-lg font-bold" style={{ color: '#90EE90' }}>🏗️ Team Builder</h1>
-        <select value={mapIdx} onChange={e => setMapIdx(Number(e.target.value))}
-          className="text-sm px-2 py-1 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', color: '#FFD700', border: '1px solid rgba(68,102,136,0.5)' }}>
-          {ALL_MAPS.map((m, i) => <option key={m.name} value={i}>{m.name}</option>)}
-        </select>
+        <div className="flex items-center gap-2">
+          <button onClick={() => { const t = [...team1]; setTeam1([...team2]); setTeam2(t); }}
+            className="text-xs px-2 py-1 rounded hover:bg-white/10" style={{ color: '#FFD700', border: '1px solid #FFD70033' }} title="Swap Team 1 and Team 2">
+            ⇄ Swap
+          </button>
+          <button onClick={() => { setTeam1([null, null, null, null, null]); setTeam2([null, null, null, null, null]); }}
+            className="text-xs px-2 py-1 rounded hover:bg-white/10" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Clear all heroes from both teams">
+            ✕ Clear
+          </button>
+          <select value={mapIdx} onChange={e => setMapIdx(Number(e.target.value))}
+            className="text-sm px-2 py-1 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', color: '#FFD700', border: '1px solid rgba(68,102,136,0.5)' }}>
+            {ALL_MAPS.map((m, i) => <option key={m.name} value={i}>{m.name}</option>)}
+          </select>
+        </div>
       </div>
 
       <div className="flex-1 flex gap-4 p-4">
