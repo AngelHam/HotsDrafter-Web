@@ -9,12 +9,14 @@ export default function SettingsPage() {
   const [suggestionCount, setSuggestionCount] = useState(5);
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>(AnalysisMode.Full);
   const [quickDraft, setQuickDraft] = useState(false);
+  const [firstPickTeam, setFirstPickTeam] = useState(1);
 
   useEffect(() => {
     DraftSettings.load();
     setSuggestionCount(DraftSettings.suggestionCount);
     setAnalysisMode(DraftSettings.currentAnalysisMode);
     setQuickDraft(DraftSettings.quickDraft);
+    setFirstPickTeam(DraftSettings.firstPickTeam);
   }, []);
 
   const handleSuggestionCount = (n: number) => {
@@ -34,6 +36,7 @@ export default function SettingsPage() {
     setSuggestionCount(5);
     setAnalysisMode(AnalysisMode.Full);
     setQuickDraft(false);
+    setFirstPickTeam(1);
   };
 
   return (
@@ -96,6 +99,30 @@ export default function SettingsPage() {
 
           {/* Reset */}
 
+          {/* First Pick Team */}
+          <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>First Pick Team</h3>
+            <div className="flex gap-3">
+              {[1, 2].map(t => (
+                <button key={t}
+                  onClick={() => {
+                    setFirstPickTeam(t);
+                    DraftSettings.firstPickTeam = t;
+                    DraftSettings.save();
+                  }}
+                  className="px-4 py-2 rounded font-semibold flex-1 transition-all hover:bg-white/10"
+                  style={{
+                    background: firstPickTeam === t ? (t === 1 ? '#4488FF22' : '#FF666622') : 'transparent',
+                    border: `2px solid ${firstPickTeam === t ? (t === 1 ? '#4488FF' : '#FF6666') : 'rgba(68,102,136,0.5)'}`,
+                    color: firstPickTeam === t ? (t === 1 ? '#4488FF' : '#FF6666') : '#888',
+                  }}
+                  title={`Team ${t} picks first`}>
+                  Team {t}{t === 1 ? ' (You)' : ' (Enemy)'}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Quick Draft */}
           <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
             <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Quick Draft</h3>
@@ -126,6 +153,8 @@ export default function SettingsPage() {
             title="Reset all settings to defaults">
             Reset All Settings
           </button>
+
+          <p className="text-center text-xs opacity-30 mt-4">HotsDrafter v2 Web — Settings are saved automatically</p>
         </div>
       </div>
     </div>
