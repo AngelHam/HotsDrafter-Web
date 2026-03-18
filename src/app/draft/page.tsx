@@ -15,6 +15,7 @@ import RoleFilterBar from '@/components/RoleFilterBar';
 import HeroSuggestionPanel from '@/components/HeroSuggestionPanel';
 import TeamPanel from '@/components/TeamPanel';
 import DraftProgressBar from '@/components/DraftProgressBar';
+import HeroDetailPopup from '@/components/HeroDetailPopup';
 import type { Hero } from '@/data/Hero';
 
 function DraftPageInner() {
@@ -27,6 +28,7 @@ function DraftPageInner() {
   const [step, setStep] = useState(0);
   const [roleFilter, setRoleFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [detailHero, setDetailHero] = useState<Hero | null>(null);
   const [, setTick] = useState(0); // Force re-render
 
   useEffect(() => { DraftSettings.load(); }, []);
@@ -180,18 +182,19 @@ function DraftPageInner() {
                 className="w-full px-3 py-1.5 mb-2 rounded text-sm focus:outline-none"
                 style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff' }}
               />
-              <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
+              <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))' }}>
                 {filtered.map(hero => {
                   const isAvail = draft.isAvailable(hero);
                   return (
-                    <HeroPortrait
-                      key={hero.name}
-                      hero={hero}
-                      size="md"
-                      dimmed={!isAvail}
-                      showName
-                      onClick={isAvail ? () => handleHeroClick(hero) : undefined}
-                    />
+                    <div key={hero.name} onContextMenu={e => { e.preventDefault(); setDetailHero(hero); }}>
+                      <HeroPortrait
+                        hero={hero}
+                        size="md"
+                        dimmed={!isAvail}
+                        showName
+                        onClick={isAvail ? () => handleHeroClick(hero) : undefined}
+                      />
+                    </div>
                   );
                 })}
               </div>
@@ -212,6 +215,8 @@ function DraftPageInner() {
           <TeamPanel teamNumber={2} picks={[...draft.team2Picks]} bans={[...draft.team2Bans]} />
         </div>
       </div>
+      {/* Hero Detail Popup */}
+      {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}
     </div>
   );
 }
