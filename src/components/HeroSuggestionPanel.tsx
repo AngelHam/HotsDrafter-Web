@@ -82,6 +82,13 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
                   )}
                 </div>
               )}
+              {s.counteredByCount > 0 && (
+                <div className="flex gap-2 mt-0.5">
+                  <span className="text-[10px]" style={{ color: '#FFA500' }}>
+                    ⚠️ {s.counteredByCount} threat{s.counteredByCount > 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
               {i < 9 && (
                 <div className="text-[10px] opacity-60 mt-0.5" style={{ color: '#00FFFF' }}>
                   Shortcut: {i + 1}

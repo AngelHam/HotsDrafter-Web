@@ -94,7 +94,7 @@ export default function HeroPortrait({ hero, size = 'md', selected, banned, dimm
       )}
       </Tag>
       {showName && (
-        <span className="text-[9px] mt-0.5 text-center truncate w-full" style={{ opacity: dimmed ? 0.3 : 0.7 }}>
+        <span className="text-[9px] mt-0.5 text-center w-full leading-tight" style={{ opacity: dimmed ? 0.3 : 0.7, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {hero.nicknames[0]}
         </span>
       )}
