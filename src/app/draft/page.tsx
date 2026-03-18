@@ -167,6 +167,12 @@ function DraftPageInner() {
         <DraftProgressBar currentStep={step} />
       </div>
 
+      {/* Mobile Team Panels */}
+      <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-2 px-3 py-2" style={{ background: 'rgba(20, 25, 45, 0.35)' }}>
+        <TeamPanel teamNumber={1} picks={[...draft.team1Picks]} bans={[...draft.team1Bans]} />
+        <TeamPanel teamNumber={2} picks={[...draft.team2Picks]} bans={[...draft.team2Bans]} />
+      </div>
+
       {/* Main Content */}
       <div className="flex flex-1 gap-3 p-3 overflow-hidden">
         {/* Team 1 Panel - hidden on mobile */}
