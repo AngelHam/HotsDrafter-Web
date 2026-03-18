@@ -65,6 +65,11 @@ export default function TeamPanel({ teamNumber, picks, bans }: TeamPanelProps) {
               ⚠️ No Healer!
             </div>
           )}
+          {!picks.some(h => h.specialties.includes(Specialty.WAVECLEAR)) && (
+            <div className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(255,0,0,0.15)', color: '#FF6666', border: '1px solid #FF666633' }}>
+              ⚠️ No Waveclear!
+            </div>
+          )}
           {picks.filter(h => h.role === 'Healer').length >= 2 && (
             <div className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(255,165,0,0.15)', color: '#FFA500', border: '1px solid #FFA50033' }}>
               ⚠️ Double Healer

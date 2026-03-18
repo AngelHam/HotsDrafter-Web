@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
 import { DraftingTool, DRAFT_TEAM_ORDER, DRAFT_IS_BAN, matchesRoleFilter } from '@/data/DraftingTool';
@@ -29,21 +29,8 @@ function DraftPageInner() {
   const [roleFilter, setRoleFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [detailHero, setDetailHero] = useState<Hero | null>(null);
-  const [, setTick] = useState(0); // Force re-render
 
   useEffect(() => { DraftSettings.load(); }, []);
-
-  const forceUpdate = useCallback(() => setTick(t => t + 1), []);
-
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'z') { e.preventDefault(); handleUndo(); }
-      if (e.key === 'Escape') handleReset();
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  });
 
   const engine = useMemo(() => new HeroSuggestionEngine(draft, map), [draft, map]);
 
@@ -68,6 +55,26 @@ function DraftPageInner() {
     return engine.generateSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount);
   }, [engine, currentTeam, isBan, roleFilter, isComplete, step]);
 
+  // Keyboard shortcuts (Ctrl+Z undo, Escape reset, 1-9 suggestion quick-pick)
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'z') { e.preventDefault(); handleUndo(); }
+      if (e.key === 'Escape') handleReset();
+
+      const index = Number.parseInt(e.key, 10);
+      if (!Number.isNaN(index) && index >= 1 && index <= 9) {
+        const suggestion = suggestions[index - 1];
+        if (suggestion) {
+          e.preventDefault();
+          handleHeroClick(suggestion.hero);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [suggestions, step]);
+
   const handleHeroClick = (hero: Hero) => {
     if (isComplete) return;
     if (isBan) {
@@ -76,7 +83,6 @@ function DraftPageInner() {
       draft.pickHero(currentTeam, hero);
     }
     setStep(s => s + 1);
-    forceUpdate();
   };
 
   const handleUndo = () => {
@@ -86,13 +92,11 @@ function DraftPageInner() {
     const wasBan = DRAFT_IS_BAN[prevStep];
     draft.undoBanOrPick(prevTeam, wasBan);
     setStep(prevStep);
-    forceUpdate();
   };
 
   const handleReset = () => {
     draft.reset(ALL_HEROES);
     setStep(0);
-    forceUpdate();
   };
 
   // Win condition analysis when draft is complete
