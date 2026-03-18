@@ -88,10 +88,11 @@ export default function TeamPanel({ teamNumber, picks, bans }: TeamPanelProps) {
         <span className="text-xs font-semibold" style={{ color: '#FF6666' }}>BANS</span>
         <div className="flex gap-1 mt-1">
           {[0, 1, 2].map(i => (
-            <div key={i} className="rounded" style={{
+            <div key={i} className="rounded" title={bans[i] ? `Ban ${i + 1}: ${bans[i].nicknames[0]}` : `Ban Slot ${i + 1}`} style={{
               width: 40, height: 40,
               background: 'rgba(255,102,102,0.1)',
               border: '1px solid rgba(255,102,102,0.3)',
+              borderStyle: bans[i] ? 'solid' : 'dashed',
             }}>
               {bans[i] && <div className="animate-pop-in"><HeroPortrait hero={bans[i]} size="sm" banned /></div>}
             </div>
@@ -105,10 +106,11 @@ export default function TeamPanel({ teamNumber, picks, bans }: TeamPanelProps) {
         <div className="flex flex-col gap-1.5 mt-1">
           {[0, 1, 2, 3, 4].map(i => (
             <div key={i} className="flex items-center gap-2">
-              <div className="rounded" style={{
+              <div className="rounded" title={picks[i] ? `Pick ${i + 1}: ${picks[i].nicknames[0]}` : `Pick Slot ${i + 1}`} style={{
                 width: 40, height: 40,
                 background: 'rgba(255,215,0,0.1)',
                 border: `1px solid ${picks[i] ? '#FFD700' : 'rgba(255,215,0,0.2)'}`,
+                borderStyle: picks[i] ? 'solid' : 'dashed',
               }}>
                 {picks[i] && <div className="animate-pop-in"><HeroPortrait hero={picks[i]} size="sm" selected /></div>}
               </div>

@@ -28,6 +28,7 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
             key={s.hero.name}
             onClick={() => onSelect?.(s)}
             className="flex items-center gap-2 w-full p-2 rounded transition-all hover:bg-white/10 text-left"
+            title={i < 9 ? `Press ${i + 1} to quick-pick` : 'Suggestion'}
           >
             <span className="text-xs font-bold w-5 text-center" style={{ color: '#FFD700' }}>
               {i + 1}
@@ -62,6 +63,11 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
                       ↑{s.counterCount} ctr
                     </span>
                   )}
+                </div>
+              )}
+              {i < 9 && (
+                <div className="text-[10px] opacity-60 mt-0.5" style={{ color: '#00FFFF' }}>
+                  Shortcut: {i + 1}
                 </div>
               )}
             </div>
