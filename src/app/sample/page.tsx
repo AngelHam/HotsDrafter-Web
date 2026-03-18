@@ -61,7 +61,7 @@ function SampleDraftInner() {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
-        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">
+        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">
           ← Back
         </button>
         <h1 className="text-lg font-bold" style={{ color: '#FFD700' }}>🎲 Sample Draft</h1>
@@ -108,7 +108,7 @@ function SampleDraftInner() {
           </div>
           <button
             onClick={() => setDraft(generateRandomDraft())}
-            className="px-6 py-3 rounded-lg font-bold transition-all hover:scale-105"
+            className="px-6 py-3 rounded-lg font-bold transition-all hover:scale-105 hover:bg-white/10"
             style={{ background: '#FFD70022', border: '2px solid #FFD700', color: '#FFD700' }}
             title="Generate a new random draft"
           >

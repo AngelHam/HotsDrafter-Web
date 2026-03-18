@@ -50,10 +50,10 @@ export default function HistoryPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
-        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
+        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
         <h1 className="text-lg font-bold" style={{ color: '#BA55D3' }}>📜 Draft History</h1>
         {history.length > 0 && (
-          <button onClick={handleClear} className="text-sm px-3 py-1 rounded" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Delete all saved drafts">
+          <button onClick={handleClear} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Delete all saved drafts">
             Clear All
           </button>
         )}
@@ -94,7 +94,7 @@ export default function HistoryPage() {
                   </div>
                   <p className="text-xs mt-2 opacity-70">{record.verdict}</p>
                 </div>
-                <button onClick={() => handleDelete(i)} className="text-xs px-2 py-1 rounded" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Delete this draft record">
+                <button onClick={() => handleDelete(i)} className="text-xs px-2 py-1 rounded hover:bg-white/10" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Delete this draft record">
                   ✕
                 </button>
               </div>

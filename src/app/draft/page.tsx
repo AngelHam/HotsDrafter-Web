@@ -142,19 +142,19 @@ function DraftPageInner() {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 flex-wrap gap-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">
+          <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">
             ← Back
           </button>
-          <button onClick={handleReset} className="text-sm px-3 py-1 rounded" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Reset entire draft">
+          <button onClick={handleReset} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Reset entire draft">
             Reset
           </button>
-          <button onClick={handleUndo} disabled={step === 0} className="text-sm px-3 py-1 rounded disabled:opacity-30" style={{ color: '#FFD700', border: '1px solid #FFD70033' }} title="Undo last pick/ban (Ctrl+Z)">
+          <button onClick={handleUndo} disabled={step === 0} className="text-sm px-3 py-1 rounded disabled:opacity-30 hover:bg-white/10" style={{ color: '#FFD700', border: '1px solid #FFD70033' }} title="Undo last pick/ban (Ctrl+Z)">
             Undo
           </button>
         </div>
         <span className="text-sm font-semibold" style={{ color: '#FFD700' }}>📍 {map.name}</span>
         <div className="flex items-center gap-2">
-          <button onClick={() => router.push('/settings')} className="text-sm px-2 py-1 rounded" style={{ color: '#A9A9A9', border: '1px solid #A9A9A933' }} title="Settings">
+          <button onClick={() => router.push('/settings')} className="text-sm px-2 py-1 rounded hover:bg-white/10" style={{ color: '#A9A9A9', border: '1px solid #A9A9A933' }} title="Settings">
             ⚙️
           </button>
           <RoleFilterBar activeFilter={roleFilter} onFilterChange={setRoleFilter} />

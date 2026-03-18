@@ -57,7 +57,7 @@ export default function TeamBuilderPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
-        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
+        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
         <h1 className="text-lg font-bold" style={{ color: '#90EE90' }}>🏗️ Team Builder</h1>
         <select value={mapIdx} onChange={e => setMapIdx(Number(e.target.value))}
           className="text-sm px-2 py-1 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', color: '#FFD700', border: '1px solid rgba(68,102,136,0.5)' }}>
@@ -102,7 +102,7 @@ export default function TeamBuilderPage() {
           <div className="rounded-lg p-4 max-w-3xl max-h-[80vh] overflow-auto" style={{ background: '#1a1a2e', border: '2px solid #00FFFF' }}>
             <div className="flex justify-between mb-3">
               <h3 className="font-bold" style={{ color: '#00FFFF' }}>Select Hero</h3>
-              <button onClick={() => { setPickerOpen(null); setPickerSearch(''); }} className="text-sm px-2 py-1" style={{ color: '#FF6666' }} title="Close hero picker">✕ Close</button>
+              <button onClick={() => { setPickerOpen(null); setPickerSearch(''); }} className="text-sm px-2 py-1 hover:bg-white/10 rounded" style={{ color: '#FF6666' }} title="Close hero picker">✕ Close</button>
             </div>
             <input
               type="text"
@@ -152,7 +152,7 @@ function TeamSlots({ label, color, slots, onSlotClick, onClear }: {
               <>
                 <HeroPortrait hero={hero} size="sm" selected />
                 <span className="text-sm flex-1">{hero.nicknames[0]}</span>
-                <button onClick={(e) => { e.stopPropagation(); onClear(i); }} className="text-xs px-1" style={{ color: '#FF6666' }} title={`Clear slot ${i + 1}`}>✕</button>
+                <button onClick={(e) => { e.stopPropagation(); onClear(i); }} className="text-xs px-1 rounded hover:bg-white/10" style={{ color: '#FF6666' }} title={`Clear slot ${i + 1}`}>✕</button>
               </>
             ) : (
               <span className="text-sm opacity-40 cursor-pointer" onClick={() => onSlotClick(i)}>+ Pick {i + 1}</span>
