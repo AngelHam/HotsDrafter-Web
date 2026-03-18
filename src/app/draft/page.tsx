@@ -128,7 +128,7 @@ function DraftPageInner() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
+      <div className="flex items-center justify-between px-4 py-2 flex-wrap gap-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <div className="flex items-center gap-3">
           <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">
             ← Back
@@ -157,8 +157,8 @@ function DraftPageInner() {
 
       {/* Main Content */}
       <div className="flex flex-1 gap-3 p-3 overflow-hidden">
-        {/* Team 1 Panel */}
-        <div className="w-48 flex-shrink-0">
+        {/* Team 1 Panel - hidden on mobile */}
+        <div className="w-48 flex-shrink-0 hidden lg:block">
           <TeamPanel teamNumber={1} picks={[...draft.team1Picks]} bans={[...draft.team1Bans]} />
         </div>
 
@@ -210,8 +210,8 @@ function DraftPageInner() {
           )}
         </div>
 
-        {/* Team 2 Panel */}
-        <div className="w-48 flex-shrink-0">
+        {/* Team 2 Panel - hidden on mobile */}
+        <div className="w-48 flex-shrink-0 hidden lg:block">
           <TeamPanel teamNumber={2} picks={[...draft.team2Picks]} bans={[...draft.team2Bans]} />
         </div>
       </div>

@@ -30,10 +30,9 @@ export default function MapCard({ map, selected, onClick }: MapCardProps) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col justify-center px-3 py-2 rounded transition-all text-left"
+      className="flex flex-col justify-center px-3 py-2 rounded transition-all text-left w-full hover:brightness-110"
       style={{
-        width: 220,
-        height: 88,
+        minHeight: 72,
         background: selected ? 'rgba(0, 255, 255, 0.15)' : 'rgba(30, 40, 70, 0.7)',
         border: `2px solid ${selected ? '#00FFFF' : 'rgba(68, 102, 136, 0.5)'}`,
         color: isRandom ? '#FFD700' : '#FFFFFF',
