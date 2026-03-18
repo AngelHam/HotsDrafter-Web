@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ALL_HEROES } from '@/data/HeroData';
+import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import { specialtyToString } from '@/data/Specialty';
 import HeroPortrait from '@/components/HeroPortrait';
@@ -10,6 +10,10 @@ import type { Hero } from '@/data/Hero';
 
 const ROLE_COLORS: Record<string, string> = {
   Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347', Mage: '#BA55D3', Offlane: '#FFA500', Specialist: '#A9A9A9',
+};
+
+const TIER_COMPARE_COLORS: Record<string, string> = {
+  S: '#FFD700', A: '#90EE90', B: '#87CEEB', C: '#FFA500', D: '#FF6666',
 };
 
 export default function ComparePage() {
@@ -86,6 +90,25 @@ export default function ComparePage() {
                   : <span className="opacity-50">No synergy relationship</span>
                 }
               </p>
+            </div>
+
+            {/* Map Tier Comparison */}
+            <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+              <h3 className="text-xs font-bold mb-2" style={{ color: '#87CEEB' }}>MAP TIERS</h3>
+              <div className="space-y-1">
+                {ALL_MAPS.map(map => {
+                  const t1 = icyVeins.getHeroTierOnMap(hero1.nicknames[0], map.name);
+                  const t2 = icyVeins.getHeroTierOnMap(hero2.nicknames[0], map.name);
+                  return (
+                    <div key={map.name} className="flex items-center gap-2 text-[10px]">
+                      <span className="w-20 truncate opacity-60">{map.name.split(' ').slice(0, 2).join(' ')}</span>
+                      <span className="w-5 text-center font-bold" style={{ color: TIER_COMPARE_COLORS[t1] || '#888' }}>{t1}</span>
+                      <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
+                      <span className="w-5 text-center font-bold" style={{ color: TIER_COMPARE_COLORS[t2] || '#888' }}>{t2}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
