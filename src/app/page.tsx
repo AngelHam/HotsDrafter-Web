@@ -41,7 +41,7 @@ export default function StartupPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center px-4 py-8">
+    <main className="min-h-screen flex flex-col items-center px-4 py-8" role="main" aria-label="HotsDrafter main menu">
       {showTutorial && <FirstRunTutorial onClose={() => setShowTutorial(false)} />}
       <div className="animate-fade-slide-up" style={{ animationDelay: '0ms' }}>
         <h1 className="text-4xl font-bold tracking-wider mb-2 text-center" style={{ color: '#00FFFF' }}>

@@ -24,15 +24,17 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
   }
 
   return (
-    <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+    <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }} role="region" aria-label={title}>
       <h3 className="text-sm font-bold mb-2" style={{ color: '#00FFFF' }}>{title}</h3>
-      <div className="space-y-2">
+      <div className="space-y-2" role="list" aria-label="Hero suggestions">
         {suggestions.map((s, i) => (
           <button
             key={s.hero.name}
             onClick={() => onSelect?.(s)}
             className="flex items-center gap-2 w-full p-2 rounded transition-all hover:bg-white/10 text-left"
             title={i < 9 ? `Press ${i + 1} to quick-pick` : 'Suggestion'}
+            role="listitem"
+            aria-label={`Suggestion ${i + 1}: ${s.hero.nicknames[0]} - ${s.hero.role} - Score ${s.totalScore.toFixed(0)}`}
           >
             <span className="text-xs font-bold w-5 text-center" style={{ color: '#FFD700' }}>
               {i + 1}

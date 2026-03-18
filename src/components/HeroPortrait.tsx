@@ -60,6 +60,7 @@ export default function HeroPortrait({ hero, size = 'md', selected, banned, dimm
           '--glow-color': borderColor + '88',
         } as React.CSSProperties}
         title={hero.nicknames[0]}
+        aria-label={`${hero.nicknames[0]} - ${hero.role}${dimmed ? ' (unavailable)' : ''}${banned ? ' (banned)' : ''}${selected ? ' (selected)' : ''}`}
       >
       {imgError ? (
         <div className="w-full h-full rounded flex items-center justify-center" style={{ background: borderColor + '33' }}>

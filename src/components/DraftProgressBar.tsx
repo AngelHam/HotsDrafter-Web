@@ -11,7 +11,7 @@ export default function DraftProgressBar({ currentStep }: DraftProgressBarProps)
   const currentIsBan = currentStep < DRAFT_IS_BAN.length ? DRAFT_IS_BAN[currentStep] : false;
 
   return (
-    <div className="flex flex-col items-center gap-1.5">
+    <div className="flex flex-col items-center gap-1.5" role="progressbar" aria-label="Draft progress" aria-valuenow={currentStep} aria-valuemin={0} aria-valuemax={16}>
       <div className="flex items-center gap-4 text-xs" style={{ opacity: 0.9 }}>
         <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#4488FF' }} /> Team 1</span>
         <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#FF4444' }} /> Team 2</span>
