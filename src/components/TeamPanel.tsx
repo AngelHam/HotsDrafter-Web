@@ -22,9 +22,20 @@ export default function TeamPanel({ teamNumber, picks, bans }: TeamPanelProps) {
   const teamColor = teamNumber === 1 ? '#4488FF' : '#FF6666';
   const teamLabel = teamNumber === 1 ? 'TEAM 1 (You)' : 'TEAM 2 (Enemy)';
 
+  // Compute a simple composition score (0-100)
+  const compScore = picks.length > 0 ? computeCompScore(picks) : null;
+  const scoreColor = compScore !== null ? (compScore >= 80 ? '#90EE90' : compScore >= 50 ? '#FFD700' : '#FF6666') : '#666';
+
   return (
     <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-      <h3 className="text-sm font-bold mb-2" style={{ color: teamColor }}>{teamLabel}</h3>
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-bold" style={{ color: teamColor }}>{teamLabel}</h3>
+        {compScore !== null && (
+          <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ background: scoreColor + '22', color: scoreColor, border: `1px solid ${scoreColor}44` }}>
+            {compScore}
+          </span>
+        )}
+      </div>
 
       {/* Role Coverage */}
       {picks.length > 0 && (
@@ -109,4 +120,35 @@ export default function TeamPanel({ teamNumber, picks, bans }: TeamPanelProps) {
       </div>
     </div>
   );
+}
+
+function computeCompScore(picks: Hero[]): number {
+  let score = 20; // Base score for having picks
+
+  const hasTank = picks.some(h => h.role === 'Tank');
+  const hasHealer = picks.some(h => h.role === 'Healer');
+  const hasDPS = picks.some(h => h.role === 'DPS' || h.role === 'Mage');
+  const hasOfflane = picks.some(h => h.role === 'Offlane');
+  const hasWaveclear = picks.some(h => h.specialties.includes(Specialty.WAVECLEAR));
+  const hasEngage = picks.some(h => h.specialties.includes(Specialty.ENGAGE));
+  const hasHardCC = picks.some(h => h.specialties.includes(Specialty.HARD_CC));
+
+  // Role fulfillment (max 50 points)
+  if (hasTank) score += 15;
+  if (hasHealer) score += 15;
+  if (hasDPS) score += 10;
+  if (hasOfflane) score += 10;
+
+  // Specialty coverage (max 30 points)
+  if (hasWaveclear) score += 10;
+  if (hasEngage) score += 10;
+  if (hasHardCC) score += 10;
+
+  // Penalty for duplicates
+  const tankCount = picks.filter(h => h.role === 'Tank').length;
+  const healerCount = picks.filter(h => h.role === 'Healer').length;
+  if (tankCount >= 2) score -= 10;
+  if (healerCount >= 2) score -= 15;
+
+  return Math.max(0, Math.min(100, score));
 }
