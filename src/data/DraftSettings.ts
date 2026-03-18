@@ -11,6 +11,7 @@ export class DraftSettings {
   static currentAnalysisMode: AnalysisMode = AnalysisMode.Full;
   static suggestionCount = 5;
   static firstPickTeam = 1;
+  static quickDraft = false;
 
   static save(): void {
     if (typeof window === 'undefined') return;
@@ -20,6 +21,7 @@ export class DraftSettings {
       currentAnalysisMode: this.currentAnalysisMode,
       suggestionCount: this.suggestionCount,
       firstPickTeam: this.firstPickTeam,
+      quickDraft: this.quickDraft,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }
@@ -35,6 +37,7 @@ export class DraftSettings {
       if (data.currentAnalysisMode !== undefined) this.currentAnalysisMode = data.currentAnalysisMode;
       if (data.suggestionCount !== undefined) this.suggestionCount = data.suggestionCount;
       if (data.firstPickTeam !== undefined) this.firstPickTeam = data.firstPickTeam;
+      if (data.quickDraft !== undefined) this.quickDraft = data.quickDraft;
     } catch { /* ignore parse errors */ }
   }
 
@@ -44,6 +47,7 @@ export class DraftSettings {
     this.currentAnalysisMode = AnalysisMode.Full;
     this.suggestionCount = 5;
     this.firstPickTeam = 1;
+    this.quickDraft = false;
     if (typeof window !== 'undefined') {
       localStorage.removeItem(STORAGE_KEY);
     }

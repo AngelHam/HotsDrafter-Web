@@ -8,11 +8,13 @@ export default function SettingsPage() {
   const router = useRouter();
   const [suggestionCount, setSuggestionCount] = useState(5);
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>(AnalysisMode.Full);
+  const [quickDraft, setQuickDraft] = useState(false);
 
   useEffect(() => {
     DraftSettings.load();
     setSuggestionCount(DraftSettings.suggestionCount);
     setAnalysisMode(DraftSettings.currentAnalysisMode);
+    setQuickDraft(DraftSettings.quickDraft);
   }, []);
 
   const handleSuggestionCount = (n: number) => {
@@ -31,6 +33,7 @@ export default function SettingsPage() {
     DraftSettings.reset();
     setSuggestionCount(5);
     setAnalysisMode(AnalysisMode.Full);
+    setQuickDraft(false);
   };
 
   return (
@@ -89,6 +92,31 @@ export default function SettingsPage() {
                 <p className="text-xs opacity-60 mt-1">9-component weighted analysis</p>
               </button>
             </div>
+          </div>
+
+          {/* Reset */}
+
+          {/* Quick Draft */}
+          <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Quick Draft</h3>
+            <button
+              onClick={() => {
+                const next = !quickDraft;
+                setQuickDraft(next);
+                DraftSettings.quickDraft = next;
+                DraftSettings.save();
+              }}
+              className="px-4 py-2 rounded font-semibold transition-all hover:bg-white/10"
+              style={{
+                background: quickDraft ? '#90EE9022' : 'transparent',
+                border: `2px solid ${quickDraft ? '#90EE90' : 'rgba(68,102,136,0.5)'}`,
+                color: quickDraft ? '#90EE90' : '#888',
+              }}
+              title="Skip all bans and go straight to picks"
+            >
+              {quickDraft ? '✅ Enabled' : 'Disabled'}
+              <p className="text-xs opacity-60 mt-1">Skip bans — 10 picks only</p>
+            </button>
           </div>
 
           {/* Reset */}

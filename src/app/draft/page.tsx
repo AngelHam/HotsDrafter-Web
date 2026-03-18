@@ -36,11 +36,22 @@ function DraftPageInner() {
 
   useEffect(() => { DraftSettings.load(); }, []);
 
+  const isQuickDraft = DraftSettings.quickDraft;
+
+  // In quick draft mode, compute which steps to use (only non-ban steps)
+  const activeSteps = useMemo(() => {
+    if (!isQuickDraft) return DRAFT_TEAM_ORDER.map((_, i) => i);
+    return DRAFT_TEAM_ORDER.map((_, i) => i).filter(i => !DRAFT_IS_BAN[i]);
+  }, [isQuickDraft]);
+
+  const totalSteps = activeSteps.length;
+  const realStep = step < totalSteps ? activeSteps[step] : 16;
+
   const engine = useMemo(() => new HeroSuggestionEngine(draft, map), [draft, map]);
 
-  const currentTeam = step < 16 ? DRAFT_TEAM_ORDER[step] : 0;
-  const isBan = step < 16 ? DRAFT_IS_BAN[step] : false;
-  const isComplete = step >= 16;
+  const currentTeam = realStep < 16 ? DRAFT_TEAM_ORDER[realStep] : 0;
+  const isBan = realStep < 16 ? DRAFT_IS_BAN[realStep] : false;
+  const isComplete = step >= totalSteps;
 
   // Show ALL heroes, mark unavailable as dimmed
   const allHeroesSorted = [...ALL_HEROES].sort((a, b) => a.nicknames[0].localeCompare(b.nicknames[0]));
@@ -158,7 +169,7 @@ function DraftPageInner() {
 
   const statusText = isComplete
     ? '✅ Draft Complete!'
-    : `Team ${currentTeam} — ${isBan ? '🚫 BAN' : '✅ PICK'} a hero (Step ${step + 1}/16)`;
+    : `Team ${currentTeam} — ${isBan ? '🚫 BAN' : '✅ PICK'} a hero (Step ${step + 1}/${totalSteps})`;
 
   return (
     <div className="min-h-screen flex flex-col">
