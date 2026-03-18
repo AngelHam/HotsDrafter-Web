@@ -87,6 +87,8 @@ export interface HeroSuggestion {
   synergyCount: number;
   counterCount: number;
   counteredByCount: number;
+  synergyWith: string[];
+  countersAgainst: string[];
 }
 
 import type { Hero } from './Hero';

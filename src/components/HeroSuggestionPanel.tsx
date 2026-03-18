@@ -77,16 +77,22 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
                 ))}
               </div>
               {(s.synergyCount > 0 || s.counterCount > 0) && (
-                <div className="flex gap-2 mt-0.5">
-                  {s.synergyCount > 0 && (
-                    <span className="text-xs" style={{ color: '#90EE90' }}>
-                      +{s.synergyCount} syn
+                <div className="flex gap-2 mt-0.5 flex-wrap">
+                  {s.synergyWith && s.synergyWith.length > 0 && (
+                    <span className="text-[10px]" style={{ color: '#90EE90' }}>
+                      ✦ {s.synergyWith.join(', ')}
                     </span>
                   )}
-                  {s.counterCount > 0 && (
-                    <span className="text-xs" style={{ color: '#FF6347' }}>
-                      ↑{s.counterCount} ctr
+                  {s.countersAgainst && s.countersAgainst.length > 0 && (
+                    <span className="text-[10px]" style={{ color: '#FF6347' }}>
+                      ↑ vs {s.countersAgainst.join(', ')}
                     </span>
+                  )}
+                  {s.synergyCount > 0 && (!s.synergyWith || s.synergyWith.length === 0) && (
+                    <span className="text-[10px]" style={{ color: '#90EE90' }}>+{s.synergyCount} syn</span>
+                  )}
+                  {s.counterCount > 0 && (!s.countersAgainst || s.countersAgainst.length === 0) && (
+                    <span className="text-[10px]" style={{ color: '#FF6347' }}>↑{s.counterCount} ctr</span>
                   )}
                 </div>
               )}

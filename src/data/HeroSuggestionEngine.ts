@@ -167,6 +167,9 @@ export class HeroSuggestionEngine {
 
         const total = Math.max(synergyPoints + counterPoints - counteredPenalty + mapBonus + roleBonus, 0);
 
+        const synergyWith = teamPicks.filter(a => this.icyVeins.hasSynergy(hero.nicknames[0], a.nicknames[0])).map(a => a.nicknames[0]);
+        const countersAgainst = enemyPicks.filter(e => this.icyVeins.counters(hero.nicknames[0], e.nicknames[0])).map(e => e.nicknames[0]);
+
         suggestion = {
           hero, totalScore: total,
           explanation: this.generateSimpleExplanation(synCount, cntCount, cntByCount, teamPicks, enemyPicks),
@@ -174,6 +177,7 @@ export class HeroSuggestionEngine {
           winConditionScore: 0, rangeScore: 0, draftPositionScore: 0,
           damageBalanceScore: 0, counterpickRiskScore: 0,
           categories, synergyCount: synCount, counterCount: cntCount, counteredByCount: cntByCount,
+          synergyWith, countersAgainst,
         };
       } else {
         const synScore = this.scoreSynergy(hero, team);
@@ -198,6 +202,9 @@ export class HeroSuggestionEngine {
           cpRiskScore * HeroSuggestionEngine.COUNTERPICK_RISK_WEIGHT
         ) * 100;
 
+        const synWith = teamPicks.filter(a => this.icyVeins.hasSynergy(hero.nicknames[0], a.nicknames[0])).map(a => a.nicknames[0]);
+        const ctrAgainst = enemyPicks.filter(e => this.icyVeins.counters(hero.nicknames[0], e.nicknames[0])).map(e => e.nicknames[0]);
+
         suggestion = {
           hero, totalScore: total,
           explanation: this.generateExplanation(synScore, ctrScore, mapScore, roleScore, rngScore, wcScore, hero, team),
@@ -206,6 +213,7 @@ export class HeroSuggestionEngine {
           draftPositionScore: draftPosScore, damageBalanceScore: dmgBalScore,
           counterpickRiskScore: cpRiskScore,
           categories, synergyCount: synCount, counterCount: cntCount, counteredByCount: cntByCount,
+          synergyWith: synWith, countersAgainst: ctrAgainst,
         };
       }
 
@@ -253,6 +261,7 @@ export class HeroSuggestionEngine {
         roleNeedScore: 0, winConditionScore: 0, rangeScore: 0,
         draftPositionScore: 0, damageBalanceScore: 0, counterpickRiskScore: 0,
         categories, synergyCount: 0, counterCount: countersUsCount, counteredByCount: 0,
+        synergyWith: [], countersAgainst: [],
       });
     }
 
