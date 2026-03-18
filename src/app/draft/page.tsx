@@ -139,7 +139,12 @@ function DraftPageInner() {
           </button>
         </div>
         <span className="text-sm font-semibold" style={{ color: '#FFD700' }}>📍 {map.name}</span>
-        <RoleFilterBar activeFilter={roleFilter} onFilterChange={setRoleFilter} />
+        <div className="flex items-center gap-2">
+          <button onClick={() => router.push('/settings')} className="text-sm px-2 py-1 rounded" style={{ color: '#A9A9A9', border: '1px solid #A9A9A933' }} title="Settings">
+            ⚙️
+          </button>
+          <RoleFilterBar activeFilter={roleFilter} onFilterChange={setRoleFilter} />
+        </div>
       </div>
 
       {/* Status + Progress */}

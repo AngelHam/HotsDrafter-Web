@@ -77,7 +77,7 @@ export default function TeamPanel({ teamNumber, picks, bans }: TeamPanelProps) {
               background: 'rgba(255,102,102,0.1)',
               border: '1px solid rgba(255,102,102,0.3)',
             }}>
-              {bans[i] && <HeroPortrait hero={bans[i]} size="sm" banned />}
+              {bans[i] && <div className="animate-pop-in"><HeroPortrait hero={bans[i]} size="sm" banned /></div>}
             </div>
           ))}
         </div>
@@ -94,7 +94,7 @@ export default function TeamPanel({ teamNumber, picks, bans }: TeamPanelProps) {
                 background: 'rgba(255,215,0,0.1)',
                 border: `1px solid ${picks[i] ? '#FFD700' : 'rgba(255,215,0,0.2)'}`,
               }}>
-                {picks[i] && <HeroPortrait hero={picks[i]} size="sm" selected />}
+                {picks[i] && <div className="animate-pop-in"><HeroPortrait hero={picks[i]} size="sm" selected /></div>}
               </div>
               <span className="text-xs truncate opacity-80">
                 {picks[i]?.nicknames[0] || (
