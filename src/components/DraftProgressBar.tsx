@@ -7,45 +7,63 @@ interface DraftProgressBarProps {
 }
 
 export default function DraftProgressBar({ currentStep }: DraftProgressBarProps) {
+  const currentTeam = currentStep < DRAFT_TEAM_ORDER.length ? DRAFT_TEAM_ORDER[currentStep] : 0;
+  const currentIsBan = currentStep < DRAFT_IS_BAN.length ? DRAFT_IS_BAN[currentStep] : false;
+
   return (
-    <div className="flex gap-0.5 items-end">
-      {DRAFT_TEAM_ORDER.map((team, i) => {
-        const isBan = DRAFT_IS_BAN[i];
-        const isCurrent = i === currentStep;
-        const isDone = i < currentStep;
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="flex items-center gap-3 text-[10px]" style={{ opacity: 0.9 }}>
+        <span style={{ color: '#4488FF' }}>Team 1</span>
+        <span style={{ color: '#FF6666' }}>Team 2</span>
+        <span style={{ color: '#FFD700' }}>B = Ban</span>
+      </div>
 
-        const teamColor = team === 1 ? '#4488FF' : '#FF4444';
-        let bg: string;
-        if (isCurrent) bg = '#FFFFFF';
-        else if (isDone) bg = isBan ? '#FF666699' : teamColor + '99';
-        else bg = isBan ? '#FF666633' : teamColor + '33';
+      <div className="flex gap-0.5 items-end">
+        {DRAFT_TEAM_ORDER.map((team, i) => {
+          const isBan = DRAFT_IS_BAN[i];
+          const isCurrent = i === currentStep;
+          const isDone = i < currentStep;
 
-        return (
-          <div
-            key={i}
-            className="flex flex-col items-center"
-            title={`Step ${i + 1}: Team ${team} ${isBan ? 'BAN' : 'PICK'}`}
-          >
+          const teamColor = team === 1 ? '#4488FF' : '#FF4444';
+          let bg: string;
+          if (isCurrent) bg = '#FFFFFF';
+          else if (isDone) bg = isBan ? '#FF666699' : teamColor + '99';
+          else bg = isBan ? '#FF666633' : teamColor + '33';
+
+          return (
             <div
-              className="rounded-sm transition-all flex items-center justify-center"
-              style={{
-                width: isCurrent ? 28 : 18,
-                height: isCurrent ? 20 : 14,
-                background: bg,
-                border: isCurrent ? '2px solid #FFD700' : `1px solid ${isDone ? teamColor + '66' : 'transparent'}`,
-                fontSize: 8,
-                color: isDone || isCurrent ? '#fff' : '#666',
-                fontWeight: isCurrent ? 'bold' : 'normal',
-              }}
+              key={i}
+              className="flex flex-col items-center"
+              title={`Step ${i + 1}: Team ${team} ${isBan ? 'BAN' : 'PICK'}`}
             >
-              {isDone || isCurrent ? (i + 1) : ''}
+              <div
+                className="rounded-sm transition-all flex items-center justify-center"
+                style={{
+                  width: isCurrent ? 28 : 18,
+                  height: isCurrent ? 20 : 14,
+                  background: bg,
+                  border: isCurrent ? '2px solid #FFD700' : `1px solid ${isDone ? teamColor + '66' : 'transparent'}`,
+                  boxShadow: isCurrent ? '0 0 10px rgba(255,215,0,0.45)' : 'none',
+                  fontSize: 8,
+                  color: isDone || isCurrent ? '#fff' : '#666',
+                  fontWeight: isCurrent ? 'bold' : 'normal',
+                }}
+              >
+                {isDone || isCurrent ? (i + 1) : ''}
+              </div>
+              <span className="text-[7px] mt-0.5" style={{ color: isBan ? '#FF6666' : teamColor, opacity: isDone ? 0.8 : 0.4 }}>
+                {isBan ? 'B' : `T${team}`}
+              </span>
             </div>
-            <span className="text-[7px] mt-0.5" style={{ color: isBan ? '#FF6666' : teamColor, opacity: isDone ? 0.8 : 0.4 }}>
-              {isBan ? 'B' : `T${team}`}
-            </span>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
+
+      <div className="text-[11px] font-semibold" style={{ color: currentIsBan ? '#FF6666' : (currentTeam === 1 ? '#4488FF' : '#FF6666') }}>
+        {currentStep >= DRAFT_TEAM_ORDER.length
+          ? 'Draft Complete'
+          : `Now: Team ${currentTeam} ${currentIsBan ? 'BAN' : 'PICK'} (${currentStep + 1}/16)`}
+      </div>
     </div>
   );
 }
