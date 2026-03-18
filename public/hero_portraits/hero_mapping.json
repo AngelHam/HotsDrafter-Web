@@ -1,0 +1,452 @@
+{
+  "Abathur": {
+    "index": 0,
+    "position": 0,
+    "filename": "Abathur.png"
+  },
+  "Alarak": {
+    "index": 1,
+    "position": 50,
+    "filename": "Alarak.png"
+  },
+  "Alexstrasza": {
+    "index": 2,
+    "position": 100,
+    "filename": "Alexstrasza.png"
+  },
+  "Ana": {
+    "index": 3,
+    "position": 150,
+    "filename": "Ana.png"
+  },
+  "Anduin": {
+    "index": 4,
+    "position": 200,
+    "filename": "Anduin.png"
+  },
+  "Anubarak": {
+    "index": 5,
+    "position": 250,
+    "filename": "Anubarak.png"
+  },
+  "Artanis": {
+    "index": 6,
+    "position": 300,
+    "filename": "Artanis.png"
+  },
+  "Arthas": {
+    "index": 7,
+    "position": 350,
+    "filename": "Arthas.png"
+  },
+  "Auriel": {
+    "index": 8,
+    "position": 400,
+    "filename": "Auriel.png"
+  },
+  "Azmodan": {
+    "index": 9,
+    "position": 450,
+    "filename": "Azmodan.png"
+  },
+  "Blaze": {
+    "index": 10,
+    "position": 500,
+    "filename": "Blaze.png"
+  },
+  "Brightwing": {
+    "index": 11,
+    "position": 550,
+    "filename": "Brightwing.png"
+  },
+  "Cassia": {
+    "index": 12,
+    "position": 600,
+    "filename": "Cassia.png"
+  },
+  "Chen": {
+    "index": 13,
+    "position": 650,
+    "filename": "Chen.png"
+  },
+  "Cho": {
+    "index": 14,
+    "position": 700,
+    "filename": "Cho.png"
+  },
+  "Chromie": {
+    "index": 15,
+    "position": 750,
+    "filename": "Chromie.png"
+  },
+  "Deathwing": {
+    "index": 16,
+    "position": 800,
+    "filename": "Deathwing.png"
+  },
+  "Deckard": {
+    "index": 17,
+    "position": 850,
+    "filename": "Deckard.png"
+  },
+  "Dehaka": {
+    "index": 18,
+    "position": 900,
+    "filename": "Dehaka.png"
+  },
+  "Diablo": {
+    "index": 19,
+    "position": 950,
+    "filename": "Diablo.png"
+  },
+  "D.Va": {
+    "index": 20,
+    "position": 1000,
+    "filename": "D.Va.png"
+  },
+  "E.T.C.": {
+    "index": 21,
+    "position": 1050,
+    "filename": "E.T.C..png"
+  },
+  "Falstad": {
+    "index": 22,
+    "position": 1100,
+    "filename": "Falstad.png"
+  },
+  "Fenix": {
+    "index": 23,
+    "position": 1150,
+    "filename": "Fenix.png"
+  },
+  "Gall": {
+    "index": 24,
+    "position": 1200,
+    "filename": "Gall.png"
+  },
+  "Garrosh": {
+    "index": 25,
+    "position": 1250,
+    "filename": "Garrosh.png"
+  },
+  "Gazlowe": {
+    "index": 26,
+    "position": 1300,
+    "filename": "Gazlowe.png"
+  },
+  "Genji": {
+    "index": 27,
+    "position": 1350,
+    "filename": "Genji.png"
+  },
+  "Greymane": {
+    "index": 28,
+    "position": 1400,
+    "filename": "Greymane.png"
+  },
+  "Guldan": {
+    "index": 29,
+    "position": 1450,
+    "filename": "Guldan.png"
+  },
+  "Hanzo": {
+    "index": 30,
+    "position": 1500,
+    "filename": "Hanzo.png"
+  },
+  "Illidan": {
+    "index": 31,
+    "position": 1550,
+    "filename": "Illidan.png"
+  },
+  "Imperius": {
+    "index": 32,
+    "position": 1600,
+    "filename": "Imperius.png"
+  },
+  "Jaina": {
+    "index": 33,
+    "position": 1650,
+    "filename": "Jaina.png"
+  },
+  "Johanna": {
+    "index": 34,
+    "position": 1700,
+    "filename": "Johanna.png"
+  },
+  "Junkrat": {
+    "index": 35,
+    "position": 1750,
+    "filename": "Junkrat.png"
+  },
+  "Kaelthas": {
+    "index": 36,
+    "position": 1800,
+    "filename": "Kaelthas.png"
+  },
+  "KelThuzad": {
+    "index": 37,
+    "position": 1850,
+    "filename": "KelThuzad.png"
+  },
+  "Kerrigan": {
+    "index": 38,
+    "position": 1900,
+    "filename": "Kerrigan.png"
+  },
+  "Kharazim": {
+    "index": 39,
+    "position": 1950,
+    "filename": "Kharazim.png"
+  },
+  "Leoric": {
+    "index": 40,
+    "position": 2000,
+    "filename": "Leoric.png"
+  },
+  "Li-Li": {
+    "index": 41,
+    "position": 2050,
+    "filename": "Li-Li.png"
+  },
+  "Li-Ming": {
+    "index": 42,
+    "position": 2100,
+    "filename": "Li-Ming.png"
+  },
+  "Lt-Morales": {
+    "index": 43,
+    "position": 2150,
+    "filename": "Lt-Morales.png"
+  },
+  "Lucio": {
+    "index": 44,
+    "position": 2200,
+    "filename": "Lucio.png"
+  },
+  "Lunara": {
+    "index": 45,
+    "position": 2250,
+    "filename": "Lunara.png"
+  },
+  "Maiev": {
+    "index": 46,
+    "position": 2300,
+    "filename": "Maiev.png"
+  },
+  "MalGanis": {
+    "index": 47,
+    "position": 2350,
+    "filename": "MalGanis.png"
+  },
+  "Malfurion": {
+    "index": 48,
+    "position": 2400,
+    "filename": "Malfurion.png"
+  },
+  "Malthael": {
+    "index": 49,
+    "position": 2450,
+    "filename": "Malthael.png"
+  },
+  "Medivh": {
+    "index": 50,
+    "position": 2500,
+    "filename": "Medivh.png"
+  },
+  "Mei": {
+    "index": 51,
+    "position": 2550,
+    "filename": "Mei.png"
+  },
+  "Mephisto": {
+    "index": 52,
+    "position": 2600,
+    "filename": "Mephisto.png"
+  },
+  "Muradin": {
+    "index": 53,
+    "position": 2650,
+    "filename": "Muradin.png"
+  },
+  "Murky": {
+    "index": 54,
+    "position": 2700,
+    "filename": "Murky.png"
+  },
+  "Nazeebo": {
+    "index": 55,
+    "position": 2750,
+    "filename": "Nazeebo.png"
+  },
+  "Nova": {
+    "index": 56,
+    "position": 2800,
+    "filename": "Nova.png"
+  },
+  "Orphea": {
+    "index": 57,
+    "position": 2850,
+    "filename": "Orphea.png"
+  },
+  "Probius": {
+    "index": 58,
+    "position": 2900,
+    "filename": "Probius.png"
+  },
+  "Qhira": {
+    "index": 59,
+    "position": 2950,
+    "filename": "Qhira.png"
+  },
+  "Ragnaros": {
+    "index": 60,
+    "position": 3000,
+    "filename": "Ragnaros.png"
+  },
+  "Raynor": {
+    "index": 61,
+    "position": 3050,
+    "filename": "Raynor.png"
+  },
+  "Rehgar": {
+    "index": 62,
+    "position": 3100,
+    "filename": "Rehgar.png"
+  },
+  "Rexxar": {
+    "index": 63,
+    "position": 3150,
+    "filename": "Rexxar.png"
+  },
+  "Samuro": {
+    "index": 64,
+    "position": 3200,
+    "filename": "Samuro.png"
+  },
+  "Sgt-Hammer": {
+    "index": 65,
+    "position": 3250,
+    "filename": "Sgt-Hammer.png"
+  },
+  "Sonya": {
+    "index": 66,
+    "position": 3300,
+    "filename": "Sonya.png"
+  },
+  "Stitches": {
+    "index": 67,
+    "position": 3350,
+    "filename": "Stitches.png"
+  },
+  "Stukov": {
+    "index": 68,
+    "position": 3400,
+    "filename": "Stukov.png"
+  },
+  "Sylvanas": {
+    "index": 69,
+    "position": 3450,
+    "filename": "Sylvanas.png"
+  },
+  "Tassadar": {
+    "index": 70,
+    "position": 3500,
+    "filename": "Tassadar.png"
+  },
+  "The-Butcher": {
+    "index": 71,
+    "position": 3550,
+    "filename": "The-Butcher.png"
+  },
+  "The-Lost-Vikings": {
+    "index": 72,
+    "position": 3600,
+    "filename": "The-Lost-Vikings.png"
+  },
+  "Thrall": {
+    "index": 73,
+    "position": 3650,
+    "filename": "Thrall.png"
+  },
+  "Tracer": {
+    "index": 74,
+    "position": 3700,
+    "filename": "Tracer.png"
+  },
+  "Tychus": {
+    "index": 75,
+    "position": 3750,
+    "filename": "Tychus.png"
+  },
+  "Tyrael": {
+    "index": 76,
+    "position": 3800,
+    "filename": "Tyrael.png"
+  },
+  "Tyrande": {
+    "index": 77,
+    "position": 3850,
+    "filename": "Tyrande.png"
+  },
+  "Uther": {
+    "index": 78,
+    "position": 3900,
+    "filename": "Uther.png"
+  },
+  "Valeera": {
+    "index": 79,
+    "position": 3950,
+    "filename": "Valeera.png"
+  },
+  "Valla": {
+    "index": 80,
+    "position": 4000,
+    "filename": "Valla.png"
+  },
+  "Varian": {
+    "index": 81,
+    "position": 4050,
+    "filename": "Varian.png"
+  },
+  "Whitemane": {
+    "index": 82,
+    "position": 4100,
+    "filename": "Whitemane.png"
+  },
+  "Xul": {
+    "index": 83,
+    "position": 4150,
+    "filename": "Xul.png"
+  },
+  "Yrel": {
+    "index": 84,
+    "position": 4200,
+    "filename": "Yrel.png"
+  },
+  "Zagara": {
+    "index": 85,
+    "position": 4250,
+    "filename": "Zagara.png"
+  },
+  "Zarya": {
+    "index": 86,
+    "position": 4300,
+    "filename": "Zarya.png"
+  },
+  "Zeratul": {
+    "index": 87,
+    "position": 4350,
+    "filename": "Zeratul.png"
+  },
+  "Zuljin": {
+    "index": 88,
+    "position": 4400,
+    "filename": "Zuljin.png"
+  },
+  "Hogger": {
+    "index": 89,
+    "position": 4450,
+    "filename": "Hogger.png"
+  }
+}
