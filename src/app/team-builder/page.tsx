@@ -2,12 +2,31 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
+import { ALL_HEROES, ALL_MAPS, findHeroByName } from '@/data/HeroData';
 import { TeamComposition } from '@/data/TeamComposition';
 import { analyzeWinCondition } from '@/data/WinConditionAnalyzer';
 import { winConditionToString } from '@/data/SuggestionTypes';
 import HeroPortrait from '@/components/HeroPortrait';
 import type { Hero } from '@/data/Hero';
+
+const TEAM_TEMPLATES: Record<string, string[]> = {
+  Standard: ['Johanna', 'Malfurion', 'Sonya', 'Jaina', 'Raynor'],
+  Dive: ['Diablo', 'Uther', 'Illidan', 'Greymane', 'Genji'],
+  Poke: ['Johanna', 'Deckard', 'Azmodan', 'Chromie', 'Hanzo'],
+  Wombo: ['E.T.C.', 'Stukov', 'Jaina', 'Kael\'thas', 'Mephisto'],
+};
+
+function toTeamSlots(heroNames: string[]): (Hero | null)[] {
+  const found = heroNames
+    .map(name => findHeroByName(name) ?? null)
+    .slice(0, 5);
+
+  while (found.length < 5) {
+    found.push(null);
+  }
+
+  return found;
+}
 
 export default function TeamBuilderPage() {
   const router = useRouter();
@@ -54,6 +73,18 @@ export default function TeamBuilderPage() {
     else { const c = [...team2]; c[slot] = null; setTeam2(c); }
   };
 
+  const applyTemplate = (team: 1 | 2, templateName: string) => {
+    const template = TEAM_TEMPLATES[templateName];
+    if (!template) return;
+
+    const slots = toTeamSlots(template);
+    if (team === 1) {
+      setTeam1(slots);
+    } else {
+      setTeam2(slots);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
@@ -73,6 +104,44 @@ export default function TeamBuilderPage() {
 
         {/* Center Analysis */}
         <div className="flex-1 flex flex-col gap-4">
+          <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+            <h3 className="font-bold mb-2" style={{ color: '#FFD700' }}>Team Templates</h3>
+            <div className="grid sm:grid-cols-2 gap-2">
+              <div>
+                <p className="text-xs mb-1 opacity-70">Apply to Team 1</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.keys(TEAM_TEMPLATES).map(name => (
+                    <button
+                      key={`t1-${name}`}
+                      onClick={() => applyTemplate(1, name)}
+                      className="text-xs px-2 py-1 rounded hover:bg-white/10"
+                      style={{ color: '#4488FF', border: '1px solid #4488FF44' }}
+                      title={`Apply ${name} template to Team 1`}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs mb-1 opacity-70">Apply to Team 2</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.keys(TEAM_TEMPLATES).map(name => (
+                    <button
+                      key={`t2-${name}`}
+                      onClick={() => applyTemplate(2, name)}
+                      className="text-xs px-2 py-1 rounded hover:bg-white/10"
+                      style={{ color: '#FF6666', border: '1px solid #FF666644' }}
+                      title={`Apply ${name} template to Team 2`}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
           {analysis ? (
             <>
               <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
