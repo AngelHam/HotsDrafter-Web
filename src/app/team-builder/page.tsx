@@ -289,6 +289,15 @@ function TeamSlots({ label, color, slots, onSlotClick, onClear }: {
           </span>
         )}
       </div>
+      {/* Score bar */}
+      {compScore !== null && (
+        <div className="h-1.5 rounded-full overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.08)' }}>
+          <div className="h-full rounded-full transition-all" style={{
+            width: `${compScore}%`,
+            background: `linear-gradient(90deg, ${scoreColor}, ${scoreColor}88)`,
+          }} />
+        </div>
+      )}
       {picks.length > 0 && (
         <div className="flex gap-1 mb-2 flex-wrap">
           {BUILDER_ROLE_CHECKS.map(({ label: rl, icon, check }) => {
