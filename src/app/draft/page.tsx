@@ -28,6 +28,7 @@ function DraftPageInner() {
   const [step, setStep] = useState(0);
   const [roleFilter, setRoleFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [heroView, setHeroView] = useState<'grid' | 'roles'>('grid');
   const [detailHero, setDetailHero] = useState<Hero | null>(null);
 
   useEffect(() => { DraftSettings.load(); }, []);
@@ -48,6 +49,13 @@ function DraftPageInner() {
     }
     return true;
   });
+
+  const groupedByRole = useMemo(() => {
+    const order = ['Tank', 'Healer', 'Offlane', 'DPS', 'Mage', 'Specialist'];
+    return order
+      .map(role => ({ role, heroes: filtered.filter(hero => hero.role === role) }))
+      .filter(group => group.heroes.length > 0);
+  }, [filtered]);
 
   const suggestions = useMemo(() => {
     if (isComplete || step >= 16) return [];
@@ -186,22 +194,75 @@ function DraftPageInner() {
                 className="w-full px-3 py-1.5 mb-2 rounded text-sm focus:outline-none"
                 style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff' }}
               />
-              <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))' }}>
-                {filtered.map(hero => {
-                  const isAvail = draft.isAvailable(hero);
-                  return (
-                    <div key={hero.name} onContextMenu={e => { e.preventDefault(); setDetailHero(hero); }}>
-                      <HeroPortrait
-                        hero={hero}
-                        size="md"
-                        dimmed={!isAvail}
-                        showName
-                        onClick={isAvail ? () => handleHeroClick(hero) : undefined}
-                      />
-                    </div>
-                  );
-                })}
+              <div className="flex items-center gap-2 mb-2">
+                <button
+                  onClick={() => setHeroView('grid')}
+                  className="text-xs px-2 py-1 rounded"
+                  style={{
+                    color: heroView === 'grid' ? '#00FFFF' : '#A9A9A9',
+                    border: `1px solid ${heroView === 'grid' ? '#00FFFF66' : '#A9A9A933'}`,
+                    background: heroView === 'grid' ? 'rgba(0,255,255,0.12)' : 'transparent',
+                  }}
+                  title="Show all heroes in one grid"
+                >
+                  Grid View
+                </button>
+                <button
+                  onClick={() => setHeroView('roles')}
+                  className="text-xs px-2 py-1 rounded"
+                  style={{
+                    color: heroView === 'roles' ? '#00FFFF' : '#A9A9A9',
+                    border: `1px solid ${heroView === 'roles' ? '#00FFFF66' : '#A9A9A933'}`,
+                    background: heroView === 'roles' ? 'rgba(0,255,255,0.12)' : 'transparent',
+                  }}
+                  title="Group heroes by role"
+                >
+                  Role View
+                </button>
               </div>
+
+              {heroView === 'grid' ? (
+                <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))' }}>
+                  {filtered.map(hero => {
+                    const isAvail = draft.isAvailable(hero);
+                    return (
+                      <div key={hero.name} onContextMenu={e => { e.preventDefault(); setDetailHero(hero); }}>
+                        <HeroPortrait
+                          hero={hero}
+                          size="md"
+                          dimmed={!isAvail}
+                          showName
+                          onClick={isAvail ? () => handleHeroClick(hero) : undefined}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {groupedByRole.map(group => (
+                    <div key={group.role}>
+                      <h4 className="text-xs font-bold mb-1" style={{ color: '#FFD700' }}>{group.role}</h4>
+                      <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))' }}>
+                        {group.heroes.map(hero => {
+                          const isAvail = draft.isAvailable(hero);
+                          return (
+                            <div key={hero.name} onContextMenu={e => { e.preventDefault(); setDetailHero(hero); }}>
+                              <HeroPortrait
+                                hero={hero}
+                                size="md"
+                                dimmed={!isAvail}
+                                showName
+                                onClick={isAvail ? () => handleHeroClick(hero) : undefined}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
