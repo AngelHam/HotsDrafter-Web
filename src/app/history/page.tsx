@@ -6,6 +6,29 @@ import { loadHistory, clearHistory, deleteDraft, type DraftRecord } from '@/data
 import { findHeroByName } from '@/data/HeroData';
 import HeroPortrait from '@/components/HeroPortrait';
 
+function HeroNameStrip({ names, banned = false }: { names: string[]; banned?: boolean }) {
+  if (names.length === 0) {
+    return <span className="opacity-40">None</span>;
+  }
+
+  return (
+    <div className="flex gap-0.5 mt-1 flex-wrap">
+      {names.map((name, idx) => {
+        const hero = findHeroByName(name);
+        if (!hero) {
+          return (
+            <span key={`${name}-${idx}`} className="text-xs px-1 rounded" style={{ background: 'rgba(255,255,255,0.08)' }}>
+              {name}
+            </span>
+          );
+        }
+
+        return <HeroPortrait key={`${name}-${idx}`} hero={hero} size="sm" banned={banned} />;
+      })}
+    </div>
+  );
+}
+
 export default function HistoryPage() {
   const router = useRouter();
   const [history, setHistory] = useState<DraftRecord[]>([]);
@@ -54,25 +77,17 @@ export default function HistoryPage() {
                   <div className="grid grid-cols-2 gap-4 text-xs">
                     <div>
                       <span style={{ color: '#4488FF' }}>Team 1:</span>
-                      <div className="flex gap-0.5 mt-1 flex-wrap">
-                        {record.team1Picks.map(name => {
-                          const hero = findHeroByName(name);
-                          return hero ? <HeroPortrait key={name} hero={hero} size="sm" /> : <span key={name} className="text-xs">{name}</span>;
-                        })}
-                      </div>
-                      <span className="opacity-50">Bans: {record.team1Bans.join(', ')}</span>
+                      <HeroNameStrip names={record.team1Picks} />
+                      <span className="opacity-50 block mt-1">Bans:</span>
+                      <HeroNameStrip names={record.team1Bans} banned />
                       <br />
                       <span style={{ color: '#00FFFF' }}>{record.team1WinCondition}</span>
                     </div>
                     <div>
                       <span style={{ color: '#FF6666' }}>Team 2:</span>
-                      <div className="flex gap-0.5 mt-1 flex-wrap">
-                        {record.team2Picks.map(name => {
-                          const hero = findHeroByName(name);
-                          return hero ? <HeroPortrait key={name} hero={hero} size="sm" /> : <span key={name} className="text-xs">{name}</span>;
-                        })}
-                      </div>
-                      <span className="opacity-50">Bans: {record.team2Bans.join(', ')}</span>
+                      <HeroNameStrip names={record.team2Picks} />
+                      <span className="opacity-50 block mt-1">Bans:</span>
+                      <HeroNameStrip names={record.team2Bans} banned />
                       <br />
                       <span style={{ color: '#00FFFF' }}>{record.team2WinCondition}</span>
                     </div>
