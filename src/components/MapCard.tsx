@@ -1,6 +1,7 @@
 'use client';
 
 import type { HotsMap } from '@/data/Map';
+import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 
 interface MapCardProps {
   map: HotsMap | null; // null = Random
@@ -22,10 +23,16 @@ const MAP_ICONS: Record<string, string> = {
   'Volskaya Foundry': '🎯 Objective ⚔️ Teamfight',
 };
 
+function getTopHeroes(mapName: string): string[] {
+  const db = IcyVeinsDatabase.getInstance();
+  return db.getSTierHeroes(mapName).slice(0, 3);
+}
+
 export default function MapCard({ map, selected, onClick }: MapCardProps) {
   const isRandom = !map;
   const name = isRandom ? '🎲 Random' : map.name;
   const icons = isRandom ? 'Any map, any strategy!' : (MAP_ICONS[map.name] || '');
+  const topHeroes = !isRandom ? getTopHeroes(map.name) : [];
 
   return (
     <button
@@ -37,10 +44,15 @@ export default function MapCard({ map, selected, onClick }: MapCardProps) {
         border: `2px solid ${selected ? '#00FFFF' : 'rgba(68, 102, 136, 0.5)'}`,
         color: isRandom ? '#FFD700' : '#FFFFFF',
       }}
-      title={`${name} ${icons ? `- ${icons}` : ''}`}
+      title={`${name}${icons ? ` - ${icons}` : ''}${topHeroes.length ? ` | S-tier: ${topHeroes.join(', ')}` : ''}`}
     >
       <span className="font-bold text-sm truncate">{name}</span>
-      <span className="text-xs opacity-70 mt-1 truncate">{icons}</span>
+      <span className="text-xs opacity-70 mt-0.5 truncate">{icons}</span>
+      {topHeroes.length > 0 && (
+        <span className="text-[9px] mt-0.5 truncate" style={{ color: '#FFD700', opacity: 0.7 }}>
+          ★ {topHeroes.join(', ')}
+        </span>
+      )}
     </button>
   );
 }

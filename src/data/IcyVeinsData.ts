@@ -84,6 +84,12 @@ class IcyVeinsDatabase {
     const scores: Record<string, number> = { S: 5, A: 4, B: 3, C: 2, D: 1 };
     return scores[tier] || 3;
   }
+
+  getSTierHeroes(mapName: string): string[] {
+    const mapData = data.maps[mapName];
+    if (!mapData) return [];
+    return flattenTier(mapData.S);
+  }
 }
 
 export { IcyVeinsDatabase };
