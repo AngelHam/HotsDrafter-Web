@@ -147,11 +147,41 @@ export default function TeamBuilderPage() {
           {analysis ? (
             <>
               <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-                <h3 className="font-bold mb-2" style={{ color: '#00FFFF' }}>Composition Analysis</h3>
-                <p className="text-sm mb-1"><span style={{ color: '#4488FF' }}>Team 1:</span> {winConditionToString(analysis.team1.primary)}</p>
-                <p className="text-xs opacity-80 mb-3">{analysis.team1.keyFocus}</p>
-                <p className="text-sm mb-1"><span style={{ color: '#FF6666' }}>Team 2:</span> {winConditionToString(analysis.team2.primary)}</p>
-                <p className="text-xs opacity-80">{analysis.team2.keyFocus}</p>
+                <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Composition Analysis</h3>
+
+                {/* Win Condition Comparison */}
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div className="p-2 rounded" style={{ background: 'rgba(68,136,255,0.1)', border: '1px solid #4488FF44' }}>
+                    <p className="text-xs font-semibold mb-1" style={{ color: '#4488FF' }}>Team 1 Strategy</p>
+                    <p className="text-sm font-bold" style={{ color: '#FFD700' }}>{winConditionToString(analysis.team1.primary)}</p>
+                    <p className="text-[10px] opacity-70 mt-1">{analysis.team1.description}</p>
+                  </div>
+                  <div className="p-2 rounded" style={{ background: 'rgba(255,102,102,0.1)', border: '1px solid #FF666644' }}>
+                    <p className="text-xs font-semibold mb-1" style={{ color: '#FF6666' }}>Team 2 Strategy</p>
+                    <p className="text-sm font-bold" style={{ color: '#FFD700' }}>{winConditionToString(analysis.team2.primary)}</p>
+                    <p className="text-[10px] opacity-70 mt-1">{analysis.team2.description}</p>
+                  </div>
+                </div>
+
+                {/* Key Focus & Counter */}
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <span style={{ color: '#4488FF' }}>Team 1 Focus:</span>{' '}
+                    <span className="opacity-70">{analysis.team1.keyFocus}</span>
+                  </div>
+                  <div>
+                    <span style={{ color: '#FF6666' }}>Team 2 Focus:</span>{' '}
+                    <span className="opacity-70">{analysis.team2.keyFocus}</span>
+                  </div>
+                  <div className="pt-2" style={{ borderTop: '1px solid rgba(68,102,136,0.3)' }}>
+                    <span style={{ color: '#FF6347' }}>How to beat Team 1:</span>{' '}
+                    <span className="opacity-70">{analysis.team1.enemyCounterStrategy}</span>
+                  </div>
+                  <div>
+                    <span style={{ color: '#FF6347' }}>How to beat Team 2:</span>{' '}
+                    <span className="opacity-70">{analysis.team2.enemyCounterStrategy}</span>
+                  </div>
+                </div>
               </div>
             </>
           ) : (
