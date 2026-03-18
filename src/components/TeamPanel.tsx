@@ -14,6 +14,7 @@ interface TeamPanelProps {
   picks: Hero[];
   bans: Hero[];
   isActive?: boolean;
+  enemyPicks?: Hero[];
 }
 
 const ROLE_CHECKS = [
@@ -24,7 +25,7 @@ const ROLE_CHECKS = [
   { label: 'Waveclear', icon: '🌊', check: (h: Hero) => h.specialties.includes(Specialty.WAVECLEAR) },
 ];
 
-export default function TeamPanel({ teamNumber, picks, bans, isActive }: TeamPanelProps) {
+export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPicks = [] }: TeamPanelProps) {
   const teamColor = teamNumber === 1 ? '#4488FF' : '#FF6666';
   const teamLabel = teamNumber === 1 ? 'TEAM 1 (You)' : 'TEAM 2 (Enemy)';
 
@@ -132,14 +133,25 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive }: TeamPan
                 {picks[i] && <div className="animate-pop-in"><HeroPortrait hero={picks[i]} size="sm" selected /></div>}
               </div>
               <span className="text-xs truncate opacity-80">
-                {picks[i] ? (
-                  <span className="flex items-center gap-1">
-                    <span className="truncate">{picks[i].nicknames[0]}</span>
-                    <span className="text-[9px] px-1 rounded flex-shrink-0" style={{ background: ROLE_COLORS_MAP[picks[i].role] + '22', color: ROLE_COLORS_MAP[picks[i].role] || '#888' }}>
-                      {picks[i].role}
+                {picks[i] ? (() => {
+                  const hero = picks[i];
+                  const icyDb = IcyVeinsDatabase.getInstance();
+                  const counteredBy = enemyPicks.filter(e => icyDb.counters(e.nicknames[0], hero.nicknames[0]));
+                  return (
+                    <span className="flex items-center gap-1">
+                      <span className="truncate">{hero.nicknames[0]}</span>
+                      <span className="text-[9px] px-1 rounded flex-shrink-0" style={{ background: ROLE_COLORS_MAP[hero.role] + '22', color: ROLE_COLORS_MAP[hero.role] || '#888' }}>
+                        {hero.role}
+                      </span>
+                      {counteredBy.length > 0 && (
+                        <span className="text-[8px] px-1 rounded flex-shrink-0" style={{ background: 'rgba(255,99,71,0.2)', color: '#FF6347', border: '1px solid #FF634722' }}
+                          title={`Countered by: ${counteredBy.map(e => e.nicknames[0]).join(', ')}`}>
+                          ⚠{counteredBy.length}
+                        </span>
+                      )}
                     </span>
-                  </span>
-                ) : (
+                  );
+                })() : (
                   <span className="opacity-40 italic">
                     {i === 0 ? '🛡️ Tank?' : i === 1 ? '✚ Healer?' : i === 2 ? '⚔️ DPS?' : i === 3 ? '⚙️ Offlane?' : '✨ Flex?'}
                   </span>
