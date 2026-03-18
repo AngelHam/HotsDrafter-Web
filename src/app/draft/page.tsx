@@ -39,8 +39,9 @@ function DraftPageInner() {
   const isBan = step < 16 ? DRAFT_IS_BAN[step] : false;
   const isComplete = step >= 16;
 
-  const available = draft.getAvailableHeroes();
-  const filtered = available.filter(h => {
+  // Show ALL heroes, mark unavailable as dimmed
+  const allHeroesSorted = [...ALL_HEROES].sort((a, b) => a.nicknames[0].localeCompare(b.nicknames[0]));
+  const filtered = allHeroesSorted.filter(h => {
     if (!matchesRoleFilter(h, roleFilter)) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -165,9 +166,18 @@ function DraftPageInner() {
                 style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff' }}
               />
               <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
-                {filtered.map(hero => (
-                  <HeroPortrait key={hero.name} hero={hero} size="md" onClick={() => handleHeroClick(hero)} />
-                ))}
+                {filtered.map(hero => {
+                  const isAvail = draft.isAvailable(hero);
+                  return (
+                    <HeroPortrait
+                      key={hero.name}
+                      hero={hero}
+                      size="md"
+                      dimmed={!isAvail}
+                      onClick={isAvail ? () => handleHeroClick(hero) : undefined}
+                    />
+                  );
+                })}
               </div>
             </div>
           )}

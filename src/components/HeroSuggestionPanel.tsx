@@ -36,9 +36,18 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold truncate">{s.hero.nicknames[0]}</span>
-                <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#FFD70033', color: '#FFD700' }}>
+                <span className="text-xs px-1.5 py-0.5 rounded" style={{
+                  background: s.totalScore >= 50 ? '#00FF0022' : s.totalScore >= 30 ? '#FFD70022' : '#FF666622',
+                  color: s.totalScore >= 50 ? '#90EE90' : s.totalScore >= 30 ? '#FFD700' : '#FF6666',
+                }}>
                   {s.totalScore.toFixed(0)}
                 </span>
+                <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                  <div className="h-full rounded-full" style={{
+                    width: `${Math.min(s.totalScore, 100)}%`,
+                    background: s.totalScore >= 50 ? '#90EE90' : s.totalScore >= 30 ? '#FFD700' : '#FF6666',
+                  }} />
+                </div>
               </div>
               <p className="text-xs opacity-70 truncate">{s.explanation}</p>
               {(s.synergyCount > 0 || s.counterCount > 0) && (

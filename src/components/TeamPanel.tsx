@@ -1,6 +1,7 @@
 'use client';
 
 import type { Hero } from '@/data/Hero';
+import { Specialty } from '@/data/Specialty';
 import HeroPortrait from './HeroPortrait';
 
 interface TeamPanelProps {
@@ -9,13 +10,36 @@ interface TeamPanelProps {
   bans: Hero[];
 }
 
+const ROLE_CHECKS = [
+  { label: 'Tank', icon: '🛡️', check: (h: Hero) => h.role === 'Tank' },
+  { label: 'Healer', icon: '✚', check: (h: Hero) => h.role === 'Healer' },
+  { label: 'DPS', icon: '⚔️', check: (h: Hero) => h.role === 'DPS' || h.role === 'Mage' },
+  { label: 'Offlane', icon: '⚙️', check: (h: Hero) => h.role === 'Offlane' || h.specialties.includes(Specialty.DOUBLE_SOAKING) },
+  { label: 'Waveclear', icon: '🌊', check: (h: Hero) => h.specialties.includes(Specialty.WAVECLEAR) },
+];
+
 export default function TeamPanel({ teamNumber, picks, bans }: TeamPanelProps) {
   const teamColor = teamNumber === 1 ? '#4488FF' : '#FF6666';
   const teamLabel = teamNumber === 1 ? 'TEAM 1 (You)' : 'TEAM 2 (Enemy)';
 
   return (
     <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-      <h3 className="text-sm font-bold mb-3" style={{ color: teamColor }}>{teamLabel}</h3>
+      <h3 className="text-sm font-bold mb-2" style={{ color: teamColor }}>{teamLabel}</h3>
+
+      {/* Role Coverage */}
+      {picks.length > 0 && (
+        <div className="flex gap-1 mb-2 flex-wrap">
+          {ROLE_CHECKS.map(({ label, icon, check }) => {
+            const filled = picks.some(check);
+            return (
+              <span key={label} className="text-xs px-1 py-0.5 rounded" title={label}
+                style={{ background: filled ? 'rgba(0,255,0,0.15)' : 'rgba(255,0,0,0.15)', color: filled ? '#90EE90' : '#FF6666', border: `1px solid ${filled ? '#90EE9044' : '#FF666644'}` }}>
+                {icon}{filled ? '✓' : '✗'}
+              </span>
+            );
+          })}
+        </div>
+      )}
 
       {/* Bans */}
       <div className="mb-3">
