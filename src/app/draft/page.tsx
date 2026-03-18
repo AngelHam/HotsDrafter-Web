@@ -11,7 +11,7 @@ import { analyzeWinCondition } from '@/data/WinConditionAnalyzer';
 import { saveDraft } from '@/data/DraftHistory';
 import { winConditionToString } from '@/data/SuggestionTypes';
 import HeroPortrait from '@/components/HeroPortrait';
-import RoleFilterBar from '@/components/RoleFilterBar';
+import RoleFilterBar, { ROLE_COLORS } from '@/components/RoleFilterBar';
 import HeroSuggestionPanel from '@/components/HeroSuggestionPanel';
 import TeamPanel from '@/components/TeamPanel';
 import DraftProgressBar from '@/components/DraftProgressBar';
@@ -320,7 +320,7 @@ function DraftPageInner() {
                 <div className="space-y-3">
                   {groupedByRole.map(group => (
                     <div key={group.role}>
-                      <h4 className="text-xs font-bold mb-1" style={{ color: '#FFD700' }}>{group.role}</h4>
+                      <h4 className="text-xs font-bold mb-1" style={{ color: ROLE_COLORS[group.role] || '#FFD700' }}>{group.role}</h4>
                       <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))' }}>
                         {group.heroes.map(hero => {
                           const isAvail = draft.isAvailable(hero);

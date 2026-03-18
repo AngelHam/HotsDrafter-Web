@@ -7,7 +7,17 @@ const ROLES = [
   { key: 'DPS', label: 'DPS', icon: '⚔️', color: '#FF6347' },
   { key: 'Mage', label: 'Mage', icon: '✨', color: '#BA55D3' },
   { key: 'Offlane', label: 'Offlane', icon: '⚙️', color: '#FFA500' },
+  { key: 'Specialist', label: 'Spec', icon: '🔧', color: '#A9A9A9' },
 ];
+
+export const ROLE_COLORS: Record<string, string> = {
+  Tank: '#6495ED',
+  Healer: '#90EE90',
+  DPS: '#FF6347',
+  Mage: '#BA55D3',
+  Offlane: '#FFA500',
+  Specialist: '#A9A9A9',
+};
 
 interface RoleFilterBarProps {
   activeFilter: string;
