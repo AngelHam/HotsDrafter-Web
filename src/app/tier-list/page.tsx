@@ -83,7 +83,7 @@ export default function TierListPage() {
 
       <div className="p-4 max-w-5xl mx-auto w-full">
         {/* Filters */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4 items-center">
           <select value={selectedMap} onChange={e => setSelectedMap(e.target.value)}
             className="text-sm px-2 py-1 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', color: '#FFD700', border: '1px solid rgba(68,102,136,0.5)' }}>
             <option value="all">All Maps (Average)</option>
