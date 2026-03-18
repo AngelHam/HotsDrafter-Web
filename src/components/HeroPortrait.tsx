@@ -43,14 +43,15 @@ export default function HeroPortrait({ hero, size = 'md', selected, banned, dimm
     <div className="flex flex-col items-center" style={{ width: showName ? px + 8 : undefined }}>
       <Tag
         onClick={onClick}
-        className="relative flex-shrink-0 rounded transition-all focus:outline-none cursor-pointer"
+        className="relative flex-shrink-0 rounded transition-all focus:outline-none cursor-pointer hover:scale-110 hover:z-10 hero-glow"
         style={{
           width: px, height: px,
           border: `2px solid ${borderColor}`,
           opacity: dimmed ? 0.3 : 1,
           filter: banned ? 'grayscale(80%)' : undefined,
           boxShadow: selected ? `0 0 8px ${borderColor}` : undefined,
-        }}
+          '--glow-color': borderColor + '88',
+        } as React.CSSProperties}
         title={hero.nicknames[0]}
       >
       <Image
