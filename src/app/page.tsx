@@ -83,7 +83,8 @@ function ActionButton({ label, icon, color, onClick, primary }: {
 }) {
   return (
     <button onClick={onClick} className="px-6 py-3 rounded-lg font-semibold text-sm transition-all hover:scale-105"
-      style={{ background: primary ? `${color}22` : 'rgba(30, 40, 70, 0.7)', border: `2px solid ${color}`, color, minWidth: 160 }}>
+      style={{ background: primary ? `${color}22` : 'rgba(30, 40, 70, 0.7)', border: `2px solid ${color}`, color, minWidth: 160 }}
+      title={label}>
       {icon} {label}
     </button>
   );

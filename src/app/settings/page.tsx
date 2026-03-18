@@ -36,7 +36,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
-        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }}>← Back</button>
+        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
         <h1 className="text-lg font-bold" style={{ color: '#A9A9A9' }}>⚙️ Settings</h1>
         <div />
       </div>
@@ -54,7 +54,8 @@ export default function SettingsPage() {
                     background: suggestionCount === n ? '#00FFFF22' : 'transparent',
                     border: `2px solid ${suggestionCount === n ? '#00FFFF' : 'rgba(68,102,136,0.5)'}`,
                     color: suggestionCount === n ? '#00FFFF' : '#888',
-                  }}>
+                  }}
+                  title={`Show top ${n} suggestions`}>
                   {n}
                 </button>
               ))}
@@ -71,7 +72,8 @@ export default function SettingsPage() {
                   background: analysisMode === AnalysisMode.Simple ? '#FFD70022' : 'transparent',
                   border: `2px solid ${analysisMode === AnalysisMode.Simple ? '#FFD700' : 'rgba(68,102,136,0.5)'}`,
                   color: analysisMode === AnalysisMode.Simple ? '#FFD700' : '#888',
-                }}>
+                }}
+                title="Use quick synergy/counter analysis">
                 Simple
                 <p className="text-xs opacity-60 mt-1">Synergies & Counters only</p>
               </button>
@@ -81,7 +83,8 @@ export default function SettingsPage() {
                   background: analysisMode === AnalysisMode.Full ? '#00FFFF22' : 'transparent',
                   border: `2px solid ${analysisMode === AnalysisMode.Full ? '#00FFFF' : 'rgba(68,102,136,0.5)'}`,
                   color: analysisMode === AnalysisMode.Full ? '#00FFFF' : '#888',
-                }}>
+                }}
+                title="Use full weighted draft analysis">
                 Full
                 <p className="text-xs opacity-60 mt-1">9-component weighted analysis</p>
               </button>
@@ -91,7 +94,8 @@ export default function SettingsPage() {
           {/* Reset */}
           <button onClick={handleReset}
             className="w-full px-4 py-3 rounded font-semibold transition-all hover:scale-105"
-            style={{ background: '#FF666622', border: '2px solid #FF6666', color: '#FF6666' }}>
+            style={{ background: '#FF666622', border: '2px solid #FF6666', color: '#FF6666' }}
+            title="Reset all settings to defaults">
             Reset All Settings
           </button>
         </div>

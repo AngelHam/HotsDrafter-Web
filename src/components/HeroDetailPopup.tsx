@@ -31,7 +31,7 @@ export default function HeroDetailPopup({ hero, onClose }: HeroDetailPopupProps)
             <span className="text-sm px-2 py-0.5 rounded" style={{ background: roleColor + '33', color: roleColor }}>{hero.role}</span>
             <span className="text-xs ml-2 opacity-60">Range: {hero.effectiveRange}/5</span>
           </div>
-          <button onClick={onClose} className="ml-auto text-lg px-2" style={{ color: '#FF6666' }}>✕</button>
+          <button onClick={onClose} className="ml-auto text-lg px-2" style={{ color: '#FF6666' }} title="Close hero details">✕</button>
         </div>
 
         {/* Specialties */}

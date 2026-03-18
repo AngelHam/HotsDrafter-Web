@@ -96,11 +96,12 @@ export default function FirstRunTutorial({ onClose }: FirstRunTutorialProps) {
 
         {/* Buttons */}
         <div className="flex justify-between">
-          <button onClick={handleSkip} className="text-sm px-4 py-2 rounded opacity-50 hover:opacity-100" style={{ color: '#999' }}>
+          <button onClick={handleSkip} className="text-sm px-4 py-2 rounded opacity-50 hover:opacity-100" style={{ color: '#999' }} title="Skip onboarding and continue">
             Skip Tutorial
           </button>
           <button onClick={handleNext} className="text-sm px-6 py-2 rounded font-bold transition-all hover:scale-105"
-            style={{ background: '#00FFFF22', border: '2px solid #00FFFF', color: '#00FFFF' }}>
+            style={{ background: '#00FFFF22', border: '2px solid #00FFFF', color: '#00FFFF' }}
+            title={page < TUTORIAL_PAGES.length - 1 ? 'Go to next tutorial step' : 'Finish tutorial and start drafting'}>
             {page < TUTORIAL_PAGES.length - 1 ? 'Next →' : 'Start Drafting! 🏆'}
           </button>
         </div>
