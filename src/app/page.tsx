@@ -63,28 +63,43 @@ export default function StartupPage() {
       </div>
 
       <div className="animate-fade-slide-up mt-8 flex flex-wrap gap-3 justify-center" style={{ animationDelay: '350ms' }}>
-        <ActionButton label="Interactive Draft" icon="⚔️" color="#00FFFF" onClick={() => router.push(`/draft?map=${getMapParam()}`)} primary />
-        <ActionButton label="Sample Draft" icon="🎲" color="#FFD700" onClick={() => router.push(`/sample?map=${getMapParam()}`)} />
-        <ActionButton label="Team Builder" icon="🏗️" color="#90EE90" onClick={() => router.push('/team-builder')} />
-        <ActionButton label="Draft History" icon="📜" color="#BA55D3" onClick={() => router.push('/history')} />
-        <ActionButton label="Settings" icon="⚙️" color="#A9A9A9" onClick={() => router.push('/settings')} />
+        <ActionButton label="Interactive Draft" icon="⚔️" color="#00FFFF" onClick={() => router.push(`/draft?map=${getMapParam()}`)} primary
+          tooltip={useRandom ? 'Start a draft with a random map' : `Draft on ${ALL_MAPS[selectedMapIdx]?.name}`} />
+        <ActionButton label="Sample Draft" icon="🎲" color="#FFD700" onClick={() => router.push(`/sample?map=${getMapParam()}`)}
+          tooltip="Watch an AI-generated random draft with analysis" />
+        <ActionButton label="Team Builder" icon="🏗️" color="#90EE90" onClick={() => router.push('/team-builder')}
+          tooltip="Manually build 5v5 teams and compare compositions" />
+        <ActionButton label="Draft History" icon="📜" color="#BA55D3" onClick={() => router.push('/history')}
+          tooltip="View your previously completed drafts" />
+        <ActionButton label="Settings" icon="⚙️" color="#A9A9A9" onClick={() => router.push('/settings')}
+          tooltip="Configure suggestions, analysis mode, and shortcuts" />
       </div>
+
+      {/* Selected Map Preview */}
+      {!useRandom && selectedMapIdx >= 0 && ALL_MAPS[selectedMapIdx] && (
+        <div className="animate-fade-slide-up mt-4 text-center text-xs" style={{ animationDelay: '400ms' }}>
+          <span className="px-3 py-1 rounded" style={{ background: 'rgba(0,255,255,0.1)', border: '1px solid #00FFFF33', color: '#00FFFF' }}>
+            🗺️ Selected: <strong>{ALL_MAPS[selectedMapIdx].name}</strong>
+          </span>
+        </div>
+      )}
 
       <div className="animate-fade-slide-up mt-12 text-xs opacity-40 text-center" style={{ animationDelay: '500ms' }}>
         <p>HotsDrafter v2 Web — Data from Icy Veins</p>
         <p className="mt-1">{ALL_MAPS.length} Maps • {ALL_HEROES.length} Heroes • 8 Win Conditions</p>
+        <p className="mt-1 opacity-60">Scoring: Synergy 30% + Counter 25% + Map 20% + Role 15% + Win Condition 10%</p>
       </div>
     </main>
   );
 }
 
-function ActionButton({ label, icon, color, onClick, primary }: {
-  label: string; icon: string; color: string; onClick: () => void; primary?: boolean;
+function ActionButton({ label, icon, color, onClick, primary, tooltip }: {
+  label: string; icon: string; color: string; onClick: () => void; primary?: boolean; tooltip?: string;
 }) {
   return (
     <button onClick={onClick} className="px-6 py-3 rounded-lg font-semibold text-sm transition-all hover:scale-105"
       style={{ background: primary ? `${color}22` : 'rgba(30, 40, 70, 0.7)', border: `2px solid ${color}`, color, minWidth: 160 }}
-      title={label}>
+      title={tooltip || label}>
       {icon} {label}
     </button>
   );
