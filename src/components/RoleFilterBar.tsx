@@ -21,12 +21,13 @@ export default function RoleFilterBar({ activeFilter, onFilterChange }: RoleFilt
         <button
           key={key}
           onClick={() => onFilterChange(key)}
-          className="px-3 py-1.5 rounded text-sm font-semibold transition-all"
+          className="px-3 py-1.5 rounded text-sm font-semibold transition-all hover:brightness-110"
           style={{
             background: activeFilter === key ? color : 'rgba(30, 40, 70, 0.7)',
             color: activeFilter === key ? '#000' : color,
             border: `1px solid ${activeFilter === key ? color : 'rgba(68, 102, 136, 0.5)'}`,
           }}
+          title={`Filter heroes by ${label}`}
         >
           {icon} {label}
         </button>
