@@ -275,14 +275,26 @@ function DraftPageInner() {
           {/* Hero Search + Grid */}
           {!isComplete && (
             <div className="flex-1 overflow-auto p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
-              <input
-                type="text"
-                placeholder="🔍 Search heroes..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-1.5 mb-2 rounded text-sm focus:outline-none"
-                style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff' }}
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="🔍 Search heroes..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full px-3 py-1.5 mb-2 rounded text-sm focus:outline-none"
+                  style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff' }}
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2 top-1.5 text-xs px-1.5 py-0.5 rounded hover:bg-white/10"
+                    style={{ color: '#FF6666' }}
+                    title="Clear search"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
               <div className="flex items-center gap-2 mb-2">
                 <button
                   onClick={() => setHeroView('grid')}
@@ -334,7 +346,9 @@ function DraftPageInner() {
                 <div className="space-y-3">
                   {groupedByRole.map(group => (
                     <div key={group.role}>
-                      <h4 className="text-xs font-bold mb-1" style={{ color: ROLE_COLORS[group.role] || '#FFD700' }}>{group.role}</h4>
+                      <h4 className="text-xs font-bold mb-1" style={{ color: ROLE_COLORS[group.role] || '#FFD700' }}>
+                        {group.role} <span className="opacity-50">({group.heroes.filter(h => draft.isAvailable(h)).length}/{group.heroes.length})</span>
+                      </h4>
                       <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))' }}>
                         {group.heroes.map(hero => {
                           const isAvail = draft.isAvailable(hero);
