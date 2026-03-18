@@ -3,6 +3,10 @@
 import type { HeroSuggestion } from '@/data/SuggestionTypes';
 import HeroPortrait from './HeroPortrait';
 
+const SUGGESTION_ROLE_COLORS: Record<string, string> = {
+  Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347', Mage: '#BA55D3', Offlane: '#FFA500', Specialist: '#A9A9A9',
+};
+
 interface HeroSuggestionPanelProps {
   suggestions: HeroSuggestion[];
   onSelect?: (suggestion: HeroSuggestion) => void;
@@ -35,8 +39,12 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
             </span>
             <HeroPortrait hero={s.hero} size="sm" onClick={undefined} />
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-sm font-semibold truncate">{s.hero.nicknames[0]}</span>
+                <span className="text-[9px] px-1 rounded flex-shrink-0" style={{
+                  background: SUGGESTION_ROLE_COLORS[s.hero.role] + '22',
+                  color: SUGGESTION_ROLE_COLORS[s.hero.role] || '#888',
+                }}>{s.hero.role}</span>
                 <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{
                   background: s.totalScore >= 50 ? '#00FF0022' : s.totalScore >= 30 ? '#FFD70022' : '#FF666622',
                   color: s.totalScore >= 50 ? '#90EE90' : s.totalScore >= 30 ? '#FFD700' : '#FF6666',
