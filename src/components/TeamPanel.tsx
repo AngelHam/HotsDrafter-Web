@@ -5,6 +5,10 @@ import { Specialty } from '@/data/Specialty';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import HeroPortrait from './HeroPortrait';
 
+const ROLE_COLORS_MAP: Record<string, string> = {
+  Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347', Mage: '#BA55D3', Offlane: '#FFA500', Specialist: '#A9A9A9',
+};
+
 interface TeamPanelProps {
   teamNumber: number;
   picks: Hero[];
@@ -94,13 +98,20 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive }: TeamPan
         <span className="text-xs font-semibold" style={{ color: '#FF6666' }}>BANS</span>
         <div className="flex gap-1 mt-1">
           {[0, 1, 2].map(i => (
-            <div key={i} className="rounded" title={bans[i] ? `Ban ${i + 1}: ${bans[i].nicknames[0]}` : `Ban Slot ${i + 1}`} style={{
-              width: 40, height: 40,
-              background: 'rgba(255,102,102,0.1)',
-              border: '1px solid rgba(255,102,102,0.3)',
-              borderStyle: bans[i] ? 'solid' : 'dashed',
-            }}>
-              {bans[i] && <div className="animate-pop-in"><HeroPortrait hero={bans[i]} size="sm" banned /></div>}
+            <div key={i} className="flex flex-col items-center" style={{ width: 42 }}>
+              <div className="rounded" title={bans[i] ? `Ban ${i + 1}: ${bans[i].nicknames[0]} (${bans[i].role})` : `Ban Slot ${i + 1}`} style={{
+                width: 40, height: 40,
+                background: 'rgba(255,102,102,0.1)',
+                border: '1px solid rgba(255,102,102,0.3)',
+                borderStyle: bans[i] ? 'solid' : 'dashed',
+              }}>
+                {bans[i] && <div className="animate-pop-in"><HeroPortrait hero={bans[i]} size="sm" banned /></div>}
+              </div>
+              {bans[i] && (
+                <span className="text-[8px] mt-0.5 text-center leading-tight truncate w-full" style={{ color: '#FF6666', opacity: 0.8 }}>
+                  {bans[i].nicknames[0]}
+                </span>
+              )}
             </div>
           ))}
         </div>
@@ -121,7 +132,14 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive }: TeamPan
                 {picks[i] && <div className="animate-pop-in"><HeroPortrait hero={picks[i]} size="sm" selected /></div>}
               </div>
               <span className="text-xs truncate opacity-80">
-                {picks[i]?.nicknames[0] || (
+                {picks[i] ? (
+                  <span className="flex items-center gap-1">
+                    <span className="truncate">{picks[i].nicknames[0]}</span>
+                    <span className="text-[9px] px-1 rounded flex-shrink-0" style={{ background: ROLE_COLORS_MAP[picks[i].role] + '22', color: ROLE_COLORS_MAP[picks[i].role] || '#888' }}>
+                      {picks[i].role}
+                    </span>
+                  </span>
+                ) : (
                   <span className="opacity-40 italic">
                     {i === 0 ? '🛡️ Tank?' : i === 1 ? '✚ Healer?' : i === 2 ? '⚔️ DPS?' : i === 3 ? '⚙️ Offlane?' : '✨ Flex?'}
                   </span>
