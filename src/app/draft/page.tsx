@@ -256,15 +256,27 @@ function DraftPageInner() {
             +5s
           </button>
           <span
-            className="text-xs font-semibold px-2 py-1 rounded"
+            className={`text-xs font-semibold px-2 py-1 rounded ${timerEnabled && timeLeft <= 5 ? 'animate-pulse' : ''}`}
             style={{
-              color: timerEnabled ? (timeLeft <= 5 ? '#FF6666' : '#00FFFF') : '#A9A9A9',
-              border: `1px solid ${timerEnabled ? (timeLeft <= 5 ? '#FF666655' : '#00FFFF55') : '#A9A9A955'}`,
-              background: timerEnabled ? 'rgba(255,255,255,0.04)' : 'transparent',
+              color: timerEnabled ? (timeLeft <= 5 ? '#FF6666' : timeLeft <= 10 ? '#FFA500' : '#00FFFF') : '#A9A9A9',
+              border: `1px solid ${timerEnabled ? (timeLeft <= 5 ? '#FF666655' : timeLeft <= 10 ? '#FFA50055' : '#00FFFF55') : '#A9A9A955'}`,
+              background: timerEnabled ? (timeLeft <= 5 ? 'rgba(255,102,102,0.1)' : 'rgba(255,255,255,0.04)') : 'transparent',
             }}
             title="Per-step draft countdown"
           >
-            {timerEnabled ? `Time: ${timeLeft}s` : `Duration: ${timerDuration}s`}
+            {timerEnabled ? (
+              <span className="flex items-center gap-1">
+                <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0">
+                  <circle cx="7" cy="7" r="5.5" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+                  <circle cx="7" cy="7" r="5.5" fill="none"
+                    stroke={timeLeft <= 5 ? '#FF6666' : timeLeft <= 10 ? '#FFA500' : '#00FFFF'}
+                    strokeWidth="1.5" strokeLinecap="round"
+                    strokeDasharray={`${(timeLeft / timerDuration) * 34.56} 34.56`}
+                    transform="rotate(-90 7 7)" />
+                </svg>
+                {timeLeft}s
+              </span>
+            ) : `Duration: ${timerDuration}s`}
           </span>
         </div>
       </div>
