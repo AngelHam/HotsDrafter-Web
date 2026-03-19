@@ -9,6 +9,7 @@ import { winConditionToString } from '@/data/SuggestionTypes';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import { ROLE_COLORS } from '@/components/RoleFilterBar';
 import HeroPortrait from '@/components/HeroPortrait';
+import HeroDetailPopup from '@/components/HeroDetailPopup';
 import { Specialty } from '@/data/Specialty';
 import type { Hero } from '@/data/Hero';
 
@@ -38,6 +39,7 @@ export default function TeamBuilderPage() {
   const [mapIdx, setMapIdx] = useState(0);
   const [pickerOpen, setPickerOpen] = useState<{ team: number; slot: number } | null>(null);
   const [pickerSearch, setPickerSearch] = useState('');
+  const [detailHero, setDetailHero] = useState<Hero | null>(null);
 
   const pickedNames = new Set([
     ...team1.filter(Boolean).map(h => h!.name),
@@ -113,7 +115,8 @@ export default function TeamBuilderPage() {
         {/* Team 1 */}
         <TeamSlots label="TEAM 1" color="#4488FF" slots={team1}
           onSlotClick={(i) => setPickerOpen({ team: 1, slot: i })}
-          onClear={(i) => clearSlot(1, i)} />
+          onClear={(i) => clearSlot(1, i)}
+          onHeroDetail={h => setDetailHero(h)} />
 
         {/* Center Analysis */}
         <div className="flex-1 flex flex-col gap-4">
@@ -231,7 +234,8 @@ export default function TeamBuilderPage() {
         {/* Team 2 */}
         <TeamSlots label="TEAM 2" color="#FF6666" slots={team2}
           onSlotClick={(i) => setPickerOpen({ team: 2, slot: i })}
-          onClear={(i) => clearSlot(2, i)} />
+          onClear={(i) => clearSlot(2, i)}
+          onHeroDetail={h => setDetailHero(h)} />
       </div>
 
       {/* Hero Picker Modal */}
@@ -272,6 +276,7 @@ export default function TeamBuilderPage() {
           </div>
         </div>
       )}
+      {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}
     </div>
   );
 }
@@ -298,9 +303,9 @@ function computeBuilderScore(heroes: Hero[]): number {
   return Math.max(0, Math.min(100, score));
 }
 
-function TeamSlots({ label, color, slots, onSlotClick, onClear }: {
+function TeamSlots({ label, color, slots, onSlotClick, onClear, onHeroDetail }: {
   label: string; color: string; slots: (Hero | null)[];
-  onSlotClick: (i: number) => void; onClear: (i: number) => void;
+  onSlotClick: (i: number) => void; onClear: (i: number) => void; onHeroDetail?: (h: Hero) => void;
 }) {
   const picks = slots.filter(Boolean) as Hero[];
   const compScore = picks.length > 0 ? computeBuilderScore(picks) : null;
@@ -345,7 +350,7 @@ function TeamSlots({ label, color, slots, onSlotClick, onClear }: {
             onClick={() => hero ? undefined : onSlotClick(i)}>
             {hero ? (
               <>
-                <HeroPortrait hero={hero} size="sm" selected />
+                <div onContextMenu={e => { e.preventDefault(); if (onHeroDetail) onHeroDetail(hero); }}><HeroPortrait hero={hero} size="sm" selected /></div>
                 <span className="text-sm flex-1">{hero.nicknames[0]}</span>
                 <button onClick={(e) => { e.stopPropagation(); onClear(i); }} className="text-xs px-1 rounded hover:bg-white/10" style={{ color: '#FF6666' }} title={`Clear slot ${i + 1}`}>✕</button>
               </>
