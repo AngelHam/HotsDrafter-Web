@@ -169,7 +169,10 @@ function DraftPageInner() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === 'z') { e.preventDefault(); handleUndo(); }
-      if (e.key === 'Escape') handleReset();
+      if (e.key === 'Escape') {
+        if (detailHero) { setDetailHero(null); return; } // Close popup first
+        handleReset();
+      }
 
       const index = Number.parseInt(e.key, 10);
       if (!Number.isNaN(index) && index >= 1 && index <= 9) {
