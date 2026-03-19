@@ -48,8 +48,14 @@ export default function ComparePage() {
         {/* Hero Selection */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           <HeroSlot hero={hero1} label="Hero 1" color="#4488FF" onClick={() => setPicker(1)} />
-          <div className="flex items-center justify-center">
+          <div className="flex flex-col items-center justify-center gap-2">
             <span className="text-2xl font-bold" style={{ color: '#FFD700' }}>VS</span>
+            {hero1 && hero2 && (
+              <button onClick={() => { const t = hero1; setHero1(hero2); setHero2(t); }}
+                className="text-xs px-2 py-1 rounded hover:bg-white/10" style={{ color: '#FFD700', border: '1px solid #FFD70033' }} title="Swap heroes">
+                ⇄ Swap
+              </button>
+            )}
           </div>
           <HeroSlot hero={hero2} label="Hero 2" color="#FF6666" onClick={() => setPicker(2)} />
         </div>
