@@ -148,6 +148,14 @@ export default function TierListPage() {
                   {tier}
                 </span>
                 <span className="text-xs opacity-50">{tierEntries.length} hero{tierEntries.length !== 1 ? 'es' : ''}</span>
+                <div className="flex gap-0.5 ml-2">
+                  {['Tank', 'Healer', 'DPS', 'Mage', 'Offlane', 'Specialist'].map(r => {
+                    const c = tierEntries.filter(e => e.hero.role === r).length;
+                    if (c === 0) return null;
+                    const rc: Record<string, string> = { Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347', Mage: '#BA55D3', Offlane: '#FFA500', Specialist: '#A9A9A9' };
+                    return <span key={r} className="text-[9px] px-1 rounded" style={{ background: (rc[r] || '#888') + '22', color: rc[r] }} title={`${r}: ${c}`}>{c}</span>;
+                  })}
+                </div>
               </div>
               <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))' }}>
                 {tierEntries.map(e => (
