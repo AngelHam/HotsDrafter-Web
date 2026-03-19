@@ -89,6 +89,8 @@ function ComparePageInner() {
               const avg2 = ALL_MAPS.reduce((s, m) => s + icyVeins.getTierScore(hero2.nicknames[0], m.name), 0) / ALL_MAPS.length;
               return <CompareRow label="Avg Map Score" v1={avg1.toFixed(1)} v2={avg2.toFixed(1)} highlight={avg1 > avg2 ? 1 : avg2 > avg1 ? 2 : 0} c1="#87CEEB" c2="#87CEEB" />;
             })()}
+            <CompareRow label="Specialty Count" v1={`${hero1.specialties.length} traits`} v2={`${hero2.specialties.length} traits`}
+              highlight={hero1.specialties.length > hero2.specialties.length ? 1 : hero2.specialties.length > hero1.specialties.length ? 2 : 0} />
             <CompareRow label="Specialties" v1={hero1.specialties.map(specialtyToString).join(', ')} v2={hero2.specialties.map(specialtyToString).join(', ')} />
             <CompareRow label="Total Synergies"
               v1={`${icyVeins.getSynergies(hero1.nicknames[0]).length} heroes`}
