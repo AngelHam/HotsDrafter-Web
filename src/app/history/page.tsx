@@ -33,6 +33,9 @@ export default function HistoryPage() {
   const router = useRouter();
   const [history, setHistory] = useState<DraftRecord[]>([]);
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+  const [mapFilter, setMapFilter] = useState<string>('all');
+
+  const filteredHistory = mapFilter === 'all' ? history : history.filter(r => r.mapName === mapFilter);
 
   useEffect(() => {
     setHistory(loadHistory());
@@ -62,6 +65,18 @@ export default function HistoryPage() {
       </div>
 
       <div className="flex-1 p-4 max-w-4xl mx-auto w-full">
+        {history.length > 0 && (
+          <div className="flex items-center gap-2 mb-3">
+            <select value={mapFilter} onChange={e => setMapFilter(e.target.value)}
+              className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', color: '#FFD700', border: '1px solid rgba(68,102,136,0.5)' }}>
+              <option value="all">All Maps</option>
+              {[...new Set(history.map(r => r.mapName))].sort().map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+            <span className="text-[10px] opacity-40">{filteredHistory.length} of {history.length}</span>
+          </div>
+        )}
         {history.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-xl opacity-40 mb-2">No drafts saved yet</p>
@@ -69,7 +84,7 @@ export default function HistoryPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {history.map((record, i) => {
+            {filteredHistory.map((record, i) => {
               const isExpanded = expandedIdx === i;
               return (
               <div key={i}
