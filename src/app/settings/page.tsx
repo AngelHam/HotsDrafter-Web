@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DraftSettings, AnalysisMode } from '@/data/DraftSettings';
+import { clearHistory, loadHistory } from '@/data/DraftHistory';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -101,7 +102,8 @@ export default function SettingsPage() {
 
           {/* First Pick Team */}
           <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>First Pick Team</h3>
+            <h3 className="font-bold mb-2" style={{ color: '#00FFFF' }}>First Pick Team</h3>
+            <p className="text-xs opacity-50 mb-3">Choose which team bans and picks first in the draft order</p>
             <div className="flex gap-3">
               {[1, 2].map(t => (
                 <button key={t}
@@ -116,8 +118,9 @@ export default function SettingsPage() {
                     border: `2px solid ${firstPickTeam === t ? (t === 1 ? '#4488FF' : '#FF6666') : 'rgba(68,102,136,0.5)'}`,
                     color: firstPickTeam === t ? (t === 1 ? '#4488FF' : '#FF6666') : '#888',
                   }}
-                  title={`Team ${t} picks first`}>
+                  title={`Team ${t} bans and picks first`}>
                   Team {t}{t === 1 ? ' (You)' : ' (Enemy)'}
+                  <p className="text-xs opacity-60 mt-1">{t === 1 ? 'Standard — you ban/pick first' : 'Enemy leads — respond to their picks'}</p>
                 </button>
               ))}
             </div>
@@ -147,12 +150,20 @@ export default function SettingsPage() {
           </div>
 
           {/* Reset */}
-          <button onClick={handleReset}
-            className="w-full px-4 py-3 rounded font-semibold transition-all hover:scale-105 hover:bg-white/10"
-            style={{ background: '#FF666622', border: '2px solid #FF6666', color: '#FF6666' }}
-            title="Reset all settings to defaults">
-            Reset All Settings
-          </button>
+          <div className="flex gap-2">
+            <button onClick={handleReset}
+              className="flex-1 px-4 py-3 rounded font-semibold transition-all hover:scale-105 hover:bg-white/10"
+              style={{ background: '#FF666622', border: '2px solid #FF6666', color: '#FF6666' }}
+              title="Reset all settings to defaults">
+              Reset Settings
+            </button>
+            <button onClick={() => { clearHistory(); alert('Draft history cleared!'); }}
+              className="flex-1 px-4 py-3 rounded font-semibold transition-all hover:scale-105 hover:bg-white/10"
+              style={{ background: '#FFA50022', border: '2px solid #FFA500', color: '#FFA500' }}
+              title="Delete all saved draft history">
+              Clear History ({typeof window !== 'undefined' ? loadHistory().length : 0})
+            </button>
+          </div>
 
           {/* Keyboard Shortcuts */}
           <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
