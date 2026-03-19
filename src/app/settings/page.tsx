@@ -227,12 +227,12 @@ export default function SettingsPage() {
           <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-bold" style={{ color: '#FFD700' }}>About</h3>
-              <span className="text-[10px] px-2 py-0.5 rounded" style={{ background: 'rgba(0,255,255,0.1)', color: '#00FFFF', border: '1px solid #00FFFF33' }}>v3.0</span>
+              <span className="text-[10px] px-2 py-0.5 rounded" style={{ background: 'rgba(0,255,255,0.1)', color: '#00FFFF', border: '1px solid #00FFFF33' }}>v3.1</span>
             </div>
             <div className="text-xs space-y-1 opacity-70">
               <p>HotsDrafter — Heroes of the Storm Draft Assistant</p>
               <p>90 Heroes • 11 Maps • 8 Win Conditions • 8 Pages</p>
-              <p>95 development cycles completed</p>
+              <p>105 development cycles completed</p>
               <p>Data sourced from Icy Veins community guides</p>
               <p>Your drafts: {typeof window !== 'undefined' ? loadHistory().length : 0} saved</p>
             </div>
