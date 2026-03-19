@@ -100,6 +100,24 @@ export default function ComparePage() {
               </p>
             </div>
 
+            {/* Shared Specialties */}
+            {(() => {
+              const shared = hero1.specialties.filter(s => hero2.specialties.includes(s));
+              if (shared.length === 0) return null;
+              return (
+                <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+                  <h3 className="text-xs font-bold mb-1" style={{ color: '#00FFFF' }}>SHARED SPECIALTIES ({shared.length})</h3>
+                  <div className="flex flex-wrap gap-1">
+                    {shared.map(s => (
+                      <span key={s} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,255,255,0.1)', border: '1px solid #00FFFF33', color: '#00FFFF' }}>
+                        {specialtyToString(s)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Map Tier Comparison */}
             <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
               <h3 className="text-xs font-bold mb-2" style={{ color: '#87CEEB' }}>MAP TIERS</h3>
