@@ -96,6 +96,11 @@ export default function HistoryPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <span className="text-sm font-bold" style={{ color: '#FFD700' }}>📍 {record.mapName}</span>
+                      {record.firstPickTeam && record.firstPickTeam !== 1 && (
+                        <span className="text-[10px] px-1 py-0.5 rounded" style={{ background: 'rgba(255,102,102,0.1)', color: '#FF6666', border: '1px solid #FF666622' }}>
+                          T{record.firstPickTeam} 1st
+                        </span>
+                      )}
                       {record.team1Score > 0 && (
                         <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(68,136,255,0.15)', color: '#4488FF', border: '1px solid #4488FF33' }}>
                           T1: {record.team1Score}

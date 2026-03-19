@@ -180,7 +180,7 @@ function DraftPageInner() {
     saveDraft({
       timestamp: new Date().toISOString(),
       mapName: map.name,
-      firstPickTeam: 1,
+      firstPickTeam: firstPick,
       team1Picks: draft.team1Picks.map(h => h.nicknames[0]),
       team2Picks: draft.team2Picks.map(h => h.nicknames[0]),
       team1Bans: draft.team1Bans.map(h => h.nicknames[0]),
