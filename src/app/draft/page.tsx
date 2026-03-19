@@ -131,26 +131,6 @@ function DraftPageInner() {
     return () => window.clearInterval(timerId);
   }, [timerEnabled, isComplete, timeLeft]);
 
-  // Keyboard shortcuts (Ctrl+Z undo, Escape reset, 1-9 suggestion quick-pick)
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'z') { e.preventDefault(); handleUndo(); }
-      if (e.key === 'Escape') handleReset();
-
-      const index = Number.parseInt(e.key, 10);
-      if (!Number.isNaN(index) && index >= 1 && index <= 9) {
-        const suggestion = suggestions[index - 1];
-        if (suggestion) {
-          e.preventDefault();
-          handleHeroClick(suggestion.hero);
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [suggestions, step]);
-
   const handleHeroClick = (hero: Hero) => {
     if (isComplete) return;
     if (isBan) {
@@ -175,6 +155,26 @@ function DraftPageInner() {
     draft.reset(ALL_HEROES);
     setStep(0);
   };
+
+  // Keyboard shortcuts (Ctrl+Z undo, Escape reset, 1-9 suggestion quick-pick)
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'z') { e.preventDefault(); handleUndo(); }
+      if (e.key === 'Escape') handleReset();
+
+      const index = Number.parseInt(e.key, 10);
+      if (!Number.isNaN(index) && index >= 1 && index <= 9) {
+        const suggestion = suggestions[index - 1];
+        if (suggestion) {
+          e.preventDefault();
+          handleHeroClick(suggestion.hero);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  });
 
   // Win condition analysis when draft is complete
   const analysis = useMemo(() => {
