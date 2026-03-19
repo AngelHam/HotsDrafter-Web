@@ -256,6 +256,15 @@ function DraftPageInner() {
               Score: {computeCompScore(draft.team1Picks)}
             </span>
           )}
+          {draft.team1Picks.length > 0 && (
+            <span className="text-[10px] flex gap-0.5">
+              {['Tank', 'Healer', 'DPS', 'Mage', 'Offlane'].map(r => {
+                const c: Record<string, string> = { Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347', Mage: '#BA55D3', Offlane: '#FFA500' };
+                const has = draft.team1Picks.some(h => h.role === r);
+                return <span key={r} className="w-2 h-2 rounded-full" style={{ background: has ? c[r] : 'rgba(255,255,255,0.1)' }} title={`${r}: ${has ? '✓' : '✗'}`} />;
+              })}
+            </span>
+          )}
         </div>
         <DraftProgressBar currentStep={step} teamOrder={teamOrder} />
 
