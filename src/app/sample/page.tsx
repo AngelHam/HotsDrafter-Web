@@ -7,6 +7,7 @@ import { TeamComposition } from '@/data/TeamComposition';
 import { analyzeWinCondition } from '@/data/WinConditionAnalyzer';
 import { winConditionToString } from '@/data/SuggestionTypes';
 import HeroPortrait from '@/components/HeroPortrait';
+import HeroDetailPopup from '@/components/HeroDetailPopup';
 import { Specialty } from '@/data/Specialty';
 import type { Hero } from '@/data/Hero';
 
@@ -44,6 +45,7 @@ function SampleDraftInner() {
   const map = ALL_MAPS[mapIdx] || ALL_MAPS[0];
 
   const [draft, setDraft] = useState(INITIAL_DRAFT);
+  const [detailHero, setDetailHero] = useState<Hero | null>(null);
 
   // Randomize on mount to avoid hydration mismatch
   useEffect(() => {
@@ -88,7 +90,7 @@ function SampleDraftInner() {
           <span className="text-xs font-semibold" style={{ color: '#FFD700' }}>PICKS</span>
           <div className="flex flex-col gap-2 mt-1">
             {draft.team1Picks.map(h => (
-              <div key={h.name} className="flex items-center gap-2 p-2 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)' }}>
+              <div key={h.name} className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-white/5" style={{ background: 'rgba(30, 40, 70, 0.7)' }} onClick={() => setDetailHero(h)}>
                 <HeroPortrait hero={h} size="md" selected />
                 <div>
                   <span className="text-sm font-semibold">{h.nicknames[0]}</span>
@@ -155,6 +157,7 @@ function SampleDraftInner() {
           </div>
         </div>
       </div>
+      {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}
     </div>
   );
 }
