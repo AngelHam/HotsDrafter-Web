@@ -72,6 +72,37 @@ export default function HistoryPage() {
       </div>
 
       <div className="flex-1 p-4 max-w-4xl mx-auto w-full">
+        {/* Stats Dashboard */}
+        {history.length > 0 && (
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            {(() => {
+              const mapCounts = new Map<string, number>();
+              let totalScore = 0; let scoreCount = 0;
+              for (const r of history) {
+                mapCounts.set(r.mapName, (mapCounts.get(r.mapName) || 0) + 1);
+                if (r.team1Score > 0) { totalScore += r.team1Score; scoreCount++; }
+              }
+              const topMap = [...mapCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+              const avgScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0;
+              return (
+                <>
+                  <div className="p-2 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
+                    <p className="text-lg font-bold" style={{ color: '#FFD700' }}>{history.length}</p>
+                    <p className="text-[10px] opacity-50">Total Drafts</p>
+                  </div>
+                  <div className="p-2 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
+                    <p className="text-sm font-bold truncate" style={{ color: '#00FFFF' }}>{topMap ? topMap[0].split(' ')[0] : '-'}</p>
+                    <p className="text-[10px] opacity-50">Favorite Map</p>
+                  </div>
+                  <div className="p-2 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
+                    <p className="text-lg font-bold" style={{ color: avgScore >= 80 ? '#90EE90' : avgScore >= 50 ? '#FFD700' : '#FF6666' }}>{avgScore || '-'}</p>
+                    <p className="text-[10px] opacity-50">Avg Score</p>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        )}
         {history.length > 0 && (
           <div className="flex items-center gap-2 mb-3">
             <select value={mapFilter} onChange={e => setMapFilter(e.target.value)}
