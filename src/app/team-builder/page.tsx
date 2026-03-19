@@ -367,6 +367,27 @@ function TeamSlots({ label, color, slots, onSlotClick, onClear, onHeroDetail, ma
           </div>
         ))}
       </div>
+      {/* Synergy connections */}
+      {(() => {
+        const ivDb = IcyVeinsDatabase.getInstance();
+        const heroes = slots.filter(Boolean) as Hero[];
+        const syns: string[] = [];
+        for (let i = 0; i < heroes.length; i++) {
+          for (let j = i + 1; j < heroes.length; j++) {
+            if (ivDb.hasSynergy(heroes[i].nicknames[0], heroes[j].nicknames[0])) {
+              syns.push(`${heroes[i].nicknames[0]} + ${heroes[j].nicknames[0]}`);
+            }
+          }
+        }
+        if (syns.length === 0) return null;
+        return (
+          <div className="mt-2 pt-1" style={{ borderTop: '1px solid rgba(68,102,136,0.2)' }}>
+            <span className="text-[9px] font-semibold" style={{ color: '#90EE90' }}>SYNERGIES</span>
+            {syns.slice(0, 3).map(s => <p key={s} className="text-[9px]" style={{ color: '#90EE90' }}>✦ {s}</p>)}
+            {syns.length > 3 && <p className="text-[9px] opacity-40">+{syns.length - 3} more</p>}
+          </div>
+        );
+      })()}
     </div>
   );
 }
