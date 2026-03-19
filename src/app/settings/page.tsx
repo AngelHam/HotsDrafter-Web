@@ -184,8 +184,23 @@ export default function SettingsPage() {
               className="flex-1 px-4 py-3 rounded font-semibold transition-all hover:scale-105 hover:bg-white/10"
               style={{ background: '#FFA50022', border: '2px solid #FFA500', color: '#FFA500' }}
               title="Delete all saved draft history">
-              Clear History ({typeof window !== 'undefined' ? loadHistory().length : 0})
+              Clear History
             </button>
+          </div>
+
+          {/* Theme */}
+          <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+            <h3 className="font-bold mb-2" style={{ color: '#00FFFF' }}>Theme</h3>
+            <div className="flex gap-3">
+              <div className="flex-1 px-4 py-2 rounded font-semibold text-center" style={{ background: '#00FFFF22', border: '2px solid #00FFFF', color: '#00FFFF' }}>
+                🌙 Dark
+                <p className="text-xs opacity-60 mt-1">Active</p>
+              </div>
+              <div className="flex-1 px-4 py-2 rounded font-semibold text-center opacity-40" style={{ border: '2px solid rgba(68,102,136,0.5)', color: '#888' }}>
+                ☀️ Light
+                <p className="text-xs opacity-60 mt-1">Coming Soon</p>
+              </div>
+            </div>
           </div>
 
           {/* Keyboard Shortcuts */}
