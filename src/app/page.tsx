@@ -7,6 +7,7 @@ import { DraftSettings } from '@/data/DraftSettings';
 import MapCard from '@/components/MapCard';
 import HeroPortrait from '@/components/HeroPortrait';
 import FirstRunTutorial, { shouldShowTutorial } from '@/components/FirstRunTutorial';
+import { loadHistory } from '@/data/DraftHistory';
 
 export default function StartupPage() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function StartupPage() {
   const [useRandom, setUseRandom] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
   const [spotlightHero, setSpotlightHero] = useState(ALL_HEROES[0]);
+  const [draftCount, setDraftCount] = useState(0);
 
   useEffect(() => {
     DraftSettings.load();
@@ -21,6 +23,7 @@ export default function StartupPage() {
     setUseRandom(DraftSettings.useRandomMap);
     if (shouldShowTutorial()) setShowTutorial(true);
     setSpotlightHero(ALL_HEROES[Math.floor(Math.random() * ALL_HEROES.length)]);
+    setDraftCount(loadHistory().length);
   }, []);
 
   const handleMapSelect = (idx: number) => {
@@ -99,6 +102,7 @@ export default function StartupPage() {
         <p>HotsDrafter v2 Web — Data from Icy Veins</p>
         <p className="mt-1">{ALL_MAPS.length} Maps • {ALL_HEROES.length} Heroes • 8 Win Conditions</p>
         <p className="mt-1 opacity-60">Scoring: Synergy 30% + Counter 25% + Map 20% + Role 15% + Win Condition 10%</p>
+        {draftCount > 0 && <p className="mt-1 opacity-50">📊 {draftCount} draft{draftCount !== 1 ? 's' : ''} completed</p>}
       </div>
     </main>
   );
