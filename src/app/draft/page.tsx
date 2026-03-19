@@ -259,7 +259,7 @@ function DraftPageInner() {
           <button onClick={() => router.push('/settings')} className="text-sm px-2 py-1 rounded hover:bg-white/10" style={{ color: '#A9A9A9', border: '1px solid #A9A9A933' }} title="Settings">
             ⚙️
           </button>
-          <RoleFilterBar activeFilter={roleFilter} onFilterChange={setRoleFilter} />
+          <RoleFilterBar activeFilter={roleFilter} onFilterChange={(f) => { setRoleFilter(f); document.querySelector('[data-hero-grid]')?.scrollTo(0, 0); }} />
         </div>
       </div>
 
@@ -454,7 +454,7 @@ function DraftPageInner() {
 
           {/* Hero Search + Grid */}
           {!isComplete && (
-            <div className="flex-1 overflow-auto p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
+            <div data-hero-grid className="flex-1 overflow-auto p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
               {/* Hero Pool Stats */}
               <div className="flex gap-1.5 mb-1.5 justify-center flex-wrap">
                 {[
