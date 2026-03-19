@@ -3,6 +3,7 @@
 import type { Hero } from '@/data/Hero';
 import { specialtyToString } from '@/data/Specialty';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
+import { ALL_MAPS } from '@/data/HeroData';
 import HeroPortrait from './HeroPortrait';
 
 interface HeroDetailPopupProps {
@@ -106,6 +107,23 @@ export default function HeroDetailPopup({ hero, onClose }: HeroDetailPopupProps)
         {hero.nicknames.length > 1 && (
           <p className="text-[10px] opacity-40 mt-2">Also known as: {hero.nicknames.slice(1).join(', ')}</p>
         )}
+
+        {/* Map Tiers */}
+        <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(68,102,136,0.3)' }}>
+          <h3 className="text-xs font-bold mb-1" style={{ color: '#87CEEB' }}>MAP TIERS</h3>
+          <div className="flex flex-wrap gap-1">
+            {ALL_MAPS.map(m => {
+              const tier = icyVeins.getHeroTierOnMap(hero.nicknames[0], m.name);
+              const tc: Record<string, string> = { S: '#FFD700', A: '#90EE90', B: '#87CEEB', C: '#FFA500', D: '#FF6666' };
+              return (
+                <span key={m.name} className="text-[9px] px-1 py-0.5 rounded" title={`${m.name}: ${tier}-tier`}
+                  style={{ background: (tc[tier] || '#888') + '15', color: tc[tier] || '#888', border: `1px solid ${(tc[tier] || '#888')}33` }}>
+                  {m.name.split(' ')[0]}:{tier}
+                </span>
+              );
+            })}
+          </div>
+        </div>
 
         <p className="text-[10px] opacity-30 mt-2 text-center">Right-click a hero in the draft to open this panel</p>
       </div>
