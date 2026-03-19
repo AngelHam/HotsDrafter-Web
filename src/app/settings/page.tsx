@@ -203,6 +203,26 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          {/* Data Statistics */}
+          <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>📊 Data Statistics</h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {[
+                { label: 'Heroes', value: '90', color: '#FFD700' },
+                { label: 'Maps', value: '11', color: '#87CEEB' },
+                { label: 'Win Conditions', value: '8', color: '#BA55D3' },
+                { label: 'Specialties', value: '50+', color: '#00FFFF' },
+                { label: 'Synergy Rules', value: '28+', color: '#90EE90' },
+                { label: 'Counter Rules', value: '68+', color: '#FF6347' },
+              ].map(({ label, value, color }) => (
+                <div key={label} className="flex justify-between px-2 py-1 rounded" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                  <span className="opacity-60">{label}</span>
+                  <span className="font-semibold" style={{ color }}>{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Keyboard Shortcuts */}
           <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
             <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>⌨️ Keyboard Shortcuts</h3>
