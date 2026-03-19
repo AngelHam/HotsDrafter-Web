@@ -194,9 +194,12 @@ function DraftPageInner() {
     return { team1: a1, team2: a2 };
   }, [isComplete, draft, map]);
 
+  const yourTeam = firstPick === 2 ? 2 : 1;
+  const isYourTurn = currentTeam === yourTeam;
+
   const statusText = isComplete
     ? '✅ Draft Complete!'
-    : `Team ${currentTeam} — ${isBan ? '🚫 BAN' : '✅ PICK'} a hero (Step ${step + 1}/${totalSteps})`;
+    : `${isYourTurn ? 'Your' : 'Enemy'} Turn — ${isBan ? '🚫 BAN' : '✅ PICK'} a hero (Step ${step + 1}/${totalSteps})`;
 
   return (
     <div className="min-h-screen flex flex-col">
