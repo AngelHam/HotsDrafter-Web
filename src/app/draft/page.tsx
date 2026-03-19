@@ -89,14 +89,14 @@ function DraftPageInner() {
     else if (heroSort === 'tier') sorted.sort((a, b) => icyVeins.getTierScore(b.nicknames[0], map.name) - icyVeins.getTierScore(a.nicknames[0], map.name));
     return sorted;
   }, [heroSort, icyVeins, map.name]);
-  const filtered = allHeroesSorted.filter(h => {
+  const filtered = useMemo(() => allHeroesSorted.filter(h => {
     if (!matchesRoleFilter(h, roleFilter)) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       return h.nicknames.some(n => n.toLowerCase().includes(q)) || h.name.toLowerCase().includes(q);
     }
     return true;
-  });
+  }), [allHeroesSorted, roleFilter, searchQuery]);
 
   const groupedByRole = useMemo(() => {
     const order = ['Tank', 'Healer', 'Offlane', 'DPS', 'Mage', 'Specialist'];
