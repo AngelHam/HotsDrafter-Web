@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ALL_MAPS, ALL_HEROES } from '@/data/HeroData';
 import { DraftSettings } from '@/data/DraftSettings';
 import MapCard from '@/components/MapCard';
+import HeroPortrait from '@/components/HeroPortrait';
 import FirstRunTutorial, { shouldShowTutorial } from '@/components/FirstRunTutorial';
 
 export default function StartupPage() {
@@ -12,12 +13,14 @@ export default function StartupPage() {
   const [selectedMapIdx, setSelectedMapIdx] = useState(-1);
   const [useRandom, setUseRandom] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [spotlightHero, setSpotlightHero] = useState(ALL_HEROES[0]);
 
   useEffect(() => {
     DraftSettings.load();
     setSelectedMapIdx(DraftSettings.selectedMapIndex);
     setUseRandom(DraftSettings.useRandomMap);
     if (shouldShowTutorial()) setShowTutorial(true);
+    setSpotlightHero(ALL_HEROES[Math.floor(Math.random() * ALL_HEROES.length)]);
   }, []);
 
   const handleMapSelect = (idx: number) => {
@@ -47,9 +50,13 @@ export default function StartupPage() {
         <h1 className="text-4xl font-bold tracking-wider mb-2 text-center" style={{ color: '#00FFFF' }}>
           HOTS DRAFTER
         </h1>
-        <p className="text-center text-sm opacity-60 mb-8">
+        <p className="text-center text-sm opacity-60 mb-4">
           Heroes of the Storm Draft Assistant
         </p>
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <HeroPortrait hero={spotlightHero} size="sm" />
+          <span className="text-xs opacity-60">Hero Spotlight: <span style={{ color: '#FFD700' }}>{spotlightHero.nicknames[0]}</span> — {spotlightHero.role}</span>
+        </div>
       </div>
 
       <div className="animate-fade-slide-up w-full max-w-4xl" style={{ animationDelay: '100ms' }}>
