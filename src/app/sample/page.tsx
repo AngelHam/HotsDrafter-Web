@@ -68,7 +68,10 @@ function SampleDraftInner() {
           ← Back
         </button>
         <h1 className="text-lg font-bold" style={{ color: '#FFD700' }}>🎲 Sample Draft</h1>
-        <span className="text-sm" style={{ color: '#FFD700' }}>📍 {map.name}</span>
+        <select value={mapIdx} onChange={e => router.push(`/sample?map=${e.target.value}`)}
+          className="text-sm px-2 py-1 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', color: '#FFD700', border: '1px solid rgba(68,102,136,0.5)' }}>
+          {ALL_MAPS.map((m, i) => <option key={m.name} value={i}>{m.name}</option>)}
+        </select>
       </div>
 
       <div className="flex-1 flex gap-4 p-4">
