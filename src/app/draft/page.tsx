@@ -206,7 +206,10 @@ function DraftPageInner() {
           </button>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold" style={{ color: '#FFD700' }}>📍 {map.name}</span>
+          <span className="text-sm font-semibold cursor-help" style={{ color: '#FFD700' }}
+            title={`${map.name}\nS-tier: ${icyVeins.getSTierHeroes(map.name).slice(0, 5).join(', ') || 'None'}\nKey: ${(() => { const specialties: string[] = []; for (const [k, v] of Object.entries(map.specialtyImportance || {})) { if (typeof v === 'number' && v >= 8) specialties.push(k); } return specialties.slice(0, 3).join(', ') || 'Balanced'; })()}`}>
+            📍 {map.name}
+          </span>
           {isQuickDraft && (
             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(144,238,144,0.15)', color: '#90EE90', border: '1px solid #90EE9033' }}>
               ⚡ Quick
