@@ -6,6 +6,7 @@ import { ALL_HEROES, ALL_MAPS, findHeroByName } from '@/data/HeroData';
 import { TeamComposition } from '@/data/TeamComposition';
 import { analyzeWinCondition } from '@/data/WinConditionAnalyzer';
 import { winConditionToString } from '@/data/SuggestionTypes';
+import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import { ROLE_COLORS } from '@/components/RoleFilterBar';
 import HeroPortrait from '@/components/HeroPortrait';
 import { Specialty } from '@/data/Specialty';
@@ -192,6 +193,32 @@ export default function TeamBuilderPage() {
                     <span className="opacity-70">{analysis.team2.enemyCounterStrategy}</span>
                   </div>
                 </div>
+
+                {/* Counter Matchups */}
+                {(() => {
+                  const ivDb = IcyVeinsDatabase.getInstance();
+                  const t1H = team1.filter(Boolean) as Hero[];
+                  const t2H = team2.filter(Boolean) as Hero[];
+                  const matchups: string[] = [];
+                  for (const a of t1H) {
+                    for (const b of t2H) {
+                      if (ivDb.counters(a.nicknames[0], b.nicknames[0])) matchups.push(`${a.nicknames[0]} ↑ ${b.nicknames[0]}`);
+                      if (ivDb.counters(b.nicknames[0], a.nicknames[0])) matchups.push(`${b.nicknames[0]} ↑ ${a.nicknames[0]}`);
+                    }
+                  }
+                  if (matchups.length === 0) return null;
+                  return (
+                    <div className="pt-2 mt-2" style={{ borderTop: '1px solid rgba(68,102,136,0.3)' }}>
+                      <p className="text-[10px] font-bold mb-1" style={{ color: '#FF6347' }}>COUNTER MATCHUPS</p>
+                      <div className="flex flex-wrap gap-1">
+                        {matchups.slice(0, 6).map(m => (
+                          <span key={m} className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,99,71,0.1)', border: '1px solid #FF634722', color: '#FF6347' }}>{m}</span>
+                        ))}
+                        {matchups.length > 6 && <span className="text-[9px] opacity-40">+{matchups.length - 6} more</span>}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </>
           ) : (
