@@ -98,6 +98,19 @@ export default function StartupPage() {
         </div>
       )}
 
+      {/* Last Draft Quick Summary */}
+      {draftCount > 0 && (() => {
+        const last = loadHistory()[0];
+        if (!last) return null;
+        return (
+          <div className="animate-fade-slide-up mt-4 text-center" style={{ animationDelay: '450ms' }}>
+            <span className="text-[10px] px-3 py-1 rounded opacity-60" style={{ background: 'rgba(186,85,211,0.1)', border: '1px solid #BA55D333', color: '#BA55D3' }}>
+              Last draft: {last.mapName} — T1: {last.team1Picks.slice(0, 3).join(', ')} vs T2: {last.team2Picks.slice(0, 3).join(', ')}
+            </span>
+          </div>
+        );
+      })()}
+
       <div className="animate-fade-slide-up mt-12 text-xs opacity-40 text-center" style={{ animationDelay: '500ms' }}>
         <p>HotsDrafter v2 Web — Data from Icy Veins</p>
         <p className="mt-1">{ALL_MAPS.length} Maps • {ALL_HEROES.length} Heroes • 8 Win Conditions</p>
