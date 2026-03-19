@@ -170,6 +170,26 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
 
       {/* Synergy Lines */}
       {picks.length >= 2 && <SynergyLines picks={picks} />}
+
+      {/* Damage Type Mix */}
+      {picks.length >= 2 && (() => {
+        const physical = picks.filter(h => h.role === 'DPS' || h.specialties.includes(Specialty.SUSTAINED_DAMAGE)).length;
+        const magical = picks.filter(h => h.role === 'Mage' || h.specialties.includes(Specialty.BURST_DAMAGE)).length;
+        const label = physical > magical + 1 ? 'Heavy Physical' : magical > physical + 1 ? 'Heavy Magical' : 'Balanced';
+        const color = label === 'Balanced' ? '#90EE90' : '#FFA500';
+        return (
+          <div className="mt-2 pt-1" style={{ borderTop: '1px solid rgba(68,102,136,0.2)' }}>
+            <div className="flex items-center gap-1">
+              <span className="text-[9px] opacity-50">DMG:</span>
+              <div className="flex-1 flex h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                <div style={{ flex: physical || 1, background: '#FF634788' }} />
+                <div style={{ flex: magical || 1, background: '#BA55D388' }} />
+              </div>
+              <span className="text-[8px]" style={{ color }}>{label}</span>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
