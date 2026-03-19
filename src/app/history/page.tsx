@@ -140,7 +140,11 @@ export default function HistoryPage() {
         ) : history.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-xl opacity-40 mb-2">No drafts saved yet</p>
-            <p className="text-sm opacity-30">Complete an Interactive Draft to see it here</p>
+            <p className="text-sm opacity-30 mb-4">Complete an Interactive Draft to see it here</p>
+            <button onClick={() => router.push('/')} className="text-sm px-4 py-2 rounded hover:bg-white/10 transition-all"
+              style={{ color: '#00FFFF', border: '1px solid #00FFFF44' }}>
+              ⚔️ Start Your First Draft
+            </button>
           </div>
         ) : (
           <div className="space-y-3">
