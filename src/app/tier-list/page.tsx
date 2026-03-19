@@ -108,6 +108,13 @@ export default function TierListPage() {
 
           <input type="text" placeholder="🔍 Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
             className="text-sm px-3 py-1 rounded ml-auto" style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff', width: 150 }} />
+          {entries.length >= 2 && (
+            <button onClick={() => router.push(`/compare?h1=${encodeURIComponent(entries[0].hero.nicknames[0])}&h2=${encodeURIComponent(entries[1].hero.nicknames[0])}`)}
+              className="text-[10px] px-2 py-1 rounded hover:bg-white/10 whitespace-nowrap" style={{ color: '#87CEEB', border: '1px solid #87CEEB33' }}
+              title={`Compare ${entries[0].hero.nicknames[0]} vs ${entries[1].hero.nicknames[0]}`}>
+              ⚖️ Compare Top 2
+            </button>
+          )}
         </div>
 
         {/* Tier Distribution Bar */}

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useMemo, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import { specialtyToString } from '@/data/Specialty';
@@ -18,12 +18,29 @@ const TIER_COMPARE_COLORS: Record<string, string> = {
 };
 
 export default function ComparePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p>Loading...</p></div>}>
+      <ComparePageInner />
+    </Suspense>
+  );
+}
+
+function ComparePageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [hero1, setHero1] = useState<Hero | null>(null);
   const [hero2, setHero2] = useState<Hero | null>(null);
   const [picker, setPicker] = useState<1 | 2 | null>(null);
   const [search, setSearch] = useState('');
   const [detailHero, setDetailHero] = useState<Hero | null>(null);
+
+  // Pre-fill from URL params
+  useEffect(() => {
+    const h1 = searchParams.get('h1');
+    const h2 = searchParams.get('h2');
+    if (h1) { const found = ALL_HEROES.find(h => h.nicknames[0] === h1); if (found) setHero1(found); }
+    if (h2) { const found = ALL_HEROES.find(h => h.nicknames[0] === h2); if (found) setHero2(found); }
+  }, [searchParams]);
 
   const icyVeins = useMemo(() => IcyVeinsDatabase.getInstance(), []);
 
