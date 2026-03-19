@@ -335,6 +335,28 @@ function DraftPageInner() {
         </div>
       </div>
 
+      {/* Banned Heroes Strip */}
+      {(draft.team1Bans.length > 0 || draft.team2Bans.length > 0) && (
+        <div className="flex items-center justify-center gap-3 px-4 py-1" style={{ background: 'rgba(255,102,102,0.04)' }}>
+          {draft.team1Bans.length > 0 && (
+            <div className="flex items-center gap-1">
+              <span className="text-[9px] opacity-40">T1 bans:</span>
+              {draft.team1Bans.map(h => (
+                <span key={h.name} className="text-[9px] px-1 rounded" style={{ background: 'rgba(255,102,102,0.1)', color: '#FF6666' }}>{h.nicknames[0]}</span>
+              ))}
+            </div>
+          )}
+          {draft.team2Bans.length > 0 && (
+            <div className="flex items-center gap-1">
+              <span className="text-[9px] opacity-40">T2 bans:</span>
+              {draft.team2Bans.map(h => (
+                <span key={h.name} className="text-[9px] px-1 rounded" style={{ background: 'rgba(255,102,102,0.1)', color: '#FF6666' }}>{h.nicknames[0]}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Coaching Tip */}
       {!isComplete && (draft.team1Picks.length + draft.team1Bans.length > 0 || step > 0) && (
         <div className="px-4 py-1 text-center" style={{ background: 'rgba(0,255,255,0.03)' }}>
