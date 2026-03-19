@@ -68,17 +68,26 @@ export default function ComparePage() {
             <CompareRow label="Role" v1={hero1.role} v2={hero2.role} c1={ROLE_COLORS[hero1.role]} c2={ROLE_COLORS[hero2.role]} />
             <CompareRow label="Range" v1={`${'█'.repeat(hero1.effectiveRange)}${'░'.repeat(5 - hero1.effectiveRange)} ${hero1.effectiveRange}/5`} v2={`${hero2.effectiveRange}/5 ${'█'.repeat(hero2.effectiveRange)}${'░'.repeat(5 - hero2.effectiveRange)}`} highlight={hero1.effectiveRange > hero2.effectiveRange ? 1 : hero2.effectiveRange > hero1.effectiveRange ? 2 : 0} />
             <CompareRow label="Specialties" v1={hero1.specialties.map(specialtyToString).join(', ')} v2={hero2.specialties.map(specialtyToString).join(', ')} />
+            <CompareRow label="Total Synergies"
+              v1={`${icyVeins.getSynergies(hero1.nicknames[0]).length} heroes`}
+              v2={`${icyVeins.getSynergies(hero2.nicknames[0]).length} heroes`}
+              c1="#90EE90" c2="#90EE90"
+              highlight={icyVeins.getSynergies(hero1.nicknames[0]).length > icyVeins.getSynergies(hero2.nicknames[0]).length ? 1 : icyVeins.getSynergies(hero2.nicknames[0]).length > icyVeins.getSynergies(hero1.nicknames[0]).length ? 2 : 0} />
+            <CompareRow label="Countered By"
+              v1={`${icyVeins.getCounters(hero1.nicknames[0]).length} heroes`}
+              v2={`${icyVeins.getCounters(hero2.nicknames[0]).length} heroes`}
+              c1="#FF6347" c2="#FF6347"
+              highlight={icyVeins.getCounters(hero1.nicknames[0]).length < icyVeins.getCounters(hero2.nicknames[0]).length ? 1 : icyVeins.getCounters(hero2.nicknames[0]).length < icyVeins.getCounters(hero1.nicknames[0]).length ? 2 : 0} />
 
             {/* Synergies */}
-            <CompareRow label="Synergies"
-              v1={icyVeins.getSynergies(hero1.nicknames[0]).join(', ') || 'None listed'}
-              v2={icyVeins.getSynergies(hero2.nicknames[0]).join(', ') || 'None listed'}
+            <CompareRow label="Synergy Heroes"
+              v1={icyVeins.getSynergies(hero1.nicknames[0]).slice(0, 4).join(', ') || 'None'}
+              v2={icyVeins.getSynergies(hero2.nicknames[0]).slice(0, 4).join(', ') || 'None'}
               c1="#90EE90" c2="#90EE90" />
 
-            {/* Counters */}
-            <CompareRow label="Countered By"
-              v1={icyVeins.getCounters(hero1.nicknames[0]).join(', ') || 'None listed'}
-              v2={icyVeins.getCounters(hero2.nicknames[0]).join(', ') || 'None listed'}
+            <CompareRow label="Counter Heroes"
+              v1={icyVeins.getCounters(hero1.nicknames[0]).slice(0, 4).join(', ') || 'None'}
+              v2={icyVeins.getCounters(hero2.nicknames[0]).slice(0, 4).join(', ') || 'None'}
               c1="#FF6347" c2="#FF6347" />
 
             {/* Head to Head */}
