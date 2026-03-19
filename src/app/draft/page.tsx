@@ -331,10 +331,17 @@ function DraftPageInner() {
       </div>
 
       {/* Coaching Tip */}
-      {!isComplete && draft.team1Picks.length + draft.team1Bans.length > 0 && (
+      {!isComplete && (draft.team1Picks.length + draft.team1Bans.length > 0 || step > 0) && (
         <div className="px-4 py-1 text-center" style={{ background: 'rgba(0,255,255,0.03)' }}>
           <span className="text-[10px] opacity-50">
             💡 {(() => {
+              if (isBan && !isYourTurn) {
+                const sTier = icyVeins.getSTierHeroes(map.name).filter(name => {
+                  return allHeroesSorted.some(h => h.nicknames[0] === name && draft.isAvailable(h));
+                });
+                if (sTier.length > 0) return `Enemy may ban: ${sTier.slice(0, 3).join(', ')}`;
+                return 'Enemy is banning — watch for targeted bans';
+              }
               if (isBan && draft.team1Bans.length === 0) return 'Ban high-impact heroes your team struggles against';
               if (isBan) return 'Consider banning heroes that counter your planned composition';
               if (draft.team1Picks.length === 0) return 'Secure a strong tank or high-priority pick first';
