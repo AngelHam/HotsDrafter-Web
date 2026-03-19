@@ -176,10 +176,14 @@ export default function SettingsPage() {
 
           {/* About */}
           <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-            <h3 className="font-bold mb-2" style={{ color: '#FFD700' }}>About</h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold" style={{ color: '#FFD700' }}>About</h3>
+              <span className="text-[10px] px-2 py-0.5 rounded" style={{ background: 'rgba(0,255,255,0.1)', color: '#00FFFF', border: '1px solid #00FFFF33' }}>v2.0</span>
+            </div>
             <div className="text-xs space-y-1 opacity-70">
-              <p>HotsDrafter v2 Web — Heroes of the Storm Draft Assistant</p>
+              <p>HotsDrafter — Heroes of the Storm Draft Assistant</p>
               <p>90 Heroes • 11 Maps • 8 Win Conditions</p>
+              <p>7 Pages: Draft, Sample, Team Builder, Compare, Tier List, History, Settings</p>
               <p>Data sourced from Icy Veins community guides</p>
               <p>Scoring: Synergy 30% + Counter 25% + Map 20% + Role 15% + Win Condition 10%</p>
             </div>
