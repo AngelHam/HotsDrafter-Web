@@ -648,24 +648,31 @@ function DraftPageInner() {
                 </button>
                 <button
                   onClick={() => {
-                    const t1Picks = draft.team1Picks.map(h => h.nicknames[0]).join(', ');
-                    const t2Picks = draft.team2Picks.map(h => h.nicknames[0]).join(', ');
+                    const t1Picks = draft.team1Picks.map(h => `${h.nicknames[0]} (${h.role})`).join(', ');
+                    const t2Picks = draft.team2Picks.map(h => `${h.nicknames[0]} (${h.role})`).join(', ');
                     const t1Bans = draft.team1Bans.map(h => h.nicknames[0]).join(', ');
                     const t2Bans = draft.team2Bans.map(h => h.nicknames[0]).join(', ');
                     const wc1 = analysis ? winConditionToString(analysis.team1.primary) : '';
                     const wc2 = analysis ? winConditionToString(analysis.team2.primary) : '';
+                    const s1 = computeCompScore(draft.team1Picks);
+                    const s2 = computeCompScore(draft.team2Picks);
+                    const diff = s1 - s2;
+                    const verdict = diff > 10 ? 'Team 1 Favored' : diff < -10 ? 'Team 2 Favored' : 'Even Match';
                     const text = [
-                      `HotsDrafter — ${map.name}`,
+                      `⚔️ HotsDrafter — ${map.name}`,
+                      `━━━━━━━━━━━━━━━━━━━━`,
                       ``,
-                      `Team 1 Bans: ${t1Bans}`,
-                      `Team 1 Picks: ${t1Picks}`,
-                      `Team 1 Strategy: ${wc1}`,
-                      `Score: ${computeCompScore(draft.team1Picks)}`,
+                      `🔵 TEAM 1 (Score: ${s1})`,
+                      `  Bans: ${t1Bans}`,
+                      `  Picks: ${t1Picks}`,
+                      `  Strategy: ${wc1}`,
                       ``,
-                      `Team 2 Bans: ${t2Bans}`,
-                      `Team 2 Picks: ${t2Picks}`,
-                      `Team 2 Strategy: ${wc2}`,
-                      `Score: ${computeCompScore(draft.team2Picks)}`,
+                      `🔴 TEAM 2 (Score: ${s2})`,
+                      `  Bans: ${t2Bans}`,
+                      `  Picks: ${t2Picks}`,
+                      `  Strategy: ${wc2}`,
+                      ``,
+                      `📊 Verdict: ${verdict}`,
                     ].join('\n');
                     navigator.clipboard.writeText(text);
                     setExportCopied(true);
