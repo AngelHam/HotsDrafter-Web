@@ -132,6 +132,7 @@ function SampleDraftInner() {
         <div className="flex-1">
           <h2 className="font-bold mb-2" style={{ color: '#FF6666' }}>TEAM 2 <ScoreBadge picks={draft.team2Picks} /></h2>
           <RoleBadges picks={draft.team2Picks} />
+          <RoleBadges picks={draft.team2Picks} />
           <div className="mb-3 mt-2">
             <span className="text-xs font-semibold" style={{ color: '#FF6666' }}>BANS</span>
             <div className="flex gap-2 mt-1">
