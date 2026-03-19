@@ -168,6 +168,7 @@ export default function TierListPage() {
                 {tierEntries.map(e => (
                   <div key={e.hero.name} className="flex flex-col items-center p-1 rounded hover:bg-white/5 transition-all cursor-pointer"
                     onClick={() => setDetailHero(e.hero)}
+                    style={e.tier === 'S' ? { boxShadow: '0 0 6px rgba(255,215,0,0.3)', background: 'rgba(255,215,0,0.05)' } : undefined}
                     title={`${e.hero.nicknames[0]} (${e.hero.role}) — Score: ${e.score.toFixed(1)}${selectedMap === 'all' ? ` | S-tier: ${e.sTierMaps} maps, A-tier: ${e.aTierMaps} maps` : ''}`}>
                     <HeroPortrait hero={e.hero} size="md" showName />
                     {selectedMap === 'all' && e.sTierMaps > 0 && (
