@@ -811,6 +811,12 @@ function DraftReplay({ team1Picks, team2Picks, team1Bans, team2Bans }: {
         <span className="text-sm font-semibold" style={{ color: current?.isBan ? '#FF6666' : '#00FFFF' }}>
           Step {replayStep + 1}/16 — Team {current?.team} {current?.isBan ? 'BAN' : 'PICK'}
         </span>
+        {current?.hero && (
+          <div className="flex items-center gap-1">
+            <HeroPortrait hero={current.hero} size="sm" banned={current.isBan} selected={!current.isBan} />
+            <span className="text-xs font-semibold">{current.hero.nicknames[0]}</span>
+          </div>
+        )}
         <button
           onClick={() => setReplayStep(s => Math.min(15, s + 1))}
           disabled={replayStep >= 15}
