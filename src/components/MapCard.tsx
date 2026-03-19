@@ -46,13 +46,18 @@ export default function MapCard({ map, selected, onClick }: MapCardProps) {
       }}
       title={`${name}${icons ? ` - ${icons}` : ''}${topHeroes.length ? ` | S-tier: ${topHeroes.join(', ')}` : ''}`}
     >
-      <span className="font-bold text-sm truncate">{name}</span>
-      <span className="text-xs opacity-70 mt-0.5 truncate">{icons}</span>
-      {topHeroes.length > 0 && (
-        <span className="text-[9px] mt-0.5 truncate" style={{ color: '#FFD700', opacity: 0.7 }}>
-          ★ {topHeroes.join(', ')}
-        </span>
-      )}
+      <div className="flex items-start gap-1.5">
+        <div className="flex-1 min-w-0">
+          <span className="font-bold text-sm truncate block">{name}</span>
+          <span className="text-xs opacity-70 mt-0.5 truncate block">{icons}</span>
+          {topHeroes.length > 0 && (
+            <span className="text-[9px] mt-0.5 truncate block" style={{ color: '#FFD700', opacity: 0.7 }}>
+              ★ {topHeroes.join(', ')}
+            </span>
+          )}
+        </div>
+        {selected && <span className="text-sm flex-shrink-0" style={{ color: '#00FFFF' }}>✓</span>}
+      </div>
     </button>
   );
 }
