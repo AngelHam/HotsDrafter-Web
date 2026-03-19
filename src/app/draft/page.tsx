@@ -185,7 +185,7 @@ function DraftPageInner() {
       team2Picks: draft.team2Picks.map(h => h.nicknames[0]),
       team1Bans: draft.team1Bans.map(h => h.nicknames[0]),
       team2Bans: draft.team2Bans.map(h => h.nicknames[0]),
-      team1Score: 0, team2Score: 0,
+      team1Score: computeCompScore(draft.team1Picks), team2Score: computeCompScore(draft.team2Picks),
       team1WinCondition: winConditionToString(a1.primary),
       team2WinCondition: winConditionToString(a2.primary),
       verdict: `Team 1: ${winConditionToString(a1.primary)} vs Team 2: ${winConditionToString(a2.primary)}`,
