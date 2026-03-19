@@ -231,10 +231,9 @@ export default function SettingsPage() {
             </div>
             <div className="text-xs space-y-1 opacity-70">
               <p>HotsDrafter — Heroes of the Storm Draft Assistant</p>
-              <p>90 Heroes • 11 Maps • 8 Win Conditions</p>
-              <p>7 Pages: Draft, Sample, Team Builder, Compare, Tier List, History, Settings</p>
+              <p>90 Heroes • 11 Maps • 8 Win Conditions • 8 Pages</p>
+              <p>70 development cycles completed</p>
               <p>Data sourced from Icy Veins community guides</p>
-              <p>Scoring: Synergy 30% + Counter 25% + Map 20% + Role 15% + Win Condition 10%</p>
             </div>
           </div>
 
