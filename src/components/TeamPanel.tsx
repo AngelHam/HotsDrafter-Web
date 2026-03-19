@@ -197,6 +197,21 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
               </div>
               <span className="text-[8px] opacity-50">{(picks.reduce((s, h) => s + h.effectiveRange, 0) / picks.length).toFixed(1)}</span>
             </div>
+            {/* Engage/CC indicator */}
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="text-[9px] opacity-50">UTIL:</span>
+              <div className="flex gap-1 flex-1">
+                {[
+                  { label: 'CC', has: picks.some(h => h.specialties.includes(Specialty.HARD_CC)), color: '#87CEEB' },
+                  { label: 'Engage', has: picks.some(h => h.specialties.includes(Specialty.ENGAGE)), color: '#FFD700' },
+                  { label: 'Peel', has: picks.some(h => h.specialties.includes(Specialty.DISENGAGE)), color: '#90EE90' },
+                ].map(({ label, has, color }) => (
+                  <span key={label} className="text-[7px] px-0.5 rounded" style={{ background: has ? color + '22' : 'rgba(255,255,255,0.04)', color: has ? color : '#555' }}>
+                    {label}{has ? '✓' : ''}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         );
       })()}
