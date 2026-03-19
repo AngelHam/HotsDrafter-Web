@@ -237,6 +237,11 @@ function DraftPageInner() {
               ⚡ Quick
             </span>
           )}
+          {(draft.team1Picks.length > 0 || draft.team1Bans.length > 0) && (
+            <span className="text-[10px] opacity-40">
+              B:{draft.team1Bans.length + draft.team2Bans.length} P:{draft.team1Picks.length + draft.team2Picks.length}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => router.push('/settings')} className="text-sm px-2 py-1 rounded hover:bg-white/10" style={{ color: '#A9A9A9', border: '1px solid #A9A9A933' }} title="Settings">
