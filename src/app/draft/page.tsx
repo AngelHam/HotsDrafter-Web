@@ -498,6 +498,36 @@ function DraftPageInner() {
                 <AnalysisCard title="Team 1 Strategy" analysis={analysis.team1} color="#4488FF" />
                 <AnalysisCard title="Team 2 Strategy" analysis={analysis.team2} color="#FF6666" />
               </div>
+
+              {/* Specialty Comparison */}
+              <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+                <h3 className="text-xs font-bold mb-2 text-center" style={{ color: '#00FFFF' }}>COVERAGE COMPARISON</h3>
+                <div className="space-y-1">
+                  {[
+                    { label: 'Waveclear', spec: Specialty.WAVECLEAR },
+                    { label: 'Engage', spec: Specialty.ENGAGE },
+                    { label: 'Hard CC', spec: Specialty.HARD_CC },
+                    { label: 'Burst', spec: Specialty.BURST },
+                    { label: 'Poke', spec: Specialty.POKE },
+                    { label: 'Sustain', spec: Specialty.SUSTAINED_DAMAGE },
+                  ].map(({ label, spec }) => {
+                    const t1 = draft.team1Picks.filter(h => h.specialties.includes(spec)).length;
+                    const t2 = draft.team2Picks.filter(h => h.specialties.includes(spec)).length;
+                    return (
+                      <div key={label} className="flex items-center gap-1 text-[10px]">
+                        <div className="w-8 text-right" style={{ color: t1 > t2 ? '#4488FF' : t1 === t2 ? '#888' : '#666' }}>{t1}</div>
+                        <div className="flex-1 flex h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                          <div style={{ width: `${(t1 / 5) * 50}%`, background: '#4488FF99' }} />
+                          <div className="flex-1" />
+                          <div style={{ width: `${(t2 / 5) * 50}%`, background: '#FF666699' }} />
+                        </div>
+                        <div className="w-8" style={{ color: t2 > t1 ? '#FF6666' : t2 === t1 ? '#888' : '#666' }}>{t2}</div>
+                        <span className="w-16 opacity-50">{label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
               <DraftReplay
                 team1Picks={[...draft.team1Picks]}
                 team2Picks={[...draft.team2Picks]}
