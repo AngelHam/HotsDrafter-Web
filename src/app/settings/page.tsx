@@ -98,6 +98,29 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          {/* Scoring Weights */}
+          <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Scoring Weights</h3>
+            <div className="space-y-2">
+              {[
+                { label: 'Synergy', weight: 30, color: '#90EE90' },
+                { label: 'Counter', weight: 25, color: '#FF6347' },
+                { label: 'Map Fitness', weight: 20, color: '#87CEEB' },
+                { label: 'Role Need', weight: 15, color: '#BA55D3' },
+                { label: 'Win Condition', weight: 10, color: '#FFD700' },
+              ].map(({ label, weight, color }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-xs w-24" style={{ color }}>{label}</span>
+                  <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div className="h-full rounded-full" style={{ width: `${weight}%`, background: color + '88' }} />
+                  </div>
+                  <span className="text-xs w-8 text-right opacity-60">{weight}%</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] opacity-40 mt-2">Weights are optimized for balanced draft analysis</p>
+          </div>
+
           {/* Reset */}
 
           {/* First Pick Team */}
