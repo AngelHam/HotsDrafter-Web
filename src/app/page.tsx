@@ -89,6 +89,29 @@ export default function StartupPage() {
           tooltip="Configure suggestions, analysis mode, and shortcuts" />
       </div>
 
+      {/* Quick Actions */}
+      {draftCount > 0 && (
+        <div className="animate-fade-slide-up mt-3 flex gap-2 justify-center" style={{ animationDelay: '370ms' }}>
+          <button onClick={() => { const m = Math.floor(Math.random() * ALL_MAPS.length); router.push(`/draft?map=${m}`); }}
+            className="text-[10px] px-3 py-1.5 rounded hover:bg-white/10 transition-all" style={{ color: '#FFD700', border: '1px solid #FFD70033' }}
+            title="Jump straight into a random draft">
+            ⚡ Quick Random Draft
+          </button>
+          {(() => {
+            const last = loadHistory()[0];
+            if (!last) return null;
+            const mi = ALL_MAPS.findIndex(m => m.name === last.mapName);
+            return (
+              <button onClick={() => router.push(`/draft?map=${mi >= 0 ? mi : 0}`)}
+                className="text-[10px] px-3 py-1.5 rounded hover:bg-white/10 transition-all" style={{ color: '#BA55D3', border: '1px solid #BA55D333' }}
+                title={`Re-draft on ${last.mapName}`}>
+                🔄 Re-draft {last.mapName.split(' ')[0]}
+              </button>
+            );
+          })()}
+        </div>
+      )}
+
       {/* Selected Map Preview */}
       {!useRandom && selectedMapIdx >= 0 && ALL_MAPS[selectedMapIdx] && (
         <div className="animate-fade-slide-up mt-4 text-center text-xs" style={{ animationDelay: '400ms' }}>
