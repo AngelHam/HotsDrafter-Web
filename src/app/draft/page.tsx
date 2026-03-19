@@ -435,6 +435,7 @@ function DraftPageInner() {
                 suggestions={suggestions}
                 onSelect={(s) => handleHeroClick(s.hero)}
                 title={isBan ? '🚫 Ban Suggestions' : '✅ Pick Suggestions'}
+                mapName={map.name}
               />
             </div>
           </div>

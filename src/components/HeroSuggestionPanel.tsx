@@ -1,6 +1,7 @@
 'use client';
 
 import type { HeroSuggestion } from '@/data/SuggestionTypes';
+import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import HeroPortrait from './HeroPortrait';
 
 const SUGGESTION_ROLE_COLORS: Record<string, string> = {
@@ -11,9 +12,10 @@ interface HeroSuggestionPanelProps {
   suggestions: HeroSuggestion[];
   onSelect?: (suggestion: HeroSuggestion) => void;
   title?: string;
+  mapName?: string;
 }
 
-export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Suggestions' }: HeroSuggestionPanelProps) {
+export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Suggestions', mapName }: HeroSuggestionPanelProps) {
   if (suggestions.length === 0) {
     return (
       <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
@@ -47,6 +49,12 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
                   background: SUGGESTION_ROLE_COLORS[s.hero.role] + '22',
                   color: SUGGESTION_ROLE_COLORS[s.hero.role] || '#888',
                 }}>{s.hero.role}</span>
+                {mapName && (() => {
+                  const tier = IcyVeinsDatabase.getInstance().getHeroTierOnMap(s.hero.nicknames[0], mapName);
+                  if (tier === 'B') return null;
+                  const tc: Record<string, string> = { S: '#FFD700', A: '#90EE90', C: '#FFA500', D: '#FF6666' };
+                  return <span className="text-[9px] px-1 rounded flex-shrink-0" style={{ background: (tc[tier] || '#888') + '15', color: tc[tier] }}>{tier}</span>;
+                })()}
                 <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{
                   background: s.totalScore >= 50 ? '#00FF0022' : s.totalScore >= 30 ? '#FFD70022' : '#FF666622',
                   color: s.totalScore >= 50 ? '#90EE90' : s.totalScore >= 30 ? '#FFD700' : '#FF6666',
