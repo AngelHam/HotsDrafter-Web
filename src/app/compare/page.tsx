@@ -67,6 +67,11 @@ export default function ComparePage() {
           <div className="space-y-3 animate-fade-slide-up">
             <CompareRow label="Role" v1={hero1.role} v2={hero2.role} c1={ROLE_COLORS[hero1.role]} c2={ROLE_COLORS[hero2.role]} />
             <CompareRow label="Range" v1={`${'█'.repeat(hero1.effectiveRange)}${'░'.repeat(5 - hero1.effectiveRange)} ${hero1.effectiveRange}/5`} v2={`${hero2.effectiveRange}/5 ${'█'.repeat(hero2.effectiveRange)}${'░'.repeat(5 - hero2.effectiveRange)}`} highlight={hero1.effectiveRange > hero2.effectiveRange ? 1 : hero2.effectiveRange > hero1.effectiveRange ? 2 : 0} />
+            {(() => {
+              const avg1 = ALL_MAPS.reduce((s, m) => s + icyVeins.getTierScore(hero1.nicknames[0], m.name), 0) / ALL_MAPS.length;
+              const avg2 = ALL_MAPS.reduce((s, m) => s + icyVeins.getTierScore(hero2.nicknames[0], m.name), 0) / ALL_MAPS.length;
+              return <CompareRow label="Avg Map Score" v1={avg1.toFixed(1)} v2={avg2.toFixed(1)} highlight={avg1 > avg2 ? 1 : avg2 > avg1 ? 2 : 0} c1="#87CEEB" c2="#87CEEB" />;
+            })()}
             <CompareRow label="Specialties" v1={hero1.specialties.map(specialtyToString).join(', ')} v2={hero2.specialties.map(specialtyToString).join(', ')} />
             <CompareRow label="Total Synergies"
               v1={`${icyVeins.getSynergies(hero1.nicknames[0]).length} heroes`}
