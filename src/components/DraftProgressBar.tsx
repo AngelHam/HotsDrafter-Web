@@ -4,10 +4,12 @@ import { DRAFT_IS_BAN, DRAFT_TEAM_ORDER } from '@/data/DraftingTool';
 
 interface DraftProgressBarProps {
   currentStep: number;
+  teamOrder?: number[];
 }
 
-export default function DraftProgressBar({ currentStep }: DraftProgressBarProps) {
-  const currentTeam = currentStep < DRAFT_TEAM_ORDER.length ? DRAFT_TEAM_ORDER[currentStep] : 0;
+export default function DraftProgressBar({ currentStep, teamOrder }: DraftProgressBarProps) {
+  const order = teamOrder || DRAFT_TEAM_ORDER;
+  const currentTeam = currentStep < order.length ? order[currentStep] : 0;
   const currentIsBan = currentStep < DRAFT_IS_BAN.length ? DRAFT_IS_BAN[currentStep] : false;
 
   return (
@@ -19,7 +21,7 @@ export default function DraftProgressBar({ currentStep }: DraftProgressBarProps)
       </div>
 
       <div className="flex gap-1 items-end">
-        {DRAFT_TEAM_ORDER.map((team, i) => {
+        {order.map((team, i) => {
           const isBan = DRAFT_IS_BAN[i];
           const isCurrent = i === currentStep;
           const isDone = i < currentStep;
@@ -61,7 +63,7 @@ export default function DraftProgressBar({ currentStep }: DraftProgressBarProps)
       </div>
 
       <div className="text-xs font-semibold" style={{ color: currentIsBan ? '#FF6666' : (currentTeam === 1 ? '#4488FF' : '#FF6666') }}>
-        {currentStep >= DRAFT_TEAM_ORDER.length
+        {currentStep >= order.length
           ? '✅ Draft Complete'
           : `Now: Team ${currentTeam} ${currentIsBan ? 'BAN' : 'PICK'} (${currentStep + 1}/16)`}
       </div>

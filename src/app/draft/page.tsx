@@ -55,12 +55,19 @@ function DraftPageInner() {
   useEffect(() => { DraftSettings.load(); }, []);
 
   const isQuickDraft = DraftSettings.quickDraft;
+  const firstPick = DraftSettings.firstPickTeam;
+
+  // Swap team order if Team 2 has first pick
+  const teamOrder = useMemo(() => {
+    if (firstPick === 2) return DRAFT_TEAM_ORDER.map(t => t === 1 ? 2 : 1);
+    return DRAFT_TEAM_ORDER;
+  }, [firstPick]);
 
   // In quick draft mode, compute which steps to use (only non-ban steps)
   const activeSteps = useMemo(() => {
-    if (!isQuickDraft) return DRAFT_TEAM_ORDER.map((_, i) => i);
-    return DRAFT_TEAM_ORDER.map((_, i) => i).filter(i => !DRAFT_IS_BAN[i]);
-  }, [isQuickDraft]);
+    if (!isQuickDraft) return teamOrder.map((_, i) => i);
+    return teamOrder.map((_, i) => i).filter(i => !DRAFT_IS_BAN[i]);
+  }, [isQuickDraft, teamOrder]);
 
   const totalSteps = activeSteps.length;
   const realStep = step < totalSteps ? activeSteps[step] : 16;
@@ -68,7 +75,7 @@ function DraftPageInner() {
   const engine = useMemo(() => new HeroSuggestionEngine(draft, map), [draft, map]);
   const icyVeins = useMemo(() => IcyVeinsDatabase.getInstance(), []);
 
-  const currentTeam = realStep < 16 ? DRAFT_TEAM_ORDER[realStep] : 0;
+  const currentTeam = realStep < 16 ? teamOrder[realStep] : 0;
   const isBan = realStep < 16 ? DRAFT_IS_BAN[realStep] : false;
   const isComplete = step >= totalSteps;
 
@@ -149,8 +156,9 @@ function DraftPageInner() {
   const handleUndo = () => {
     if (step === 0) return;
     const prevStep = step - 1;
-    const prevTeam = DRAFT_TEAM_ORDER[prevStep];
-    const wasBan = DRAFT_IS_BAN[prevStep];
+    const prevRealStep = activeSteps[prevStep];
+    const prevTeam = teamOrder[prevRealStep];
+    const wasBan = DRAFT_IS_BAN[prevRealStep];
     draft.undoBanOrPick(prevTeam, wasBan);
     setStep(prevStep);
   };
@@ -227,7 +235,7 @@ function DraftPageInner() {
       {/* Status + Progress */}
       <div className="flex flex-col items-center gap-2 py-3" style={{ background: 'rgba(20, 25, 45, 0.5)' }}>
         <span className="text-sm font-bold" style={{ color: isBan ? '#FF6666' : '#00FFFF' }}>{statusText}</span>
-        <DraftProgressBar currentStep={step} />
+        <DraftProgressBar currentStep={step} teamOrder={teamOrder} />
 
         <div className="flex items-center gap-2 flex-wrap justify-center">
           <button
