@@ -116,7 +116,8 @@ export default function TeamBuilderPage() {
         <TeamSlots label="TEAM 1" color="#4488FF" slots={team1}
           onSlotClick={(i) => setPickerOpen({ team: 1, slot: i })}
           onClear={(i) => clearSlot(1, i)}
-          onHeroDetail={h => setDetailHero(h)} />
+          onHeroDetail={h => setDetailHero(h)}
+          mapName={ALL_MAPS[mapIdx]?.name} />
 
         {/* Center Analysis */}
         <div className="flex-1 flex flex-col gap-4">
@@ -235,7 +236,8 @@ export default function TeamBuilderPage() {
         <TeamSlots label="TEAM 2" color="#FF6666" slots={team2}
           onSlotClick={(i) => setPickerOpen({ team: 2, slot: i })}
           onClear={(i) => clearSlot(2, i)}
-          onHeroDetail={h => setDetailHero(h)} />
+          onHeroDetail={h => setDetailHero(h)}
+          mapName={ALL_MAPS[mapIdx]?.name} />
       </div>
 
       {/* Hero Picker Modal */}
@@ -303,9 +305,9 @@ function computeBuilderScore(heroes: Hero[]): number {
   return Math.max(0, Math.min(100, score));
 }
 
-function TeamSlots({ label, color, slots, onSlotClick, onClear, onHeroDetail }: {
+function TeamSlots({ label, color, slots, onSlotClick, onClear, onHeroDetail, mapName }: {
   label: string; color: string; slots: (Hero | null)[];
-  onSlotClick: (i: number) => void; onClear: (i: number) => void; onHeroDetail?: (h: Hero) => void;
+  onSlotClick: (i: number) => void; onClear: (i: number) => void; onHeroDetail?: (h: Hero) => void; mapName?: string;
 }) {
   const picks = slots.filter(Boolean) as Hero[];
   const compScore = picks.length > 0 ? computeBuilderScore(picks) : null;
@@ -352,6 +354,11 @@ function TeamSlots({ label, color, slots, onSlotClick, onClear, onHeroDetail }: 
               <>
                 <div onContextMenu={e => { e.preventDefault(); if (onHeroDetail) onHeroDetail(hero); }}><HeroPortrait hero={hero} size="sm" selected /></div>
                 <span className="text-sm flex-1">{hero.nicknames[0]}</span>
+                {mapName && (() => {
+                  const tier = IcyVeinsDatabase.getInstance().getHeroTierOnMap(hero.nicknames[0], mapName);
+                  const tc: Record<string, string> = { S: '#FFD700', A: '#90EE90', B: '#87CEEB', C: '#FFA500', D: '#FF6666' };
+                  return tier !== 'B' ? <span className="text-[8px] px-1 rounded" style={{ color: tc[tier], background: (tc[tier] || '#888') + '15' }}>{tier}</span> : null;
+                })()}
                 <button onClick={(e) => { e.stopPropagation(); onClear(i); }} className="text-xs px-1 rounded hover:bg-white/10" style={{ color: '#FF6666' }} title={`Clear slot ${i + 1}`}>✕</button>
               </>
             ) : (
