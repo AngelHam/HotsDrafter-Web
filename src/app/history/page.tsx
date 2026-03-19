@@ -32,6 +32,7 @@ function HeroNameStrip({ names, banned = false }: { names: string[]; banned?: bo
 export default function HistoryPage() {
   const router = useRouter();
   const [history, setHistory] = useState<DraftRecord[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
   const [mapFilter, setMapFilter] = useState<string>('all');
   const [wcFilter, setWcFilter] = useState<string>('all');
@@ -48,6 +49,7 @@ export default function HistoryPage() {
 
   useEffect(() => {
     setHistory(loadHistory());
+    setLoaded(true);
   }, []);
 
   const handleClear = () => {
@@ -131,7 +133,11 @@ export default function HistoryPage() {
             </select>
           </div>
         )}
-        {history.length === 0 ? (
+        {!loaded ? (
+          <div className="text-center py-20">
+            <p className="text-sm opacity-40 animate-pulse">Loading history...</p>
+          </div>
+        ) : history.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-xl opacity-40 mb-2">No drafts saved yet</p>
             <p className="text-sm opacity-30">Complete an Interactive Draft to see it here</p>
