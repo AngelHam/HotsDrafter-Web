@@ -237,7 +237,14 @@ function DraftPageInner() {
 
       {/* Status + Progress */}
       <div className="flex flex-col items-center gap-2 py-3" style={{ background: 'rgba(20, 25, 45, 0.5)' }}>
-        <span className="text-sm font-bold" style={{ color: isBan ? '#FF6666' : '#00FFFF' }}>{statusText}</span>
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-bold" style={{ color: isBan ? '#FF6666' : (isYourTurn ? '#00FFFF' : '#FF6666') }}>{statusText}</span>
+          {draft.team1Picks.length > 0 && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(144,238,144,0.1)', color: '#90EE90', border: '1px solid #90EE9022' }}>
+              Score: {computeCompScore(draft.team1Picks)}
+            </span>
+          )}
+        </div>
         <DraftProgressBar currentStep={step} teamOrder={teamOrder} />
 
         <div className="flex items-center gap-2 flex-wrap justify-center">
