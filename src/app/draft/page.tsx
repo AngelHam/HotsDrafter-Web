@@ -420,6 +420,22 @@ function DraftPageInner() {
           {/* Hero Search + Grid */}
           {!isComplete && (
             <div className="flex-1 overflow-auto p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
+              {/* Hero Pool Stats */}
+              <div className="flex gap-1.5 mb-1.5 justify-center flex-wrap">
+                {[
+                  { role: 'Tank', color: '#6495ED' }, { role: 'Healer', color: '#90EE90' },
+                  { role: 'DPS', color: '#FF6347' }, { role: 'Mage', color: '#BA55D3' },
+                  { role: 'Offlane', color: '#FFA500' }, { role: 'Specialist', color: '#A9A9A9' },
+                ].map(({ role, color }) => {
+                  const avail = ALL_HEROES.filter(h => h.role === role && draft.isAvailable(h)).length;
+                  const total = ALL_HEROES.filter(h => h.role === role).length;
+                  return (
+                    <span key={role} className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: color + '11', color, border: `1px solid ${color}22` }}>
+                      {role.slice(0, 3)}: {avail}/{total}
+                    </span>
+                  );
+                })}
+              </div>
               <div className="relative">
                 <input
                   type="text"
