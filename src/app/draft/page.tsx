@@ -197,9 +197,12 @@ function DraftPageInner() {
   const yourTeam = firstPick === 2 ? 2 : 1;
   const isYourTurn = currentTeam === yourTeam;
 
+  // Determine draft phase name
+  const phaseName = isComplete ? '' : realStep <= 3 ? 'Ban Phase 1' : realStep <= 8 ? 'Pick Phase 1' : realStep <= 10 ? 'Ban Phase 2' : 'Pick Phase 2';
+
   const statusText = isComplete
     ? '✅ Draft Complete!'
-    : `${isYourTurn ? '🟢 Your' : '🔴 Enemy'} Turn — ${isBan ? '🚫 BAN' : '✅ PICK'} a hero (Step ${step + 1}/${totalSteps})`;
+    : `${isYourTurn ? '🟢 Your' : '🔴 Enemy'} Turn — ${isBan ? '🚫 BAN' : '✅ PICK'} (${step + 1}/${totalSteps})`;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -239,6 +242,7 @@ function DraftPageInner() {
       <div className="flex flex-col items-center gap-2 py-3" style={{ background: 'rgba(20, 25, 45, 0.5)' }}>
         <div className="flex items-center gap-3">
           <span className="text-sm font-bold" style={{ color: isBan ? '#FF6666' : (isYourTurn ? '#00FFFF' : '#FF6666') }}>{statusText}</span>
+          {phaseName && <span className="text-[10px] px-1.5 py-0.5 rounded opacity-60" style={{ background: 'rgba(255,255,255,0.05)', color: isBan ? '#FF6666' : '#00FFFF' }}>{phaseName}</span>}
           {draft.team1Picks.length > 0 && (
             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(144,238,144,0.1)', color: '#90EE90', border: '1px solid #90EE9022' }}>
               Score: {computeCompScore(draft.team1Picks)}
