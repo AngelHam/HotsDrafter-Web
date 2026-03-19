@@ -184,12 +184,12 @@ export default function HistoryPage() {
                           <div>
                             <span className="opacity-50">Bans:</span>
                             <HeroNameStrip names={record.team1Bans} banned />
-                            <p className="mt-1" style={{ color: '#00FFFF' }}>{record.team1WinCondition}</p>
+                            <p className="mt-1"><span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,255,255,0.1)', color: '#00FFFF', border: '1px solid #00FFFF22' }}>{record.team1WinCondition}</span></p>
                           </div>
                           <div>
                             <span className="opacity-50">Bans:</span>
                             <HeroNameStrip names={record.team2Bans} banned />
-                            <p className="mt-1" style={{ color: '#00FFFF' }}>{record.team2WinCondition}</p>
+                            <p className="mt-1"><span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,255,255,0.1)', color: '#00FFFF', border: '1px solid #00FFFF22' }}>{record.team2WinCondition}</span></p>
                           </div>
                         </div>
                         <p className="opacity-70">{record.verdict}</p>
