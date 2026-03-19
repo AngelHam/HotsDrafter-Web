@@ -500,8 +500,14 @@ function DraftPageInner() {
                 <div className="space-y-3">
                   {groupedByRole.map(group => (
                     <div key={group.role}>
-                      <h4 className="text-xs font-bold mb-1" style={{ color: ROLE_COLORS[group.role] || '#FFD700' }}>
-                        {group.role} <span className="opacity-50">({group.heroes.filter(h => draft.isAvailable(h)).length}/{group.heroes.length})</span>
+                      <h4 className="text-xs font-bold mb-1 flex items-center gap-2" style={{ color: ROLE_COLORS[group.role] || '#FFD700' }}>
+                        {group.role}
+                        <span className="opacity-50 font-normal">({group.heroes.filter(h => draft.isAvailable(h)).length}/{group.heroes.length})</span>
+                        {group.heroes.filter(h => draft.isAvailable(h) && icyVeins.getHeroTierOnMap(h.nicknames[0], map.name) === 'S').length > 0 && (
+                          <span className="text-[9px] px-1 rounded" style={{ background: 'rgba(255,215,0,0.15)', color: '#FFD700' }}>
+                            ★{group.heroes.filter(h => draft.isAvailable(h) && icyVeins.getHeroTierOnMap(h.nicknames[0], map.name) === 'S').length}
+                          </span>
+                        )}
                       </h4>
                       <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
                         {group.heroes.map(hero => {
