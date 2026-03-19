@@ -152,6 +152,7 @@ function DraftPageInner() {
   };
 
   const handleReset = () => {
+    if (step > 0 && !window.confirm('Reset the entire draft? All picks and bans will be cleared.')) return;
     draft.reset(ALL_HEROES);
     setStep(0);
   };
