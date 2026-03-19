@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import HeroPortrait from '@/components/HeroPortrait';
+import HeroDetailPopup from '@/components/HeroDetailPopup';
 import type { Hero } from '@/data/Hero';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -28,6 +29,7 @@ export default function TierListPage() {
   const [selectedMap, setSelectedMap] = useState<string>('all');
   const [roleFilter, setRoleFilter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [detailHero, setDetailHero] = useState<Hero | null>(null);
 
   const icyVeins = useMemo(() => IcyVeinsDatabase.getInstance(), []);
 
@@ -137,7 +139,8 @@ export default function TierListPage() {
               </div>
               <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))' }}>
                 {tierEntries.map(e => (
-                  <div key={e.hero.name} className="flex flex-col items-center p-1 rounded hover:bg-white/5 transition-all"
+                  <div key={e.hero.name} className="flex flex-col items-center p-1 rounded hover:bg-white/5 transition-all cursor-pointer"
+                    onClick={() => setDetailHero(e.hero)}
                     title={`${e.hero.nicknames[0]} (${e.hero.role}) — Score: ${e.score.toFixed(1)}${selectedMap === 'all' ? ` | S-tier: ${e.sTierMaps} maps, A-tier: ${e.aTierMaps} maps` : ''}`}>
                     <HeroPortrait hero={e.hero} size="md" showName />
                     {selectedMap === 'all' && e.sTierMaps > 0 && (
@@ -150,6 +153,7 @@ export default function TierListPage() {
           );
         })}
       </div>
+      {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}
     </div>
   );
 }
