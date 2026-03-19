@@ -40,7 +40,7 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
       border: isActive ? `2px solid ${teamColor}` : '1px solid rgba(68,102,136,0.5)',
       boxShadow: isActive ? `0 0 15px ${teamColor}33, inset 0 0 20px ${teamColor}11` : 'none',
     }}>
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-1">
         <h3 className="text-sm font-bold" style={{ color: teamColor }}>{teamLabel}</h3>
         {compScore !== null && (
           <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ background: scoreColor + '22', color: scoreColor, border: `1px solid ${scoreColor}44` }}>
@@ -48,6 +48,11 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
           </span>
         )}
       </div>
+      {compScore !== null && (
+        <div className="h-1 rounded-full overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.08)' }}>
+          <div className="h-full rounded-full transition-all" style={{ width: `${compScore}%`, background: `linear-gradient(90deg, ${scoreColor}, ${scoreColor}88)` }} />
+        </div>
+      )}
 
       {/* Role Coverage */}
       {picks.length > 0 && (
