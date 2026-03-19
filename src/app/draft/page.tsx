@@ -330,6 +330,23 @@ function DraftPageInner() {
         </div>
       </div>
 
+      {/* Coaching Tip */}
+      {!isComplete && draft.team1Picks.length + draft.team1Bans.length > 0 && (
+        <div className="px-4 py-1 text-center" style={{ background: 'rgba(0,255,255,0.03)' }}>
+          <span className="text-[10px] opacity-50">
+            💡 {(() => {
+              if (isBan && draft.team1Bans.length === 0) return 'Ban high-impact heroes your team struggles against';
+              if (isBan) return 'Consider banning heroes that counter your planned composition';
+              if (draft.team1Picks.length === 0) return 'Secure a strong tank or high-priority pick first';
+              if (!draft.team1Picks.some(h => h.role === 'Tank') && draft.team1Picks.length >= 2) return 'Your team needs a Tank — prioritize one soon';
+              if (!draft.team1Picks.some(h => h.role === 'Healer') && draft.team1Picks.length >= 3) return 'No Healer yet — draft one before it\'s too late';
+              if (draft.team1Picks.length >= 4) return 'Last pick — fill the remaining role gap';
+              return 'Check suggestions for optimal synergy picks';
+            })()}
+          </span>
+        </div>
+      )}
+
       {/* Counter Threat Warnings */}
       {!isComplete && draft.team1Picks.length > 0 && draft.team2Picks.length > 0 && (() => {
         const threats: string[] = [];
