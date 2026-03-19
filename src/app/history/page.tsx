@@ -34,8 +34,15 @@ export default function HistoryPage() {
   const [history, setHistory] = useState<DraftRecord[]>([]);
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
   const [mapFilter, setMapFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'map' | 'score'>('newest');
 
-  const filteredHistory = mapFilter === 'all' ? history : history.filter(r => r.mapName === mapFilter);
+  const filteredHistory = (() => {
+    let result = mapFilter === 'all' ? history : history.filter(r => r.mapName === mapFilter);
+    if (sortBy === 'oldest') result = [...result].reverse();
+    else if (sortBy === 'map') result = [...result].sort((a, b) => a.mapName.localeCompare(b.mapName));
+    else if (sortBy === 'score') result = [...result].sort((a, b) => (b.team1Score + b.team2Score) - (a.team1Score + a.team2Score));
+    return result;
+  })();
 
   useEffect(() => {
     setHistory(loadHistory());
@@ -75,6 +82,13 @@ export default function HistoryPage() {
               ))}
             </select>
             <span className="text-[10px] opacity-40">{filteredHistory.length} of {history.length}</span>
+            <select value={sortBy} onChange={e => setSortBy(e.target.value as typeof sortBy)}
+              className="text-xs px-2 py-1 rounded ml-auto" style={{ background: 'rgba(30, 40, 70, 0.7)', color: '#00FFFF', border: '1px solid rgba(68,102,136,0.5)' }}>
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="map">By Map</option>
+              <option value="score">By Score</option>
+            </select>
           </div>
         )}
         {history.length === 0 ? (
