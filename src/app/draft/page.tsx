@@ -42,6 +42,11 @@ function DraftPageInner() {
 
   const [draft] = useState(() => new DraftingTool(ALL_HEROES));
   const [step, setStep] = useState(0);
+  // Snapshot picks/bans as state so React detects changes
+  const [team1Picks, setTeam1Picks] = useState<Hero[]>([]);
+  const [team2Picks, setTeam2Picks] = useState<Hero[]>([]);
+  const [team1Bans, setTeam1Bans] = useState<Hero[]>([]);
+  const [team2Bans, setTeam2Bans] = useState<Hero[]>([]);
   const [roleFilter, setRoleFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [heroView, setHeroView] = useState<'grid' | 'roles'>('grid');
@@ -139,6 +144,13 @@ function DraftPageInner() {
     return () => window.clearInterval(timerId);
   }, [timerEnabled, isComplete, timeLeft]);
 
+  const syncDraftState = () => {
+    setTeam1Picks([...draft.team1Picks]);
+    setTeam2Picks([...draft.team2Picks]);
+    setTeam1Bans([...draft.team1Bans]);
+    setTeam2Bans([...draft.team2Bans]);
+  };
+
   const handleHeroClick = (hero: Hero) => {
     if (isComplete) return;
     if (isBan) {
@@ -146,7 +158,8 @@ function DraftPageInner() {
     } else {
       draft.pickHero(currentTeam, hero);
     }
-    setSearchQuery(''); // Clear search after pick/ban
+    setSearchQuery('');
+    syncDraftState();
     setStep(s => s + 1);
   };
 
@@ -157,12 +170,14 @@ function DraftPageInner() {
     const prevTeam = teamOrder[prevRealStep];
     const wasBan = DRAFT_IS_BAN[prevRealStep];
     draft.undoBanOrPick(prevTeam, wasBan);
+    syncDraftState();
     setStep(prevStep);
   };
 
   const handleReset = () => {
     if (step > 0 && !window.confirm('Reset the entire draft? All picks and bans will be cleared.')) return;
     draft.reset(ALL_HEROES);
+    syncDraftState();
     setStep(0);
   };
 
@@ -192,8 +207,8 @@ function DraftPageInner() {
   // Win condition analysis when draft is complete
   const analysis = useMemo(() => {
     if (!isComplete) return null;
-    const t1 = new TeamComposition(draft.team1Picks);
-    const t2 = new TeamComposition(draft.team2Picks);
+    const t1 = new TeamComposition(team1Picks);
+    const t2 = new TeamComposition(team2Picks);
     const a1 = analyzeWinCondition(t1, t2);
     const a2 = analyzeWinCondition(t2, t1);
 
@@ -202,11 +217,11 @@ function DraftPageInner() {
       timestamp: new Date().toISOString(),
       mapName: map.name,
       firstPickTeam: firstPick,
-      team1Picks: draft.team1Picks.map(h => h.nicknames[0]),
-      team2Picks: draft.team2Picks.map(h => h.nicknames[0]),
-      team1Bans: draft.team1Bans.map(h => h.nicknames[0]),
-      team2Bans: draft.team2Bans.map(h => h.nicknames[0]),
-      team1Score: computeCompScore(draft.team1Picks), team2Score: computeCompScore(draft.team2Picks),
+      team1Picks: team1Picks.map(h => h.nicknames[0]),
+      team2Picks: team2Picks.map(h => h.nicknames[0]),
+      team1Bans: team1Bans.map(h => h.nicknames[0]),
+      team2Bans: team2Bans.map(h => h.nicknames[0]),
+      team1Score: computeCompScore(team1Picks), team2Score: computeCompScore(team2Picks),
       team1WinCondition: winConditionToString(a1.primary),
       team2WinCondition: winConditionToString(a2.primary),
       verdict: `Team 1: ${winConditionToString(a1.primary)} vs Team 2: ${winConditionToString(a2.primary)}`,
@@ -223,7 +238,7 @@ function DraftPageInner() {
 
   const statusText = isComplete
     ? '✅ Draft Complete!'
-    : `${isYourTurn ? '🟢 Your' : '🔴 Enemy'} Turn — ${isBan ? '🚫 BAN' : `✅ PICK ${draft.team1Picks.length + draft.team2Picks.length + 1}/10`} (${step + 1}/${totalSteps})`;
+    : `${isYourTurn ? '🟢 Your' : '🔴 Enemy'} Turn — ${isBan ? '🚫 BAN' : `✅ PICK ${team1Picks.length + team2Picks.length + 1}/10`} (${step + 1}/${totalSteps})`;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -250,9 +265,9 @@ function DraftPageInner() {
               ⚡ Quick
             </span>
           )}
-          {(draft.team1Picks.length > 0 || draft.team1Bans.length > 0) && (
+          {(team1Picks.length > 0 || team1Bans.length > 0) && (
             <span className="text-[10px] opacity-40">
-              B:{draft.team1Bans.length + draft.team2Bans.length} P:{draft.team1Picks.length + draft.team2Picks.length}
+              B:{team1Bans.length + team2Bans.length} P:{team1Picks.length + team2Picks.length}
             </span>
           )}
         </div>
@@ -269,16 +284,16 @@ function DraftPageInner() {
         <div className="flex items-center gap-3">
           <span className="text-sm font-bold" style={{ color: isBan ? '#FF6666' : (isYourTurn ? '#00FFFF' : '#FF6666') }}>{statusText}</span>
           {phaseName && <span className="text-[10px] px-1.5 py-0.5 rounded opacity-60" style={{ background: 'rgba(255,255,255,0.05)', color: isBan ? '#FF6666' : '#00FFFF' }}>{phaseName}</span>}
-          {draft.team1Picks.length > 0 && (
+          {team1Picks.length > 0 && (
             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(144,238,144,0.1)', color: '#90EE90', border: '1px solid #90EE9022' }}>
-              Score: {computeCompScore(draft.team1Picks)}
+              Score: {computeCompScore(team1Picks)}
             </span>
           )}
-          {draft.team1Picks.length > 0 && (
+          {team1Picks.length > 0 && (
             <span className="text-[10px] flex gap-0.5">
               {['Tank', 'Healer', 'DPS', 'Mage', 'Offlane'].map(r => {
                 const c: Record<string, string> = { Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347', Mage: '#BA55D3', Offlane: '#FFA500' };
-                const has = draft.team1Picks.some(h => h.role === r);
+                const has = team1Picks.some(h => h.role === r);
                 return <span key={r} className="w-2 h-2 rounded-full" style={{ background: has ? c[r] : 'rgba(255,255,255,0.1)' }} title={`${r}: ${has ? '✓' : '✗'}`} />;
               })}
             </span>
@@ -349,20 +364,20 @@ function DraftPageInner() {
       </div>
 
       {/* Banned Heroes Strip */}
-      {(draft.team1Bans.length > 0 || draft.team2Bans.length > 0) && (
+      {(team1Bans.length > 0 || team2Bans.length > 0) && (
         <div className="flex items-center justify-center gap-3 px-4 py-1" style={{ background: 'rgba(255,102,102,0.04)' }}>
-          {draft.team1Bans.length > 0 && (
+          {team1Bans.length > 0 && (
             <div className="flex items-center gap-1">
               <span className="text-[9px] opacity-40">T1 bans:</span>
-              {draft.team1Bans.map(h => (
+              {team1Bans.map(h => (
                 <span key={h.name} className="text-[9px] px-1 rounded" style={{ background: 'rgba(255,102,102,0.1)', color: '#FF6666' }}>{h.nicknames[0]}</span>
               ))}
             </div>
           )}
-          {draft.team2Bans.length > 0 && (
+          {team2Bans.length > 0 && (
             <div className="flex items-center gap-1">
               <span className="text-[9px] opacity-40">T2 bans:</span>
-              {draft.team2Bans.map(h => (
+              {team2Bans.map(h => (
                 <span key={h.name} className="text-[9px] px-1 rounded" style={{ background: 'rgba(255,102,102,0.1)', color: '#FF6666' }}>{h.nicknames[0]}</span>
               ))}
             </div>
@@ -371,7 +386,7 @@ function DraftPageInner() {
       )}
 
       {/* Coaching Tip */}
-      {!isComplete && (draft.team1Picks.length + draft.team1Bans.length > 0 || step > 0) && (
+      {!isComplete && (team1Picks.length + team1Bans.length > 0 || step > 0) && (
         <div className="px-4 py-1 text-center" style={{ background: 'rgba(0,255,255,0.03)' }}>
           <span className="text-[10px] opacity-50">
             💡 {(() => {
@@ -382,12 +397,12 @@ function DraftPageInner() {
                 if (sTier.length > 0) return `Enemy may ban: ${sTier.slice(0, 3).join(', ')}`;
                 return 'Enemy is banning — watch for targeted bans';
               }
-              if (isBan && draft.team1Bans.length === 0) return 'Ban high-impact heroes your team struggles against';
+              if (isBan && team1Bans.length === 0) return 'Ban high-impact heroes your team struggles against';
               if (isBan) return 'Consider banning heroes that counter your planned composition';
-              if (draft.team1Picks.length === 0) return 'Secure a strong tank or high-priority pick first';
-              if (!draft.team1Picks.some(h => h.role === 'Tank') && draft.team1Picks.length >= 2) return 'Your team needs a Tank — prioritize one soon';
-              if (!draft.team1Picks.some(h => h.role === 'Healer') && draft.team1Picks.length >= 3) return 'No Healer yet — draft one before it\'s too late';
-              if (draft.team1Picks.length >= 4) return 'Last pick — fill the remaining role gap';
+              if (team1Picks.length === 0) return 'Secure a strong tank or high-priority pick first';
+              if (!team1Picks.some(h => h.role === 'Tank') && team1Picks.length >= 2) return 'Your team needs a Tank — prioritize one soon';
+              if (!team1Picks.some(h => h.role === 'Healer') && team1Picks.length >= 3) return 'No Healer yet — draft one before it\'s too late';
+              if (team1Picks.length >= 4) return 'Last pick — fill the remaining role gap';
               return 'Check suggestions for optimal synergy picks';
             })()}
           </span>
@@ -395,10 +410,10 @@ function DraftPageInner() {
       )}
 
       {/* Counter Threat Warnings */}
-      {!isComplete && draft.team1Picks.length > 0 && draft.team2Picks.length > 0 && (() => {
+      {!isComplete && team1Picks.length > 0 && team2Picks.length > 0 && (() => {
         const threats: string[] = [];
-        for (const enemy of draft.team2Picks) {
-          for (const ally of draft.team1Picks) {
+        for (const enemy of team2Picks) {
+          for (const ally of team1Picks) {
             if (icyVeins.counters(enemy.nicknames[0], ally.nicknames[0])) {
               threats.push(`${enemy.nicknames[0]} counters your ${ally.nicknames[0]}`);
             }
@@ -420,15 +435,15 @@ function DraftPageInner() {
 
       {/* Mobile Team Panels */}
       <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-2 px-3 py-2" style={{ background: 'rgba(20, 25, 45, 0.35)' }}>
-        <TeamPanel teamNumber={1} picks={[...draft.team1Picks]} bans={[...draft.team1Bans]} isActive={!isComplete && currentTeam === 1} enemyPicks={[...draft.team2Picks]} onHeroClick={h => setDetailHero(h)} />
-        <TeamPanel teamNumber={2} picks={[...draft.team2Picks]} bans={[...draft.team2Bans]} isActive={!isComplete && currentTeam === 2} enemyPicks={[...draft.team1Picks]} onHeroClick={h => setDetailHero(h)} />
+        <TeamPanel teamNumber={1} picks={[...team1Picks]} bans={[...team1Bans]} isActive={!isComplete && currentTeam === 1} enemyPicks={[...team2Picks]} onHeroClick={h => setDetailHero(h)} />
+        <TeamPanel teamNumber={2} picks={[...team2Picks]} bans={[...team2Bans]} isActive={!isComplete && currentTeam === 2} enemyPicks={[...team1Picks]} onHeroClick={h => setDetailHero(h)} />
       </div>
 
       {/* Main Content */}
       <div className="flex flex-1 gap-3 p-3 overflow-hidden">
         {/* Team 1 Panel - hidden on mobile */}
         <div className="w-48 flex-shrink-0 hidden lg:block">
-          <TeamPanel teamNumber={1} picks={[...draft.team1Picks]} bans={[...draft.team1Bans]} isActive={!isComplete && currentTeam === 1} enemyPicks={[...draft.team2Picks]} onHeroClick={h => setDetailHero(h)} />
+          <TeamPanel teamNumber={1} picks={[...team1Picks]} bans={[...team1Bans]} isActive={!isComplete && currentTeam === 1} enemyPicks={[...team2Picks]} onHeroClick={h => setDetailHero(h)} />
         </div>
 
         {/* Center: Hero Grid + Suggestions */}
@@ -593,7 +608,7 @@ function DraftPageInner() {
               <div className="grid grid-cols-3 gap-2 items-center">
                 <div className="p-3 rounded text-center" style={{ background: 'rgba(68,136,255,0.1)', border: '1px solid #4488FF44' }}>
                   <p className="text-xs font-semibold mb-1" style={{ color: '#4488FF' }}>Team 1</p>
-                  <p className="text-lg font-bold" style={{ color: '#FFD700' }}>{computeCompScore(draft.team1Picks)}</p>
+                  <p className="text-lg font-bold" style={{ color: '#FFD700' }}>{computeCompScore(team1Picks)}</p>
                   <p className="text-[10px] opacity-60">Comp Score</p>
                 </div>
                 <div className="text-center">
@@ -601,8 +616,8 @@ function DraftPageInner() {
                   <p className="text-[10px] opacity-50">📍 {map.name}</p>
                   {/* Advantage meter */}
                   {(() => {
-                    const s1 = computeCompScore(draft.team1Picks);
-                    const s2 = computeCompScore(draft.team2Picks);
+                    const s1 = computeCompScore(team1Picks);
+                    const s2 = computeCompScore(team2Picks);
                     const diff = s1 - s2;
                     const label = diff > 10 ? 'Team 1 Favored' : diff < -10 ? 'Team 2 Favored' : 'Even Match';
                     const color = diff > 10 ? '#4488FF' : diff < -10 ? '#FF6666' : '#FFD700';
@@ -619,7 +634,7 @@ function DraftPageInner() {
                 </div>
                 <div className="p-3 rounded text-center" style={{ background: 'rgba(255,102,102,0.1)', border: '1px solid #FF666644' }}>
                   <p className="text-xs font-semibold mb-1" style={{ color: '#FF6666' }}>Team 2</p>
-                  <p className="text-lg font-bold" style={{ color: '#FFD700' }}>{computeCompScore(draft.team2Picks)}</p>
+                  <p className="text-lg font-bold" style={{ color: '#FFD700' }}>{computeCompScore(team2Picks)}</p>
                   <p className="text-[10px] opacity-60">Comp Score</p>
                 </div>
               </div>
@@ -628,19 +643,19 @@ function DraftPageInner() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid #4488FF44' }}>
                   <div className="flex gap-1 justify-center mb-2">
-                    {draft.team1Picks.map(h => (
+                    {team1Picks.map(h => (
                       <HeroPortrait key={h.name} hero={h} size="sm" selected />
                     ))}
                   </div>
-                  <p className="text-xs text-center opacity-70">{draft.team1Picks.map(h => h.nicknames[0]).join(' · ')}</p>
+                  <p className="text-xs text-center opacity-70">{team1Picks.map(h => h.nicknames[0]).join(' · ')}</p>
                 </div>
                 <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid #FF666644' }}>
                   <div className="flex gap-1 justify-center mb-2">
-                    {draft.team2Picks.map(h => (
+                    {team2Picks.map(h => (
                       <HeroPortrait key={h.name} hero={h} size="sm" selected />
                     ))}
                   </div>
-                  <p className="text-xs text-center opacity-70">{draft.team2Picks.map(h => h.nicknames[0]).join(' · ')}</p>
+                  <p className="text-xs text-center opacity-70">{team2Picks.map(h => h.nicknames[0]).join(' · ')}</p>
                 </div>
               </div>
 
@@ -661,8 +676,8 @@ function DraftPageInner() {
                     { label: 'Poke', spec: Specialty.POKE },
                     { label: 'Sustain', spec: Specialty.SUSTAINED_DAMAGE },
                   ].map(({ label, spec }) => {
-                    const t1 = draft.team1Picks.filter(h => h.specialties.includes(spec)).length;
-                    const t2 = draft.team2Picks.filter(h => h.specialties.includes(spec)).length;
+                    const t1 = team1Picks.filter(h => h.specialties.includes(spec)).length;
+                    const t2 = team2Picks.filter(h => h.specialties.includes(spec)).length;
                     return (
                       <div key={label} className="flex items-center gap-1 text-[10px]">
                         <div className="w-8 text-right" style={{ color: t1 > t2 ? '#4488FF' : t1 === t2 ? '#888' : '#666' }}>{t1}</div>
@@ -679,10 +694,10 @@ function DraftPageInner() {
                 </div>
               </div>
               <DraftReplay
-                team1Picks={[...draft.team1Picks]}
-                team2Picks={[...draft.team2Picks]}
-                team1Bans={[...draft.team1Bans]}
-                team2Bans={[...draft.team2Bans]}
+                team1Picks={[...team1Picks]}
+                team2Picks={[...team2Picks]}
+                team1Bans={[...team1Bans]}
+                team2Bans={[...team2Bans]}
               />
               <div className="flex gap-3 justify-center flex-wrap">
                 <button
@@ -711,14 +726,14 @@ function DraftPageInner() {
                 </button>
                 <button
                   onClick={() => {
-                    const t1Picks = draft.team1Picks.map(h => `${h.nicknames[0]} (${h.role})`).join(', ');
-                    const t2Picks = draft.team2Picks.map(h => `${h.nicknames[0]} (${h.role})`).join(', ');
-                    const t1Bans = draft.team1Bans.map(h => h.nicknames[0]).join(', ');
-                    const t2Bans = draft.team2Bans.map(h => h.nicknames[0]).join(', ');
+                    const t1Picks = team1Picks.map(h => `${h.nicknames[0]} (${h.role})`).join(', ');
+                    const t2Picks = team2Picks.map(h => `${h.nicknames[0]} (${h.role})`).join(', ');
+                    const t1Bans = team1Bans.map(h => h.nicknames[0]).join(', ');
+                    const t2Bans = team2Bans.map(h => h.nicknames[0]).join(', ');
                     const wc1 = analysis ? winConditionToString(analysis.team1.primary) : '';
                     const wc2 = analysis ? winConditionToString(analysis.team2.primary) : '';
-                    const s1 = computeCompScore(draft.team1Picks);
-                    const s2 = computeCompScore(draft.team2Picks);
+                    const s1 = computeCompScore(team1Picks);
+                    const s2 = computeCompScore(team2Picks);
                     const diff = s1 - s2;
                     const verdict = diff > 10 ? 'Team 1 Favored' : diff < -10 ? 'Team 2 Favored' : 'Even Match';
                     const text = [
@@ -754,7 +769,7 @@ function DraftPageInner() {
 
         {/* Team 2 Panel - hidden on mobile */}
         <div className="w-48 flex-shrink-0 hidden lg:block">
-          <TeamPanel teamNumber={2} picks={[...draft.team2Picks]} bans={[...draft.team2Bans]} isActive={!isComplete && currentTeam === 2} enemyPicks={[...draft.team1Picks]} onHeroClick={h => setDetailHero(h)} />
+          <TeamPanel teamNumber={2} picks={[...team2Picks]} bans={[...team2Bans]} isActive={!isComplete && currentTeam === 2} enemyPicks={[...team1Picks]} onHeroClick={h => setDetailHero(h)} />
         </div>
       </div>
       {/* Hero Detail Popup */}
@@ -881,4 +896,5 @@ function DraftReplay({ team1Picks, team2Picks, team1Bans, team2Bans }: {
     </div>
   );
 }
+
 
