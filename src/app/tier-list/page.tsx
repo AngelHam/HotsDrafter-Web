@@ -125,6 +125,18 @@ export default function TierListPage() {
           })}
         </div>
 
+        {/* Tier Summary */}
+        <div className="flex gap-3 mb-4 justify-center">
+          {tiers.map(tier => {
+            const count = entries.filter(e => e.tier === tier).length;
+            return (
+              <span key={tier} className="text-[10px] px-2 py-0.5 rounded" style={{ background: TIER_COLORS[tier] + '15', color: TIER_COLORS[tier], border: `1px solid ${TIER_COLORS[tier]}33` }}>
+                {tier}: {count}
+              </span>
+            );
+          })}
+        </div>
+
         {/* Tier Sections */}
         {tiers.map(tier => {
           const tierEntries = entries.filter(e => e.tier === tier);
