@@ -6,6 +6,7 @@ import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import { specialtyToString } from '@/data/Specialty';
 import HeroPortrait from '@/components/HeroPortrait';
+import HeroDetailPopup from '@/components/HeroDetailPopup';
 import type { Hero } from '@/data/Hero';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -22,6 +23,7 @@ export default function ComparePage() {
   const [hero2, setHero2] = useState<Hero | null>(null);
   const [picker, setPicker] = useState<1 | 2 | null>(null);
   const [search, setSearch] = useState('');
+  const [detailHero, setDetailHero] = useState<Hero | null>(null);
 
   const icyVeins = useMemo(() => IcyVeinsDatabase.getInstance(), []);
 
@@ -47,7 +49,7 @@ export default function ComparePage() {
       <div className="flex-1 p-4 max-w-4xl mx-auto w-full">
         {/* Hero Selection */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <HeroSlot hero={hero1} label="Hero 1" color="#4488FF" onClick={() => setPicker(1)} />
+          <HeroSlot hero={hero1} label="Hero 1" color="#4488FF" onClick={() => setPicker(1)} onDetail={h => setDetailHero(h)} />
           <div className="flex flex-col items-center justify-center gap-2">
             <span className="text-2xl font-bold" style={{ color: '#FFD700' }}>VS</span>
             {hero1 && hero2 && (
@@ -57,7 +59,7 @@ export default function ComparePage() {
               </button>
             )}
           </div>
-          <HeroSlot hero={hero2} label="Hero 2" color="#FF6666" onClick={() => setPicker(2)} />
+          <HeroSlot hero={hero2} label="Hero 2" color="#FF6666" onClick={() => setPicker(2)} onDetail={h => setDetailHero(h)} />
         </div>
 
         {/* Comparison Table */}
@@ -120,7 +122,7 @@ export default function ComparePage() {
         )}
       </div>
 
-      {/* Picker Modal */}
+      {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}\n\n      {/* Picker Modal */}
       {picker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.8)' }}>
           <div className="rounded-lg p-4 max-w-2xl max-h-[80vh] overflow-auto" style={{ background: '#1a1a2e', border: '2px solid #00FFFF' }}>
@@ -144,9 +146,9 @@ export default function ComparePage() {
   );
 }
 
-function HeroSlot({ hero, label, color, onClick }: { hero: Hero | null; label: string; color: string; onClick: () => void }) {
+function HeroSlot({ hero, label, color, onClick, onDetail }: { hero: Hero | null; label: string; color: string; onClick: () => void; onDetail?: (h: Hero) => void }) {
   return (
-    <button onClick={onClick} className="p-4 rounded text-center transition-all hover:brightness-110" style={{ background: 'rgba(30, 40, 70, 0.7)', border: `2px solid ${hero ? color : 'rgba(68,102,136,0.5)'}` }}>
+    <button onClick={onClick} onContextMenu={e => { e.preventDefault(); if (hero && onDetail) onDetail(hero); }} className="p-4 rounded text-center transition-all hover:brightness-110" style={{ background: 'rgba(30, 40, 70, 0.7)', border: `2px solid ${hero ? color : 'rgba(68,102,136,0.5)'}` }}>
       {hero ? (
         <div className="flex flex-col items-center gap-2">
           <HeroPortrait hero={hero} size="lg" />
