@@ -502,6 +502,23 @@ function DraftPageInner() {
                 <div className="text-center">
                   <p className="text-2xl font-bold" style={{ color: '#FFD700' }}>VS</p>
                   <p className="text-[10px] opacity-50">📍 {map.name}</p>
+                  {/* Advantage meter */}
+                  {(() => {
+                    const s1 = computeCompScore(draft.team1Picks);
+                    const s2 = computeCompScore(draft.team2Picks);
+                    const diff = s1 - s2;
+                    const label = diff > 10 ? 'Team 1 Favored' : diff < -10 ? 'Team 2 Favored' : 'Even Match';
+                    const color = diff > 10 ? '#4488FF' : diff < -10 ? '#FF6666' : '#FFD700';
+                    return (
+                      <div className="mt-1">
+                        <div className="flex h-1.5 rounded-full overflow-hidden mx-2" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                          <div style={{ width: `${Math.max(20, Math.min(80, 50 + diff))}%`, background: '#4488FF88' }} />
+                          <div style={{ flex: 1, background: '#FF666688' }} />
+                        </div>
+                        <p className="text-[9px] mt-0.5 font-semibold" style={{ color }}>{label}</p>
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div className="p-3 rounded text-center" style={{ background: 'rgba(255,102,102,0.1)', border: '1px solid #FF666644' }}>
                   <p className="text-xs font-semibold mb-1" style={{ color: '#FF6666' }}>Team 2</p>
