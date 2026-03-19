@@ -134,10 +134,15 @@ export default function StartupPage() {
         );
       })()}
 
-      <div className="animate-fade-slide-up mt-12 text-xs opacity-40 text-center" style={{ animationDelay: '500ms' }}>
-        <p>HotsDrafter v2 Web — Data from Icy Veins</p>
+      <div className="animate-fade-slide-up mt-8 flex flex-wrap gap-1.5 justify-center max-w-3xl" style={{ animationDelay: '480ms' }}>
+        {['AI Suggestions', 'Ban Predictions', 'Counter Warnings', 'Win Conditions', 'Hero Compare', 'Tier Lists', 'Draft Export', 'Coaching Tips'].map(f => (
+          <span key={f} className="text-[9px] px-2 py-0.5 rounded" style={{ background: 'rgba(255,215,0,0.06)', color: '#FFD700', border: '1px solid #FFD70015' }}>{f}</span>
+        ))}
+      </div>
+
+      <div className="animate-fade-slide-up mt-6 text-xs opacity-40 text-center" style={{ animationDelay: '500ms' }}>
+        <p>HotsDrafter v3.2 — Data from Icy Veins</p>
         <p className="mt-1">{ALL_MAPS.length} Maps • {ALL_HEROES.length} Heroes • 8 Win Conditions</p>
-        <p className="mt-1 opacity-60">Scoring: Synergy 30% + Counter 25% + Map 20% + Role 15% + Win Condition 10%</p>
         {draftCount > 0 && <p className="mt-1 opacity-50">📊 {draftCount} draft{draftCount !== 1 ? 's' : ''} completed</p>}
       </div>
     </main>
