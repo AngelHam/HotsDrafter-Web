@@ -207,7 +207,7 @@ function DraftPageInner() {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold cursor-help" style={{ color: '#FFD700' }}
-            title={`${map.name}\nS-tier: ${icyVeins.getSTierHeroes(map.name).slice(0, 5).join(', ') || 'None'}\nKey: ${(() => { const specialties: string[] = []; for (const [k, v] of Object.entries(map.specialtyImportance || {})) { if (typeof v === 'number' && v >= 8) specialties.push(k); } return specialties.slice(0, 3).join(', ') || 'Balanced'; })()}`}>
+            title={`${map.name}\nS-tier: ${icyVeins.getSTierHeroes(map.name).slice(0, 5).join(', ') || 'None listed'}`}>
             📍 {map.name}
           </span>
           {isQuickDraft && (
