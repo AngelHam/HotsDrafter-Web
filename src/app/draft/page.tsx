@@ -210,7 +210,7 @@ function DraftPageInner() {
 
   const statusText = isComplete
     ? '✅ Draft Complete!'
-    : `${isYourTurn ? '🟢 Your' : '🔴 Enemy'} Turn — ${isBan ? '🚫 BAN' : '✅ PICK'} (${step + 1}/${totalSteps})`;
+    : `${isYourTurn ? '🟢 Your' : '🔴 Enemy'} Turn — ${isBan ? '🚫 BAN' : `✅ PICK ${draft.team1Picks.length + draft.team2Picks.length + 1}/10`} (${step + 1}/${totalSteps})`;
 
   return (
     <div className="min-h-screen flex flex-col">
