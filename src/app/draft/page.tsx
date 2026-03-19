@@ -507,7 +507,7 @@ function DraftPageInner() {
                     { label: 'Waveclear', spec: Specialty.WAVECLEAR },
                     { label: 'Engage', spec: Specialty.ENGAGE },
                     { label: 'Hard CC', spec: Specialty.HARD_CC },
-                    { label: 'Burst', spec: Specialty.BURST },
+                    { label: 'Burst', spec: Specialty.BURST_DAMAGE },
                     { label: 'Poke', spec: Specialty.POKE },
                     { label: 'Sustain', spec: Specialty.SUSTAINED_DAMAGE },
                   ].map(({ label, spec }) => {
