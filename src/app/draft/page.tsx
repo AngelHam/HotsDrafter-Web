@@ -80,7 +80,15 @@ function DraftPageInner() {
   const isComplete = step >= totalSteps;
 
   // Show ALL heroes, mark unavailable as dimmed
-  const allHeroesSorted = [...ALL_HEROES].sort((a, b) => a.nicknames[0].localeCompare(b.nicknames[0]));
+  const [heroSort, setHeroSort] = useState<'name' | 'role' | 'tier'>('name');
+
+  const allHeroesSorted = useMemo(() => {
+    const sorted = [...ALL_HEROES];
+    if (heroSort === 'name') sorted.sort((a, b) => a.nicknames[0].localeCompare(b.nicknames[0]));
+    else if (heroSort === 'role') sorted.sort((a, b) => a.role.localeCompare(b.role) || a.nicknames[0].localeCompare(b.nicknames[0]));
+    else if (heroSort === 'tier') sorted.sort((a, b) => icyVeins.getTierScore(b.nicknames[0], map.name) - icyVeins.getTierScore(a.nicknames[0], map.name));
+    return sorted;
+  }, [heroSort, icyVeins, map.name]);
   const filtered = allHeroesSorted.filter(h => {
     if (!matchesRoleFilter(h, roleFilter)) return false;
     if (searchQuery) {
@@ -419,8 +427,14 @@ function DraftPageInner() {
                 >
                   Role View
                 </button>
+                <select value={heroSort} onChange={e => setHeroSort(e.target.value as 'name' | 'role' | 'tier')}
+                  className="text-[10px] px-1 py-0.5 rounded ml-1" style={{ background: 'rgba(30, 40, 70, 0.8)', color: '#00FFFF', border: '1px solid rgba(68,102,136,0.5)' }}>
+                  <option value="name">A-Z</option>
+                  <option value="role">Role</option>
+                  <option value="tier">Tier ↓</option>
+                </select>
                 <span className="text-[10px] ml-auto opacity-50">
-                  {filtered.filter(h => draft.isAvailable(h)).length}/{filtered.length} available
+                  {filtered.filter(h => draft.isAvailable(h)).length}/{filtered.length}
                 </span>
               </div>
 
