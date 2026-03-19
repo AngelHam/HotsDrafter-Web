@@ -54,6 +54,9 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
                 }}>
                   {s.totalScore.toFixed(0)}
                 </span>
+                <span className="text-[10px]" style={{ color: '#FFD700', letterSpacing: '-1px' }} title={`Confidence: ${s.totalScore >= 60 ? 'Very High' : s.totalScore >= 45 ? 'High' : s.totalScore >= 30 ? 'Medium' : 'Low'}`}>
+                  {'★'.repeat(Math.min(5, Math.max(1, Math.ceil(s.totalScore / 20))))}{'☆'.repeat(Math.max(0, 5 - Math.ceil(s.totalScore / 20)))}
+                </span>
                 <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', minWidth: 60 }}>
                   <div className="h-full rounded-full transition-all" style={{
                     width: `${Math.min(s.totalScore, 100)}%`,
