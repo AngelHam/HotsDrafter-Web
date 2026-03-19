@@ -146,6 +146,7 @@ function DraftPageInner() {
     } else {
       draft.pickHero(currentTeam, hero);
     }
+    setSearchQuery(''); // Clear search after pick/ban
     setStep(s => s + 1);
   };
 
