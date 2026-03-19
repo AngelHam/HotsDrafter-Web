@@ -119,13 +119,21 @@ function DraftPageInner() {
     setTimeLeft(timerDuration);
   }, [step, timerDuration, timerEnabled, isComplete]);
 
+  // Auto-disable timer when draft completes
+  useEffect(() => {
+    if (isComplete && timerEnabled) setTimerEnabled(false);
+  }, [isComplete, timerEnabled]);
+
   useEffect(() => {
     if (!timerEnabled || isComplete || timeLeft <= 0) {
       return;
     }
 
     const timerId = window.setInterval(() => {
-      setTimeLeft(prev => Math.max(0, prev - 1));
+      setTimeLeft(prev => {
+        if (prev <= 1) return 0;
+        return prev - 1;
+      });
     }, 1000);
 
     return () => window.clearInterval(timerId);
