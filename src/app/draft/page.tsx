@@ -477,7 +477,8 @@ function DraftPageInner() {
                     const isAvail = draft.isAvailable(hero);
                     const tier = icyVeins.getHeroTierOnMap(hero.nicknames[0], map.name);
                     return (
-                      <div key={hero.name} onContextMenu={e => { e.preventDefault(); setDetailHero(hero); }}>
+                      <div key={hero.name} onContextMenu={e => { e.preventDefault(); setDetailHero(hero); }}
+                        className="rounded" style={tier === 'S' && isAvail ? { boxShadow: '0 0 6px rgba(255,215,0,0.3)', background: 'rgba(255,215,0,0.05)' } : undefined}>
                         <HeroPortrait
                           hero={hero}
                           size="md"
