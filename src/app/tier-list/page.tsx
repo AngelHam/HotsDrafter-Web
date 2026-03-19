@@ -152,6 +152,7 @@ export default function TierListPage() {
             </div>
           );
         })}
+        <p className="text-center text-[10px] opacity-30 mt-6 mb-4">Tier data sourced from Icy Veins community guides</p>
       </div>
       {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}
     </div>
