@@ -187,6 +187,16 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
               </div>
               <span className="text-[8px]" style={{ color }}>{label}</span>
             </div>
+            {/* Range indicator */}
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="text-[9px] opacity-50">RNG:</span>
+              <div className="flex gap-0.5 flex-1">
+                {picks.map((h, idx) => (
+                  <div key={idx} className="h-1.5 rounded-full" style={{ flex: 1, background: `rgba(0,255,255,${0.15 + h.effectiveRange * 0.15})` }} title={`${h.nicknames[0]}: ${h.effectiveRange}/5`} />
+                ))}
+              </div>
+              <span className="text-[8px] opacity-50">{(picks.reduce((s, h) => s + h.effectiveRange, 0) / picks.length).toFixed(1)}</span>
+            </div>
           </div>
         );
       })()}
