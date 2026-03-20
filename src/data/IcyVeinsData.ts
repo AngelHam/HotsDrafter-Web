@@ -102,6 +102,17 @@ class IcyVeinsDatabase {
     if (!mapData) return [];
     return flattenTier(mapData.S);
   }
+
+  /** Returns top heroes for a map (S-tier first, then A-tier), each with tier label. */
+  getTopHeroesForMap(mapName: string, limit = 10): { name: string; tier: string }[] {
+    const key = resolveMapKey(mapName);
+    const mapData = key ? data.maps[key] : undefined;
+    if (!mapData) return [];
+    const result: { name: string; tier: string }[] = [];
+    for (const name of flattenTier(mapData.S)) result.push({ name, tier: 'S' });
+    for (const name of flattenTier(mapData.A)) result.push({ name, tier: 'A' });
+    return result.slice(0, limit);
+  }
 }
 
 export { IcyVeinsDatabase };

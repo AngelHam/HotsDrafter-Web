@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
+import { ALL_HEROES, ALL_MAPS, findHeroByName } from '@/data/HeroData';
 import { DraftingTool, DRAFT_TEAM_ORDER, DRAFT_IS_BAN, matchesRoleFilter } from '@/data/DraftingTool';
 import { HeroSuggestionEngine } from '@/data/HeroSuggestionEngine';
 import { DraftSettings } from '@/data/DraftSettings';
 import { TeamComposition } from '@/data/TeamComposition';
 import { analyzeWinCondition, WinConditionAnalysis } from '@/data/WinConditionAnalyzer';
-import { Specialty } from '@/data/Specialty';
+import { Specialty, specialtyToString } from '@/data/Specialty';
 import { saveDraft } from '@/data/DraftHistory';
 import { winConditionToString } from '@/data/SuggestionTypes';
 import { exportDraftAsText, encodeDraftUrl } from '@/data/DraftExport';
@@ -22,6 +22,31 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import type { Hero } from '@/data/Hero';
 import type { HeroSuggestion } from '@/data/SuggestionTypes';
+
+const MAP_TIPS: Record<string, string> = {
+  'Alterac Pass': 'Push with cavalry after winning objectives. Sustain and waveclear matter.',
+  'Battlefield of Eternity': 'Race to kill the Immortal. Sustained damage dealers are key.',
+  'Braxis Holdout': 'Hold both beacons for maximum zerg wave. Solo laners are critical.',
+  'Cursed Hollow': 'Contest tributes with strong teamfight. Global heroes can soak and rotate.',
+  'Dragon Shire': 'Control both shrines simultaneously. Split push and global presence help.',
+  'Garden of Terror': 'Collect seeds and use the Terror to push. Waveclear helps defend.',
+  'Hanamura Temple': 'Push payloads for damage. Camp control and waveclear are essential.',
+  'Infernal Shrines': 'Kill 40 minions to summon Punisher. AOE damage dominates.',
+  'Sky Temple': 'Control temples for structure damage. Rotation speed matters.',
+  'Tomb of the Spider Queen': 'Turn in gems for webweavers. Sustain in lane is crucial.',
+  'Towers of Doom': 'Capture altars for direct core damage. No traditional pushing — teamfight wins.',
+  'Volskaya Foundry': 'Capture control points for a Protector mech. Teamfight and objective control are key.',
+};
+
+const SPECIALTY_BAR_COLORS: Record<string, string> = {
+  [Specialty.GLOBAL_PRESENCE]: '#00BFFF',
+  [Specialty.OBJECTIVE_CONTROL]: '#FFD700',
+  [Specialty.WAVECLEAR]: '#90EE90',
+  [Specialty.PICK_POTENTIAL]: '#FF6347',
+  [Specialty.ENGAGE]: '#BA55D3',
+  [Specialty.SPLIT_PUSHING]: '#FFA500',
+  [Specialty.SIEGE_PUSHING]: '#A9A9A9',
+};
 
 function computeCompScore(picks: Hero[]): number {
   let score = 20;
@@ -67,6 +92,9 @@ function DraftPageInner() {
   const [settingsVersion, setSettingsVersion] = useState(0);
   const [heroGridReady, setHeroGridReady] = useState(false);
   const [showShortcutHelp, setShowShortcutHelp] = useState(false);
+  const [isReplaying, setIsReplaying] = useState(false);
+  const [replayStep, setReplayStep] = useState(0);
+  const [showMapInfo, setShowMapInfo] = useState(false);
 
   useEffect(() => {
     DraftSettings.load();
@@ -134,6 +162,27 @@ function DraftPageInner() {
       ? engine.generateBanSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount)
       : engine.generateSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount);
   }, [engine, currentTeam, isBan, roleFilter, isComplete, step, settingsVersion, totalSteps]);
+
+  // Map specialty priorities sorted by weight
+  const mapSpecialties = useMemo(() => {
+    const weights = map.specialtyWeights;
+    return Object.entries(weights)
+      .map(([spec, weight]) => ({ specialty: spec as Specialty, weight: weight as number }))
+      .sort((a, b) => b.weight - a.weight)
+      .slice(0, 5);
+  }, [map]);
+
+  // Top available heroes for this map
+  const mapTopHeroes = useMemo(() => {
+    const topEntries = icyVeins.getTopHeroesForMap(map.name, 20);
+    return topEntries
+      .filter(e => {
+        const hero = findHeroByName(e.name);
+        return hero && draft.isAvailable(hero);
+      })
+      .slice(0, 5)
+      .map(e => ({ hero: findHeroByName(e.name)!, tier: e.tier }));
+  }, [icyVeins, map.name, team1Picks, team2Picks, team1Bans, team2Bans]);
 
   useEffect(() => {
     if (!timerEnabled || isComplete) {
@@ -307,6 +356,58 @@ function DraftPageInner() {
     });
   }, [isComplete, analysis]);
 
+  // Replay: reconstruct the pick/ban timeline from draft order
+  const replayTimeline = useMemo(() => {
+    if (!isComplete) return [];
+    const t1b = [...team1Bans], t2b = [...team2Bans];
+    const t1p = [...team1Picks], t2p = [...team2Picks];
+    const steps: { team: number; isBan: boolean; hero: Hero | null }[] = [];
+    for (let i = 0; i < teamOrder.length; i++) {
+      const team = teamOrder[i];
+      const ban = DRAFT_IS_BAN[i];
+      const arr = ban ? (team === 1 ? t1b : t2b) : (team === 1 ? t1p : t2p);
+      steps.push({ team, isBan: ban, hero: arr.shift() ?? null });
+    }
+    return steps;
+  }, [isComplete, team1Picks, team2Picks, team1Bans, team2Bans, teamOrder]);
+
+  // Partial picks/bans visible at the current replay step
+  const replayPartials = useMemo(() => {
+    if (!isReplaying) return null;
+    const t1p: Hero[] = [], t2p: Hero[] = [], t1b: Hero[] = [], t2b: Hero[] = [];
+    for (let i = 0; i <= replayStep && i < replayTimeline.length; i++) {
+      const s = replayTimeline[i];
+      if (!s.hero) continue;
+      if (s.isBan) {
+        if (s.team === 1) t1b.push(s.hero);
+        else t2b.push(s.hero);
+      } else {
+        if (s.team === 1) t1p.push(s.hero);
+        else t2p.push(s.hero);
+      }
+    }
+    return { team1Picks: t1p, team2Picks: t2p, team1Bans: t1b, team2Bans: t2b };
+  }, [isReplaying, replayStep, replayTimeline]);
+
+  // Flash animation for the hero appearing at the current replay step
+  const replayFlashHero = useMemo(() => {
+    if (!isReplaying || replayStep >= replayTimeline.length) return null;
+    const current = replayTimeline[replayStep];
+    if (!current?.hero) return null;
+    return { heroName: current.hero.name, type: current.isBan ? 'ban' as const : 'pick' as const };
+  }, [isReplaying, replayStep, replayTimeline]);
+
+  // Auto-advance replay step every 800ms
+  useEffect(() => {
+    if (!isReplaying) return;
+    if (replayStep >= 15) {
+      const timer = setTimeout(() => setIsReplaying(false), 1200);
+      return () => clearTimeout(timer);
+    }
+    const timer = setTimeout(() => setReplayStep(prev => prev + 1), 800);
+    return () => clearTimeout(timer);
+  }, [isReplaying, replayStep]);
+
   const yourTeam = firstPick === 2 ? 2 : 1;
   const isYourTurn = currentTeam === yourTeam;
 
@@ -337,6 +438,18 @@ function DraftPageInner() {
             title={`${map.name}\nS-tier: ${icyVeins.getSTierHeroes(map.name).slice(0, 5).join(', ') || 'None listed'}`}>
             📍 {map.name}
           </span>
+          <button
+            onClick={() => setShowMapInfo(v => !v)}
+            className="text-[10px] px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors"
+            style={{
+              color: showMapInfo ? '#00FFFF' : '#A9A9A9',
+              border: `1px solid ${showMapInfo ? '#00FFFF55' : '#A9A9A933'}`,
+              background: showMapInfo ? 'rgba(0,255,255,0.08)' : 'transparent',
+            }}
+            title="Toggle map info panel"
+          >
+            ℹ Map Info
+          </button>
           {isQuickDraft && (
             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(144,238,144,0.15)', color: '#90EE90', border: '1px solid #90EE9033' }}>
               ⚡ Quick
@@ -359,11 +472,22 @@ function DraftPageInner() {
         </div>
       </div>
 
+      {/* Map Tip Bar */}
+      {MAP_TIPS[map.name] && (
+        <div className="px-4 py-1 text-center" style={{ background: 'rgba(255,215,0,0.04)', borderBottom: '1px solid rgba(255,215,0,0.1)' }}>
+          <span className="text-[10px]" style={{ color: '#FFD700', opacity: 0.7 }}>
+            🗺️ {MAP_TIPS[map.name]}
+          </span>
+        </div>
+      )}
+
       {/* Status + Progress */}
       <div className="flex flex-col items-center gap-1.5 sm:gap-2 py-2 sm:py-3 px-2" style={{ background: 'rgba(20, 25, 45, 0.5)' }}>
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center text-center">
-          <span className="text-sm font-bold" style={{ color: isBan ? '#FF6666' : (isYourTurn ? '#00FFFF' : '#FF6666') }}>{statusText}</span>
-          {phaseName && <span className="text-[10px] px-1.5 py-0.5 rounded opacity-60" style={{ background: 'rgba(255,255,255,0.05)', color: isBan ? '#FF6666' : '#00FFFF' }}>{phaseName}</span>}
+          <span className="text-sm font-bold" style={{ color: isReplaying ? '#FF8C00' : isBan ? '#FF6666' : (isYourTurn ? '#00FFFF' : '#FF6666') }}>
+            {isReplaying ? `🎬 Replaying — Step ${replayStep + 1}/16` : statusText}
+          </span>
+          {!isReplaying && phaseName && <span className="text-[10px] px-1.5 py-0.5 rounded opacity-60" style={{ background: 'rgba(255,255,255,0.05)', color: isBan ? '#FF6666' : '#00FFFF' }}>{phaseName}</span>}
           {team1Picks.length > 0 && (
             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(144,238,144,0.1)', color: '#90EE90', border: '1px solid #90EE9022' }}>
               Score: {computeCompScore(team1Picks)}
@@ -379,7 +503,7 @@ function DraftPageInner() {
             </span>
           )}
         </div>
-        <DraftProgressBar currentStep={step} teamOrder={teamOrder} />
+        <DraftProgressBar currentStep={isReplaying ? replayStep + 1 : step} teamOrder={teamOrder} />
 
         <div className="flex items-center gap-2 flex-wrap justify-center">
           <button
@@ -444,26 +568,30 @@ function DraftPageInner() {
       </div>
 
       {/* Banned Heroes Strip */}
-      {(team1Bans.length > 0 || team2Bans.length > 0) && (
+      {(() => {
+        const dispT1Bans = isReplaying && replayPartials ? replayPartials.team1Bans : team1Bans;
+        const dispT2Bans = isReplaying && replayPartials ? replayPartials.team2Bans : team2Bans;
+        return (dispT1Bans.length > 0 || dispT2Bans.length > 0) ? (
         <div className="flex items-center justify-center gap-3 px-4 py-1" style={{ background: 'rgba(255,102,102,0.04)' }}>
-          {team1Bans.length > 0 && (
+          {dispT1Bans.length > 0 && (
             <div className="flex items-center gap-1">
               <span className="text-[9px] opacity-40">T1 bans:</span>
-              {team1Bans.map(h => (
-                <span key={h.name} className="text-[9px] px-1 rounded" style={{ background: 'rgba(255,102,102,0.1)', color: '#FF6666' }}>{h.nicknames[0]}</span>
+              {dispT1Bans.map(h => (
+                <span key={h.name} className={`text-[9px] px-1 rounded ${isReplaying && replayFlashHero?.heroName === h.name ? 'hero-ban-flash' : ''}`} style={{ background: 'rgba(255,102,102,0.1)', color: '#FF6666' }}>{h.nicknames[0]}</span>
               ))}
             </div>
           )}
-          {team2Bans.length > 0 && (
+          {dispT2Bans.length > 0 && (
             <div className="flex items-center gap-1">
               <span className="text-[9px] opacity-40">T2 bans:</span>
-              {team2Bans.map(h => (
-                <span key={h.name} className="text-[9px] px-1 rounded" style={{ background: 'rgba(255,102,102,0.1)', color: '#FF6666' }}>{h.nicknames[0]}</span>
+              {dispT2Bans.map(h => (
+                <span key={h.name} className={`text-[9px] px-1 rounded ${isReplaying && replayFlashHero?.heroName === h.name ? 'hero-ban-flash' : ''}`} style={{ background: 'rgba(255,102,102,0.1)', color: '#FF6666' }}>{h.nicknames[0]}</span>
               ))}
             </div>
           )}
         </div>
-      )}
+        ) : null;
+      })()}
 
       {/* Coaching Tip */}
       {!isComplete && (team1Picks.length + team1Bans.length > 0 || step > 0) && (
@@ -515,19 +643,66 @@ function DraftPageInner() {
 
       {/* Mobile Team Panels */}
       <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-2 px-3 py-2" style={{ background: 'rgba(20, 25, 45, 0.35)' }}>
-        <TeamPanel teamNumber={1} picks={[...team1Picks]} bans={[...team1Bans]} isActive={!isComplete && currentTeam === 1} enemyPicks={[...team2Picks]} onHeroClick={h => setDetailHero(h)} flashHero={lastAction} />
-        <TeamPanel teamNumber={2} picks={[...team2Picks]} bans={[...team2Bans]} isActive={!isComplete && currentTeam === 2} enemyPicks={[...team1Picks]} onHeroClick={h => setDetailHero(h)} flashHero={lastAction} />
+        <TeamPanel teamNumber={1} picks={isReplaying && replayPartials ? [...replayPartials.team1Picks] : [...team1Picks]} bans={isReplaying && replayPartials ? [...replayPartials.team1Bans] : [...team1Bans]} isActive={isReplaying ? replayTimeline[replayStep]?.team === 1 : !isComplete && currentTeam === 1} enemyPicks={isReplaying && replayPartials ? [...replayPartials.team2Picks] : [...team2Picks]} onHeroClick={h => setDetailHero(h)} flashHero={isReplaying ? replayFlashHero : lastAction} />
+        <TeamPanel teamNumber={2} picks={isReplaying && replayPartials ? [...replayPartials.team2Picks] : [...team2Picks]} bans={isReplaying && replayPartials ? [...replayPartials.team2Bans] : [...team2Bans]} isActive={isReplaying ? replayTimeline[replayStep]?.team === 2 : !isComplete && currentTeam === 2} enemyPicks={isReplaying && replayPartials ? [...replayPartials.team1Picks] : [...team1Picks]} onHeroClick={h => setDetailHero(h)} flashHero={isReplaying ? replayFlashHero : lastAction} />
       </div>
 
       {/* Main Content */}
       <div className="flex flex-col lg:flex-row flex-1 gap-2 sm:gap-3 p-2 sm:p-3 overflow-hidden">
         {/* Team 1 Panel - hidden on mobile */}
         <div className="w-48 flex-shrink-0 hidden lg:block">
-          <TeamPanel teamNumber={1} picks={[...team1Picks]} bans={[...team1Bans]} isActive={!isComplete && currentTeam === 1} enemyPicks={[...team2Picks]} onHeroClick={h => setDetailHero(h)} flashHero={lastAction} />
+          <TeamPanel teamNumber={1} picks={isReplaying && replayPartials ? [...replayPartials.team1Picks] : [...team1Picks]} bans={isReplaying && replayPartials ? [...replayPartials.team1Bans] : [...team1Bans]} isActive={isReplaying ? replayTimeline[replayStep]?.team === 1 : !isComplete && currentTeam === 1} enemyPicks={isReplaying && replayPartials ? [...replayPartials.team2Picks] : [...team2Picks]} onHeroClick={h => setDetailHero(h)} flashHero={isReplaying ? replayFlashHero : lastAction} />
         </div>
 
         {/* Center: Hero Grid + Suggestions */}
         <div className="flex-1 flex flex-col gap-3 min-w-0">
+          {/* Map Info Panel (toggleable) */}
+          {showMapInfo && !isComplete && (
+            <div className="flex-shrink-0 rounded overflow-hidden" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+              <div className="flex items-center justify-between px-3 py-1.5" style={{ borderBottom: '1px solid rgba(68,102,136,0.3)' }}>
+                <span className="text-xs font-semibold" style={{ color: '#00FFFF' }}>🗺️ Map Info — {map.name}</span>
+                <button onClick={() => setShowMapInfo(false)} className="text-xs px-1.5 rounded hover:bg-white/10" style={{ color: '#A9A9A9' }} title="Close map info">✕</button>
+              </div>
+              <div className="px-3 py-2 flex flex-col sm:flex-row gap-3">
+                {/* Specialty Priorities */}
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-[10px] font-bold mb-1.5 uppercase tracking-wide" style={{ color: '#FFD700' }}>Specialty Priorities</h4>
+                  <div className="space-y-1">
+                    {mapSpecialties.map(({ specialty, weight }) => {
+                      const maxWeight = mapSpecialties[0]?.weight || 3;
+                      const pct = (weight / maxWeight) * 100;
+                      return (
+                        <div key={specialty} className="flex items-center gap-2">
+                          <span className="text-[10px] w-24 truncate" style={{ color: SPECIALTY_BAR_COLORS[specialty] || '#87CEEB' }}>
+                            {specialtyToString(specialty)}
+                          </span>
+                          <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                            <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: SPECIALTY_BAR_COLORS[specialty] || '#87CEEB' }} />
+                          </div>
+                          <span className="text-[10px] w-5 text-right opacity-60">{weight}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                {/* Top Available Heroes */}
+                <div className="flex-shrink-0">
+                  <h4 className="text-[10px] font-bold mb-1.5 uppercase tracking-wide" style={{ color: '#FFD700' }}>Top Available Heroes</h4>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {mapTopHeroes.length === 0 ? (
+                      <span className="text-[10px] opacity-40">No top heroes available</span>
+                    ) : mapTopHeroes.map(({ hero, tier }) => (
+                      <div key={hero.name} className="flex flex-col items-center cursor-pointer" onClick={() => handleHeroClick(hero)} title={`${hero.nicknames[0]} (${tier}-tier)`}>
+                        <HeroPortrait hero={hero} size="xs" tierBadge={tier} />
+                        <span className="text-[8px] mt-0.5 opacity-70 max-w-[34px] text-center truncate">{hero.nicknames[0]}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Suggestions (hidden when draft complete) */}
           {!isComplete && (
           <div className="flex-shrink-0">
@@ -715,8 +890,63 @@ function DraftPageInner() {
             </div>
           )}
 
+          {/* ═══════ Replay Overlay ═══════ */}
+          {isComplete && isReplaying && (() => {
+            const current = replayTimeline[replayStep];
+            return (
+            <div className="flex-1 flex flex-col items-center justify-center gap-4 p-6">
+              <div className="text-center">
+                <h2 className="text-xl font-bold mb-1" style={{ color: '#FFD700' }}>🎬 Replaying Draft...</h2>
+                <p className="text-sm font-semibold" style={{ color: current?.isBan ? '#FF6666' : '#00FFFF' }}>
+                  Step {replayStep + 1}/16 — Team {current?.team} {current?.isBan ? '🚫 BAN' : '✅ PICK'}
+                </p>
+              </div>
+              {current?.hero && (
+                <div className={`flex items-center gap-4 p-4 rounded-lg ${current.isBan ? 'hero-ban-flash' : 'hero-pick-flash'}`}
+                  style={{ background: `rgba(${current.isBan ? '255,102,102' : '0,255,255'},0.08)`, border: `2px solid ${current.isBan ? '#FF666666' : '#00FFFF66'}` }}
+                  key={`replay-${replayStep}`}>
+                  <HeroPortrait hero={current.hero} size="lg" banned={current.isBan} selected={!current.isBan} />
+                  <div>
+                    <p className="text-lg font-bold">{current.hero.nicknames[0]}</p>
+                    <p className="text-sm opacity-60">{current.hero.role}</p>
+                    <p className="text-xs mt-1" style={{ color: current.isBan ? '#FF6666' : '#00FFFF' }}>
+                      {current.isBan ? `Banned by Team ${current.team}` : `Picked by Team ${current.team}`}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {/* Replay timeline dots */}
+              <div className="flex gap-1 flex-wrap justify-center">
+                {replayTimeline.map((s, i) => {
+                  const teamColor = s.team === 1 ? '#4488FF' : '#FF4444';
+                  return (
+                    <div key={i} className="rounded-sm flex items-center justify-center transition-all duration-200"
+                      style={{
+                        width: i === replayStep ? 28 : 20,
+                        height: i === replayStep ? 22 : 16,
+                        background: i <= replayStep ? (s.isBan ? '#FF666699' : teamColor + '99') : (s.isBan ? '#FF666622' : teamColor + '22'),
+                        border: i === replayStep ? '2px solid #FFD700' : '1px solid transparent',
+                        fontSize: 9, color: '#fff', fontWeight: i === replayStep ? 'bold' : 'normal',
+                      }}
+                      title={`Step ${i + 1}: Team ${s.team} ${s.isBan ? 'BAN' : 'PICK'} ${s.hero?.nicknames[0] || '?'}`}>
+                      {i + 1}
+                    </div>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => { setIsReplaying(false); setReplayStep(0); }}
+                className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
+                style={{ background: '#FF666622', border: '2px solid #FF6666', color: '#FF6666' }}
+              >
+                ⏹ Stop Replay
+              </button>
+            </div>
+            );
+          })()}
+
           {/* ═══════ Draft Complete Summary ═══════ */}
-          {isComplete && analysis && (() => {
+          {isComplete && analysis && !isReplaying && (() => {
             const s1 = computeCompScore(team1Picks);
             const s2 = computeCompScore(team2Picks);
             const diff = s1 - s2;
@@ -943,14 +1173,6 @@ function DraftPageInner() {
               </div>
               )}
 
-              {/* Draft Replay */}
-              <DraftReplay
-                team1Picks={[...team1Picks]}
-                team2Picks={[...team2Picks]}
-                team1Bans={[...team1Bans]}
-                team2Bans={[...team2Bans]}
-              />
-
               {/* ── Section 6: Action Buttons ── */}
               <div className="flex gap-3 justify-center flex-wrap p-3 rounded-lg" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
                 <button
@@ -1055,6 +1277,14 @@ function DraftPageInner() {
                 >
                   🏠 Return Home
                 </button>
+                <button
+                  onClick={() => { setReplayStep(0); setIsReplaying(true); }}
+                  className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
+                  style={{ background: '#FF8C0022', border: '2px solid #FF8C00', color: '#FF8C00' }}
+                  title="Replay the draft step by step"
+                >
+                  ▶ Replay Draft
+                </button>
               </div>
             </div>
             );
@@ -1063,7 +1293,7 @@ function DraftPageInner() {
 
         {/* Team 2 Panel - hidden on mobile */}
         <div className="w-48 flex-shrink-0 hidden lg:block">
-          <TeamPanel teamNumber={2} picks={[...team2Picks]} bans={[...team2Bans]} isActive={!isComplete && currentTeam === 2} enemyPicks={[...team1Picks]} onHeroClick={h => setDetailHero(h)} flashHero={lastAction} />
+          <TeamPanel teamNumber={2} picks={isReplaying && replayPartials ? [...replayPartials.team2Picks] : [...team2Picks]} bans={isReplaying && replayPartials ? [...replayPartials.team2Bans] : [...team2Bans]} isActive={isReplaying ? replayTimeline[replayStep]?.team === 2 : !isComplete && currentTeam === 2} enemyPicks={isReplaying && replayPartials ? [...replayPartials.team1Picks] : [...team1Picks]} onHeroClick={h => setDetailHero(h)} flashHero={isReplaying ? replayFlashHero : lastAction} />
         </div>
       </div>
       {/* Hero Detail Popup */}
