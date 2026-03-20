@@ -28,7 +28,7 @@ export class HeroSuggestionEngine {
   private specCounter: number[][] = [];
   private mapTier: number[][] = [];
 
-  // Weights
+  // Weights - Full mode
   static SYNERGY_WEIGHT = 0.20;
   static COUNTER_WEIGHT = 0.22;
   static MAP_WEIGHT = 0.12;
@@ -38,6 +38,19 @@ export class HeroSuggestionEngine {
   static DRAFT_POSITION_WEIGHT = 0.04;
   static DAMAGE_BALANCE_WEIGHT = 0.03;
   static COUNTERPICK_RISK_WEIGHT = 0.03;
+
+  // Weights - Simple mode
+  static SIMPLE_SYNERGY_WEIGHT = 0.50;
+  static SIMPLE_COUNTER_WEIGHT = 0.50;
+
+  // Weights - Ban scoring
+  static BAN_MAP_STRENGTH_WEIGHT = 0.25;
+  static BAN_COUNTER_WEIGHT = 0.35;
+  static BAN_GENERAL_THREAT_WEIGHT = 0.15;
+  static BAN_COMP_COUNTER_WEIGHT = 0.15;
+  static BAN_ENEMY_SYNERGY_WEIGHT = 0.10;
+  static SIMPLE_BAN_COUNTER_WEIGHT = 0.60;
+  static SIMPLE_BAN_THREAT_WEIGHT = 0.40;
 
   constructor(draft: DraftingTool, map: HotsMap | null) {
     this.draft = draft;

@@ -20,7 +20,9 @@ export function heroMatchesName(hero: Hero, name: string): boolean {
   const lower = name.toLowerCase();
   return hero.nicknames.some(nick => {
     const lowerNick = nick.toLowerCase();
-    return lowerNick.includes(lower) || lower.includes(lowerNick);
+    // Only check if nickname contains search input, NOT reverse
+    // Reverse check caused "sylvanas" to match "ana"
+    return lowerNick === lower || lowerNick.includes(lower);
   });
 }
 
