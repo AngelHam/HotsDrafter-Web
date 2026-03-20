@@ -21,6 +21,21 @@ const TIER_DESCRIPTIONS: Record<string, string> = {
   S: 'Meta-defining', A: 'Strong picks', B: 'Solid choices', C: 'Situational', D: 'Weak on this map',
 };
 
+const MAP_DESCRIPTIONS: Record<string, string> = {
+  'all': 'Averaged across all maps — best for general tier ranking.',
+  'Alterac Pass': 'Large map with cavalry objective. Favors split-pushing and waveclear.',
+  'Battlefield of Eternity': 'PvE race objective. Favors teamfighters and sustained DPS.',
+  'Braxis Holdout': 'Two-lane map with zerg objective. Favors strong waveclear and objective control.',
+  'Cursed Hollow': 'Large three-lane map. Favors global heroes and balanced team compositions.',
+  'Dragon Shire': 'Three-lane control point map. Favors global presence and objective control.',
+  'Garden of Terror': 'Three-lane seed objective. Favors objective control and waveclear.',
+  'Infernal Shrines': 'PvE shrine objective. Favors AoE waveclear and teamfighting.',
+  'Sky Temple': 'Three-lane temple objective. Favors global presence and objective control.',
+  'Tomb of the Spider Queen': 'Small close-quarters map. Favors waveclear and teamfighting.',
+  'Towers of Doom': 'Indirect core damage map. Favors pick potential and siege pressure.',
+  'Volskaya Foundry': 'Protector objective. Favors teamfighting, objective control, and siege.',
+};
+
 interface HeroTierEntry {
   hero: Hero;
   tier: string;
@@ -91,11 +106,18 @@ export default function TierListPage() {
       <div className="p-4 max-w-5xl mx-auto w-full">
         {/* Filters */}
         <div className="flex flex-wrap gap-2 mb-4 items-center">
-          <select value={selectedMap} onChange={e => setSelectedMap(e.target.value)}
-            className="text-sm px-2 py-1 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', color: '#FFD700', border: '1px solid rgba(68,102,136,0.5)' }}>
-            <option value="all">All Maps (Average)</option>
-            {ALL_MAPS.map(m => <option key={m.name} value={m.name}>{m.name}</option>)}
-          </select>
+          <div>
+            <select value={selectedMap} onChange={e => setSelectedMap(e.target.value)}
+              className="text-sm px-2 py-1 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', color: '#FFD700', border: '1px solid rgba(68,102,136,0.5)' }}>
+              <option value="all">All Maps (Average)</option>
+              {ALL_MAPS.map(m => <option key={m.name} value={m.name}>{m.name}</option>)}
+            </select>
+            {selectedMap && MAP_DESCRIPTIONS[selectedMap] && (
+              <p className="text-[10px] italic mt-1 opacity-50" style={{ color: '#87CEEB' }}>
+                {MAP_DESCRIPTIONS[selectedMap]}
+              </p>
+            )}
+          </div>
 
           <div className="flex gap-1">
             {['All', 'Tank', 'Healer', 'DPS', 'Mage', 'Offlane', 'Specialist'].map(role => (
@@ -124,16 +146,21 @@ export default function TierListPage() {
         </div>
 
         {/* Tier Distribution Bar */}
-        <div className="flex gap-0.5 mb-4 rounded overflow-hidden" style={{ height: 6 }}>
+        <div className="flex gap-0.5 mb-4 rounded overflow-hidden" style={{ height: 12 }}>
           {tiers.map(tier => {
             const count = entries.filter(e => e.tier === tier).length;
             if (count === 0) return null;
+            const pct = entries.length > 0 ? (count / entries.length) * 100 : 0;
             return (
-              <div key={tier} title={`${tier}-tier: ${count} heroes`} style={{
+              <div key={tier} title={`${tier}-tier: ${count} heroes`} className="relative flex items-center justify-center" style={{
                 flex: count,
                 background: TIER_COLORS[tier],
                 opacity: 0.7,
-              }} />
+              }}>
+                {pct > 10 && (
+                  <span className="text-[7px] font-bold" style={{ color: '#000', opacity: 0.8 }}>{Math.round(pct)}%</span>
+                )}
+              </div>
             );
           })}
         </div>
@@ -164,11 +191,10 @@ export default function TierListPage() {
                     border: `1px solid ${TIER_COLORS[tier]}44`,
                     ...(tier === 'S' ? { boxShadow: `0 0 12px ${TIER_COLORS.S}55, 0 0 24px ${TIER_COLORS.S}22`, borderColor: TIER_COLORS.S + '88', textShadow: `0 0 8px ${TIER_COLORS.S}88` } : {}),
                   }}>
-                    {tier}
+                    {tier} <span className="text-xs font-normal opacity-70">({tierEntries.length})</span>
                   </span>
                   <span className="text-[9px] mt-0.5" style={{ color: TIER_COLORS[tier], opacity: 0.5 }}>{TIER_DESCRIPTIONS[tier]}</span>
                 </div>
-                <span className="text-xs opacity-50">{tierEntries.length} hero{tierEntries.length !== 1 ? 'es' : ''}</span>
                 <div className="flex gap-0.5 ml-2">
                   {['Tank', 'Healer', 'DPS', 'Mage', 'Offlane', 'Specialist'].map(r => {
                     const c = tierEntries.filter(e => e.hero.role === r).length;
@@ -178,15 +204,22 @@ export default function TierListPage() {
                   })}
                 </div>
               </div>
-              <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))' }}>
+              <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(82px, 1fr))' }}>
                 {tierEntries.map(e => {
-                  const topSpecs = e.hero.specialties.slice(0, 2).map(s => specialtyToString(s));
                   return (
-                  <div key={e.hero.name} className="group relative flex flex-col items-center p-1 rounded hover:bg-white/5 transition-all cursor-pointer"
+                  <div key={e.hero.name} className="group relative flex flex-col items-center p-1.5 rounded hover:bg-white/5 transition-all cursor-pointer"
                     onClick={() => setDetailHero(e.hero)}
                     style={e.tier === 'S' ? { boxShadow: '0 0 6px rgba(255,215,0,0.3)', background: 'rgba(255,215,0,0.05)' } : undefined}
                     title={`${e.hero.nicknames[0]} (${e.hero.role}) — Score: ${e.score.toFixed(1)}${selectedMap === 'all' ? ` | S-tier: ${e.sTierMaps} maps, A-tier: ${e.aTierMaps} maps` : ''}`}>
                     <HeroPortrait hero={e.hero} size="md" showName />
+                    <span className="text-[8px] px-1.5 py-0.5 rounded mt-0.5" style={{ background: (ROLE_COLORS[e.hero.role] || '#888') + '22', color: ROLE_COLORS[e.hero.role] || '#888', border: `1px solid ${(ROLE_COLORS[e.hero.role] || '#888')}33` }}>
+                      {e.hero.role}
+                    </span>
+                    {e.hero.specialties.length > 0 && (
+                      <span className="text-[7px] mt-0.5 opacity-60 text-center leading-tight" style={{ color: '#aaa', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', width: '100%' }}>
+                        {specialtyToString(e.hero.specialties[0])}
+                      </span>
+                    )}
                     {selectedMap === 'all' && e.sTierMaps > 0 && (
                       <span className="text-[8px] mt-0.5" style={{ color: '#FFD700' }}>★{e.sTierMaps}</span>
                     )}
@@ -195,8 +228,8 @@ export default function TierListPage() {
                       style={{ background: 'rgba(15, 20, 40, 0.95)', border: '1px solid rgba(68,102,136,0.6)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
                       <div className="text-[10px] font-semibold" style={{ color: ROLE_COLORS[e.hero.role] || '#ccc' }}>{e.hero.role}</div>
                       <div className="text-[9px]" style={{ color: TIER_COLORS[e.tier] }}>Score: {e.score.toFixed(1)}</div>
-                      {topSpecs.length > 0 && (
-                        <div className="text-[8px] mt-0.5 opacity-70" style={{ color: '#aaa' }}>{topSpecs.join(' · ')}</div>
+                      {e.hero.specialties.length > 0 && (
+                        <div className="text-[8px] mt-0.5 opacity-70" style={{ color: '#aaa' }}>{e.hero.specialties.slice(0, 2).map(s => specialtyToString(s)).join(' · ')}</div>
                       )}
                     </div>
                   </div>

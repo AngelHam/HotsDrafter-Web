@@ -51,6 +51,7 @@ function DraftPageInner() {
   const [searchQuery, setSearchQuery] = useState('');
   const [heroView, setHeroView] = useState<'grid' | 'roles'>('grid');
   const [detailHero, setDetailHero] = useState<Hero | null>(null);
+  const [lastAction, setLastAction] = useState<{ heroName: string; type: 'pick' | 'ban' } | null>(null);
   const [suggestionsCollapsed, setSuggestionsCollapsed] = useState(false);
   const [exportCopied, setExportCopied] = useState(false);
   const [timerEnabled, setTimerEnabled] = useState(false);
@@ -159,12 +160,26 @@ function DraftPageInner() {
     setTeam2Bans([...draft.team2Bans]);
   };
 
+  // Clear flash animation after it plays
+  useEffect(() => {
+    if (!lastAction) return;
+    const timer = setTimeout(() => setLastAction(null), 400);
+    return () => clearTimeout(timer);
+  }, [lastAction]);
+
+  // Sets for hero grid status indicators
+  const bannedNames = useMemo(() => new Set([...team1Bans, ...team2Bans].map(h => h.name)), [team1Bans, team2Bans]);
+  const team1PickNames = useMemo(() => new Set(team1Picks.map(h => h.name)), [team1Picks]);
+  const team2PickNames = useMemo(() => new Set(team2Picks.map(h => h.name)), [team2Picks]);
+
   const handleHeroClick = (hero: Hero) => {
     if (isComplete) return;
     if (isBan) {
       draft.banHero(currentTeam, hero);
+      setLastAction({ heroName: hero.name, type: 'ban' });
     } else {
       draft.pickHero(currentTeam, hero);
+      setLastAction({ heroName: hero.name, type: 'pick' });
     }
     setSearchQuery('');
     syncDraftState();
@@ -173,6 +188,7 @@ function DraftPageInner() {
 
   const handleUndo = () => {
     if (step === 0) return;
+    setLastAction(null);
     const prevStep = step - 1;
     const prevRealStep = activeSteps[prevStep];
     const prevTeam = teamOrder[prevRealStep];
@@ -451,15 +467,15 @@ function DraftPageInner() {
 
       {/* Mobile Team Panels */}
       <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-2 px-3 py-2" style={{ background: 'rgba(20, 25, 45, 0.35)' }}>
-        <TeamPanel teamNumber={1} picks={[...team1Picks]} bans={[...team1Bans]} isActive={!isComplete && currentTeam === 1} enemyPicks={[...team2Picks]} onHeroClick={h => setDetailHero(h)} />
-        <TeamPanel teamNumber={2} picks={[...team2Picks]} bans={[...team2Bans]} isActive={!isComplete && currentTeam === 2} enemyPicks={[...team1Picks]} onHeroClick={h => setDetailHero(h)} />
+        <TeamPanel teamNumber={1} picks={[...team1Picks]} bans={[...team1Bans]} isActive={!isComplete && currentTeam === 1} enemyPicks={[...team2Picks]} onHeroClick={h => setDetailHero(h)} flashHero={lastAction} />
+        <TeamPanel teamNumber={2} picks={[...team2Picks]} bans={[...team2Bans]} isActive={!isComplete && currentTeam === 2} enemyPicks={[...team1Picks]} onHeroClick={h => setDetailHero(h)} flashHero={lastAction} />
       </div>
 
       {/* Main Content */}
       <div className="flex flex-1 gap-3 p-3 overflow-hidden">
         {/* Team 1 Panel - hidden on mobile */}
         <div className="w-48 flex-shrink-0 hidden lg:block">
-          <TeamPanel teamNumber={1} picks={[...team1Picks]} bans={[...team1Bans]} isActive={!isComplete && currentTeam === 1} enemyPicks={[...team2Picks]} onHeroClick={h => setDetailHero(h)} />
+          <TeamPanel teamNumber={1} picks={[...team1Picks]} bans={[...team1Bans]} isActive={!isComplete && currentTeam === 1} enemyPicks={[...team2Picks]} onHeroClick={h => setDetailHero(h)} flashHero={lastAction} />
         </div>
 
         {/* Center: Hero Grid + Suggestions */}
@@ -563,14 +579,21 @@ function DraftPageInner() {
                 <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
                   {filtered.map(hero => {
                     const isAvail = draft.isAvailable(hero);
+                    const isBanned = bannedNames.has(hero.name);
+                    const pickedByTeam = team1PickNames.has(hero.name) ? 1 : team2PickNames.has(hero.name) ? 2 : 0;
                     const tier = icyVeins.getHeroTierOnMap(hero.nicknames[0], map.name);
                     return (
                       <div key={hero.name} onContextMenu={e => { e.preventDefault(); setDetailHero(hero); }}
-                        className="rounded" style={tier === 'S' && isAvail ? { boxShadow: '0 0 6px rgba(255,215,0,0.3)', background: 'rgba(255,215,0,0.05)' } : undefined}>
+                        className="rounded" style={{
+                          ...(tier === 'S' && isAvail ? { boxShadow: '0 0 6px rgba(255,215,0,0.3)', background: 'rgba(255,215,0,0.05)' } : {}),
+                          ...(isBanned ? { opacity: 0.4, cursor: 'not-allowed' } : {}),
+                          ...(pickedByTeam ? { opacity: 0.7, border: `2px solid ${pickedByTeam === 1 ? '#00FFFF' : '#FF6666'}`, borderRadius: '6px' } : {}),
+                        }}>
                         <HeroPortrait
                           hero={hero}
                           size="md"
-                          dimmed={!isAvail}
+                          dimmed={!isAvail && !isBanned && !pickedByTeam}
+                          banned={isBanned}
                           showName
                           tierBadge={tier !== 'B' ? tier : undefined}
                           onClick={isAvail ? () => handleHeroClick(hero) : undefined}
@@ -595,13 +618,20 @@ function DraftPageInner() {
                       <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
                         {group.heroes.map(hero => {
                           const isAvail = draft.isAvailable(hero);
+                          const isBanned = bannedNames.has(hero.name);
+                          const pickedByTeam = team1PickNames.has(hero.name) ? 1 : team2PickNames.has(hero.name) ? 2 : 0;
                           const tier = icyVeins.getHeroTierOnMap(hero.nicknames[0], map.name);
                           return (
-                            <div key={hero.name} onContextMenu={e => { e.preventDefault(); setDetailHero(hero); }}>
+                            <div key={hero.name} onContextMenu={e => { e.preventDefault(); setDetailHero(hero); }}
+                              style={{
+                                ...(isBanned ? { opacity: 0.4, cursor: 'not-allowed' } : {}),
+                                ...(pickedByTeam ? { opacity: 0.7, border: `2px solid ${pickedByTeam === 1 ? '#00FFFF' : '#FF6666'}`, borderRadius: '6px' } : {}),
+                              }}>
                               <HeroPortrait
                                 hero={hero}
                                 size="md"
-                                dimmed={!isAvail}
+                                dimmed={!isAvail && !isBanned && !pickedByTeam}
+                                banned={isBanned}
                                 showName
                                 tierBadge={tier !== 'B' ? tier : undefined}
                                 onClick={isAvail ? () => handleHeroClick(hero) : undefined}
@@ -785,7 +815,7 @@ function DraftPageInner() {
 
         {/* Team 2 Panel - hidden on mobile */}
         <div className="w-48 flex-shrink-0 hidden lg:block">
-          <TeamPanel teamNumber={2} picks={[...team2Picks]} bans={[...team2Bans]} isActive={!isComplete && currentTeam === 2} enemyPicks={[...team1Picks]} onHeroClick={h => setDetailHero(h)} />
+          <TeamPanel teamNumber={2} picks={[...team2Picks]} bans={[...team2Bans]} isActive={!isComplete && currentTeam === 2} enemyPicks={[...team1Picks]} onHeroClick={h => setDetailHero(h)} flashHero={lastAction} />
         </div>
       </div>
       {/* Hero Detail Popup */}

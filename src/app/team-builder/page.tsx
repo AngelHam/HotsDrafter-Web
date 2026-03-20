@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ALL_HEROES, ALL_MAPS, findHeroByName } from '@/data/HeroData';
 import { TeamComposition } from '@/data/TeamComposition';
 import { analyzeWinCondition } from '@/data/WinConditionAnalyzer';
+import { HeroRelationships } from '@/data/HeroRelationships';
 import { winConditionToString } from '@/data/SuggestionTypes';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import { ROLE_COLORS } from '@/components/RoleFilterBar';
@@ -49,6 +50,7 @@ export default function TeamBuilderPage() {
   const [pickerOpen, setPickerOpen] = useState<{ team: number; slot: number } | null>(null);
   const [pickerSearch, setPickerSearch] = useState('');
   const [detailHero, setDetailHero] = useState<Hero | null>(null);
+  const [pickerRole, setPickerRole] = useState('All');
 
   const pickedNames = new Set([
     ...team1.filter(Boolean).map(h => h!.name),
@@ -80,9 +82,10 @@ export default function TeamBuilderPage() {
       setTeam2(copy);
     }
     setPickerOpen(null);
+    setPickerRole('All');
   };
 
-  const clearSlot = (team: number, slot: number) => {
+  const clearSlot= (team: number, slot: number) => {
     if (team === 1) { const c = [...team1]; c[slot] = null; setTeam1(c); }
     else { const c = [...team2]; c[slot] = null; setTeam2(c); }
   };
@@ -125,6 +128,7 @@ export default function TeamBuilderPage() {
         <TeamSlots label="TEAM 1" color="#4488FF" slots={team1}
           onSlotClick={(i) => setPickerOpen({ team: 1, slot: i })}
           onClear={(i) => clearSlot(1, i)}
+          onClearAll={() => setTeam1([null, null, null, null, null])}
           onHeroDetail={h => setDetailHero(h)}
           mapName={ALL_MAPS[mapIdx]?.name} />
 
@@ -168,6 +172,28 @@ export default function TeamBuilderPage() {
             </div>
           </div>
 
+          {/* Swap & Clear Controls */}
+          <div className="flex items-center justify-center gap-3">
+            <button onClick={() => setTeam1([null, null, null, null, null])}
+              className="text-xs px-3 py-1.5 rounded hover:bg-white/10 transition-colors"
+              style={{ color: '#4488FF', border: '1px solid #4488FF44' }}
+              title="Clear all heroes from Team 1">
+              🗑 Clear T1
+            </button>
+            <button onClick={() => { const t = [...team1]; setTeam1([...team2]); setTeam2(t); }}
+              className="text-sm px-5 py-2 rounded-lg font-bold hover:scale-105 transition-all"
+              style={{ color: '#FFD700', background: 'rgba(255,215,0,0.1)', border: '1px solid #FFD70044' }}
+              title="Swap Team 1 and Team 2">
+              ⇄ Swap Teams
+            </button>
+            <button onClick={() => setTeam2([null, null, null, null, null])}
+              className="text-xs px-3 py-1.5 rounded hover:bg-white/10 transition-colors"
+              style={{ color: '#FF6666', border: '1px solid #FF666644' }}
+              title="Clear all heroes from Team 2">
+              🗑 Clear T2
+            </button>
+          </div>
+
           {/* Map Specialty Info */}
           {(() => {
             const currentMap = ALL_MAPS[mapIdx];
@@ -199,6 +225,71 @@ export default function TeamBuilderPage() {
             <>
               <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
                 <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Composition Analysis</h3>
+
+                {/* Draft Grade & Role Balance */}
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  {([
+                    { heroes: team1.filter(Boolean) as Hero[], color: '#4488FF', label: 'Team 1' },
+                    { heroes: team2.filter(Boolean) as Hero[], color: '#FF6666', label: 'Team 2' },
+                  ] as const).map(({ heroes, color, label }) => {
+                    const score = computeBuilderScore(heroes);
+                    const { grade, color: gradeColor } = scoreToGrade(score);
+                    return (
+                      <div key={label} className="p-2 rounded" style={{ background: color + '11', border: `1px solid ${color}33` }}>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs font-semibold" style={{ color }}>{label} Grade</span>
+                          <span className="text-xl font-black px-2.5 py-0.5 rounded" style={{ color: gradeColor, background: gradeColor + '22', border: `1px solid ${gradeColor}44` }}>{grade}</span>
+                        </div>
+                        <div className="flex gap-1 flex-wrap">
+                          {BUILDER_ROLE_CHECKS.map(({ label: rl, icon, check }) => {
+                            const filled = heroes.some(check);
+                            return (
+                              <span key={rl} className="text-[10px] px-1.5 py-0.5 rounded" title={rl}
+                                style={{ background: filled ? 'rgba(0,255,0,0.12)' : 'rgba(255,0,0,0.12)', color: filled ? '#90EE90' : '#FF6666', border: `1px solid ${filled ? '#90EE9033' : '#FF666633'}` }}>
+                                {icon} {filled ? '✓' : '✗'}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Synergy Indicators */}
+                {(() => {
+                  const rels = HeroRelationships.getInstance();
+                  const t1H = team1.filter(Boolean) as Hero[];
+                  const t2H = team2.filter(Boolean) as Hero[];
+                  const synergies: { team: string; teamColor: string; hero1: string; hero2: string; reason: string; score: number }[] = [];
+                  for (let i = 0; i < t1H.length; i++) {
+                    for (let j = i + 1; j < t1H.length; j++) {
+                      const s = rels.getSynergyScore(t1H[i], t1H[j]);
+                      if (s >= 2) synergies.push({ team: 'T1', teamColor: '#4488FF', hero1: t1H[i].nicknames[0], hero2: t1H[j].nicknames[0], reason: rels.getSynergyReason(t1H[i], t1H[j]), score: s });
+                    }
+                  }
+                  for (let i = 0; i < t2H.length; i++) {
+                    for (let j = i + 1; j < t2H.length; j++) {
+                      const s = rels.getSynergyScore(t2H[i], t2H[j]);
+                      if (s >= 2) synergies.push({ team: 'T2', teamColor: '#FF6666', hero1: t2H[i].nicknames[0], hero2: t2H[j].nicknames[0], reason: rels.getSynergyReason(t2H[i], t2H[j]), score: s });
+                    }
+                  }
+                  if (synergies.length === 0) return null;
+                  return (
+                    <div className="mb-3 p-2 rounded" style={{ background: 'rgba(144,238,144,0.05)', border: '1px solid rgba(144,238,144,0.15)' }}>
+                      <p className="text-[10px] font-bold mb-1.5" style={{ color: '#90EE90' }}>✦ SYNERGY PAIRS</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {synergies.map(s => (
+                          <span key={`${s.hero1}-${s.hero2}`} className="text-[10px] px-2 py-0.5 rounded-full cursor-default"
+                            title={s.reason || `${s.hero1} & ${s.hero2} synergy`}
+                            style={{ background: 'rgba(144,238,144,0.1)', border: '1px solid #90EE9033', color: '#90EE90' }}>
+                            {s.score >= 3 ? '★' : '✦'} {s.hero1} + {s.hero2} <span style={{ color: s.teamColor, opacity: 0.7 }}>({s.team})</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* Win Condition Comparison */}
                 <div className="grid grid-cols-2 gap-3 mb-3">
@@ -286,45 +377,90 @@ export default function TeamBuilderPage() {
         <TeamSlots label="TEAM 2" color="#FF6666" slots={team2}
           onSlotClick={(i) => setPickerOpen({ team: 2, slot: i })}
           onClear={(i) => clearSlot(2, i)}
+          onClearAll={() => setTeam2([null, null, null, null, null])}
           onHeroDetail={h => setDetailHero(h)}
           mapName={ALL_MAPS[mapIdx]?.name} />
       </div>
 
       {/* Hero Picker Modal */}
       {pickerOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.8)' }}>
-          <div className="rounded-lg p-4 max-w-3xl max-h-[80vh] overflow-auto" style={{ background: '#1a1a2e', border: '2px solid #00FFFF' }}>
-            <div className="flex justify-between mb-3">
-              <h3 className="font-bold" style={{ color: '#00FFFF' }}>Select Hero</h3>
-              <button onClick={() => { setPickerOpen(null); setPickerSearch(''); }} className="text-sm px-2 py-1 hover:bg-white/10 rounded" style={{ color: '#FF6666' }} title="Close hero picker">✕ Close</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.8)' }}
+          onClick={() => { setPickerOpen(null); setPickerSearch(''); setPickerRole('All'); }}>
+          <div className="rounded-lg p-5 w-[720px] max-h-[85vh] flex flex-col" style={{ background: '#1a1a2e', border: '2px solid #00FFFF' }}
+            onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-bold" style={{ color: '#00FFFF' }}>
+                Select Hero — {pickerOpen.team === 1 ? 'Team 1' : 'Team 2'}, Slot {pickerOpen.slot + 1}
+              </h3>
+              <button onClick={() => { setPickerOpen(null); setPickerSearch(''); setPickerRole('All'); }}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-lg"
+                style={{ color: '#FF6666', border: '1px solid #FF666644' }} title="Close hero picker">✕</button>
             </div>
+            {/* Search */}
             <input
               type="text"
-              placeholder="🔍 Search heroes..."
+              placeholder="🔍 Search heroes by name..."
               value={pickerSearch}
               onChange={e => setPickerSearch(e.target.value)}
-              className="w-full px-3 py-1.5 mb-3 rounded text-sm focus:outline-none"
+              className="w-full px-3 py-2 mb-3 rounded text-sm focus:outline-none"
               style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff' }}
               autoFocus
             />
-            {['Tank', 'Healer', 'Offlane', 'Mage', 'DPS', 'Specialist'].map(role => {
-              const roleHeroes = ALL_HEROES
-                .filter(h => h.role === role && !pickedNames.has(h.name))
-                .filter(h => !pickerSearch || h.nicknames.some(n => n.toLowerCase().includes(pickerSearch.toLowerCase())));
-              if (roleHeroes.length === 0) return null;
-              return (
-                <div key={role} className="mb-3">
-                  <h4 className="text-xs font-bold mb-1" style={{ color: ROLE_COLORS[role] || '#A9A9A9' }}>
-                    {role}s <span className="opacity-50">({roleHeroes.length})</span>
-                  </h4>
-                  <div className="flex flex-wrap gap-1">
-                    {roleHeroes.map(hero => (
-                      <HeroPortrait key={hero.name} hero={hero} size="md" showName onClick={() => { handlePick(hero); setPickerSearch(''); }} />
-                    ))}
+            {/* Role filter buttons */}
+            <div className="flex gap-1.5 mb-3 flex-wrap">
+              {['All', 'Tank', 'Healer', 'DPS', 'Mage', 'Offlane', 'Specialist'].map(role => {
+                const isActive = pickerRole === role;
+                const rc = role === 'All' ? '#00FFFF' : (ROLE_COLORS[role] || '#A9A9A9');
+                return (
+                  <button key={role} onClick={() => setPickerRole(role)}
+                    className="text-xs px-3 py-1.5 rounded-full transition-all"
+                    style={{
+                      background: isActive ? rc + '33' : 'transparent',
+                      color: isActive ? rc : '#666',
+                      border: `1px solid ${isActive ? rc : 'rgba(68,102,136,0.3)'}`,
+                      fontWeight: isActive ? 700 : 400,
+                    }}>
+                    {role === 'All' ? '🌐 All' : role}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Hero grid */}
+            <div className="flex-1 overflow-auto">
+              {(pickerRole === 'All' ? ['Tank', 'Healer', 'Offlane', 'Mage', 'DPS', 'Specialist'] : [pickerRole]).map(role => {
+                const roleHeroes = ALL_HEROES
+                  .filter(h => h.role === role)
+                  .filter(h => !pickerSearch || h.nicknames.some(n => n.toLowerCase().includes(pickerSearch.toLowerCase())));
+                if (roleHeroes.length === 0) return null;
+                return (
+                  <div key={role} className="mb-4">
+                    <h4 className="text-xs font-bold mb-2 flex items-center gap-1.5" style={{ color: ROLE_COLORS[role] || '#A9A9A9' }}>
+                      <span className="w-2 h-2 rounded-full inline-block" style={{ background: ROLE_COLORS[role] || '#A9A9A9' }} />
+                      {role}s <span className="opacity-50 font-normal">({roleHeroes.filter(h => !pickedNames.has(h.name)).length} available)</span>
+                    </h4>
+                    <div className="grid grid-cols-7 gap-1.5">
+                      {roleHeroes.map(hero => {
+                        const isPicked = pickedNames.has(hero.name);
+                        return (
+                          <div key={hero.name} className="relative">
+                            <div className={isPicked ? 'opacity-30 pointer-events-none grayscale' : ''}>
+                              <HeroPortrait hero={hero} size="md" showName
+                                onClick={isPicked ? undefined : () => { handlePick(hero); setPickerSearch(''); setPickerRole('All'); }} />
+                            </div>
+                            {isPicked && (
+                              <div className="absolute inset-0 flex items-end justify-center pb-1 pointer-events-none">
+                                <span className="text-[8px] px-1 rounded bg-black/70 text-red-400 font-bold">PICKED</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
@@ -355,9 +491,17 @@ function computeBuilderScore(heroes: Hero[]): number {
   return Math.max(0, Math.min(100, score));
 }
 
-function TeamSlots({ label, color, slots, onSlotClick, onClear, onHeroDetail, mapName }: {
+function scoreToGrade(score: number): { grade: string; color: string } {
+  if (score >= 85) return { grade: 'A', color: '#90EE90' };
+  if (score >= 70) return { grade: 'B', color: '#87CEEB' };
+  if (score >= 55) return { grade: 'C', color: '#FFD700' };
+  if (score >= 40) return { grade: 'D', color: '#FFA500' };
+  return { grade: 'F', color: '#FF6666' };
+}
+
+function TeamSlots({ label, color, slots, onSlotClick, onClear, onClearAll, onHeroDetail, mapName }: {
   label: string; color: string; slots: (Hero | null)[];
-  onSlotClick: (i: number) => void; onClear: (i: number) => void; onHeroDetail?: (h: Hero) => void; mapName?: string;
+  onSlotClick: (i: number) => void; onClear: (i: number) => void; onClearAll?: () => void; onHeroDetail?: (h: Hero) => void; mapName?: string;
 }) {
   const picks = slots.filter(Boolean) as Hero[];
   const compScore = picks.length > 0 ? computeBuilderScore(picks) : null;
@@ -367,11 +511,19 @@ function TeamSlots({ label, color, slots, onSlotClick, onClear, onHeroDetail, ma
     <div className="w-56 flex-shrink-0">
       <div className="flex items-center justify-between mb-2">
         <h2 className="font-bold" style={{ color }}>{label}</h2>
-        {compScore !== null && (
-          <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ background: scoreColor + '22', color: scoreColor, border: `1px solid ${scoreColor}44` }}>
-            {compScore}
-          </span>
-        )}
+        <div className="flex items-center gap-1.5">
+          {onClearAll && picks.length > 0 && (
+            <button onClick={onClearAll} className="text-[10px] px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors"
+              style={{ color: '#FF6666', border: '1px solid #FF666633' }} title={`Clear all heroes from ${label}`}>
+              Clear
+            </button>
+          )}
+          {compScore !== null && (
+            <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ background: scoreColor + '22', color: scoreColor, border: `1px solid ${scoreColor}44` }}>
+              {compScore}
+            </span>
+          )}
+        </div>
       </div>
       {/* Score bar */}
       {compScore !== null && (

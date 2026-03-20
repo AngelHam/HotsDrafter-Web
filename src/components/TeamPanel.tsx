@@ -16,6 +16,7 @@ interface TeamPanelProps {
   isActive?: boolean;
   enemyPicks?: Hero[];
   onHeroClick?: (hero: Hero) => void;
+  flashHero?: { heroName: string; type: 'pick' | 'ban' } | null;
 }
 
 const ROLE_CHECKS = [
@@ -26,7 +27,7 @@ const ROLE_CHECKS = [
   { label: 'Waveclear', icon: '🌊', check: (h: Hero) => h.specialties.includes(Specialty.WAVECLEAR) },
 ];
 
-export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPicks = [], onHeroClick }: TeamPanelProps) {
+export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPicks = [], onHeroClick, flashHero }: TeamPanelProps) {
   const teamColor = teamNumber === 1 ? '#4488FF' : '#FF6666';
   const teamLabel = teamNumber === 1 ? 'TEAM 1 (You)' : 'TEAM 2 (Enemy)';
 
@@ -112,7 +113,7 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
                 border: '1px solid rgba(255,102,102,0.3)',
                 borderStyle: bans[i] ? 'solid' : 'dashed',
               }}>
-                {bans[i] && <div className="animate-pop-in cursor-pointer" onClick={() => onHeroClick?.(bans[i])}><HeroPortrait hero={bans[i]} size="sm" banned /></div>}
+                {bans[i] && <div className={`animate-pop-in cursor-pointer ${flashHero?.type === 'ban' && flashHero?.heroName === bans[i].name ? 'hero-ban-flash' : ''}`} onClick={() => onHeroClick?.(bans[i])}><HeroPortrait hero={bans[i]} size="sm" banned /></div>}
               </div>
               {bans[i] && (
                 <span className="text-[8px] mt-0.5 text-center leading-tight truncate w-full" style={{ color: '#FF6666', opacity: 0.8 }}>
@@ -135,7 +136,7 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
                 background: picks[i] ? 'rgba(255,215,0,0.1)' : 'rgba(255,215,0,0.04)',
                 border: `1px ${picks[i] ? 'solid' : 'dashed'} ${picks[i] ? '#FFD700' : 'rgba(255,215,0,0.35)'}`,
               }}>
-                {picks[i] && <div className="animate-pop-in cursor-pointer" onClick={() => onHeroClick?.(picks[i])}><HeroPortrait hero={picks[i]} size="sm" selected /></div>}
+                {picks[i] && <div className={`animate-pop-in cursor-pointer ${flashHero?.type === 'pick' && flashHero?.heroName === picks[i].name ? 'hero-pick-flash' : ''}`} onClick={() => onHeroClick?.(picks[i])}><HeroPortrait hero={picks[i]} size="sm" selected /></div>}
               </div>
               <span className="text-xs truncate opacity-80">
                 {picks[i] ? (() => {

@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
-import { specialtyToString } from '@/data/Specialty';
+import { specialtyToString, Specialty } from '@/data/Specialty';
 import HeroPortrait from '@/components/HeroPortrait';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
 import type { Hero } from '@/data/Hero';
@@ -122,17 +122,26 @@ function ComparePageInner() {
                   if (!h1 || !h2) return null;
                   return (
                     <button key={`${n1}-${n2}`} onClick={() => { setHero1(h1); setHero2(h2); }}
-                      className="flex items-center justify-center gap-2 p-2 rounded text-xs transition-all hover:brightness-125"
+                      className="flex flex-col items-center gap-1 p-2 rounded text-xs transition-all hover:brightness-125"
                       style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.4)' }}>
-                      <div className="flex flex-col items-center">
-                        <HeroPortrait hero={h1} size="sm" />
-                        <span className="text-[9px] opacity-70 mt-0.5 truncate max-w-[60px]">{h1.nicknames[0]}</span>
+                      <div className="flex items-center justify-center gap-2 w-full">
+                        <div className="flex flex-col items-center">
+                          <HeroPortrait hero={h1} size="sm" />
+                          <span className="text-[9px] opacity-70 mt-0.5 truncate max-w-[60px]">{h1.nicknames[0]}</span>
+                        </div>
+                        <span className="opacity-50 text-xs">vs</span>
+                        <div className="flex flex-col items-center">
+                          <HeroPortrait hero={h2} size="sm" />
+                          <span className="text-[9px] opacity-70 mt-0.5 truncate max-w-[60px]">{h2.nicknames[0]}</span>
+                        </div>
                       </div>
-                      <span className="opacity-50 text-xs">vs</span>
-                      <div className="flex flex-col items-center">
-                        <HeroPortrait hero={h2} size="sm" />
-                        <span className="text-[9px] opacity-70 mt-0.5 truncate max-w-[60px]">{h2.nicknames[0]}</span>
-                      </div>
+                      {(() => {
+                        const counters1 = icyVeins.counters(n1, n2);
+                        const counters2 = icyVeins.counters(n2, n1);
+                        if (counters1) return <span className="text-[8px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(68,136,255,0.15)', color: '#4488FF' }}>⬆ {n1} favored</span>;
+                        if (counters2) return <span className="text-[8px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,102,102,0.15)', color: '#FF6666' }}>⬆ {n2} favored</span>;
+                        return <span className="text-[8px] opacity-30">Even</span>;
+                      })()}
                     </button>
                   );
                 }) : (
@@ -217,19 +226,117 @@ function ComparePageInner() {
               </p>
             </div>
 
-            {/* Shared Specialties */}
+            {/* Matchup Verdict */}
+            {(() => {
+              const h1Name = hero1.nicknames[0];
+              const h2Name = hero2.nicknames[0];
+              const h1CountersH2 = icyVeins.counters(h1Name, h2Name);
+              const h2CountersH1 = icyVeins.counters(h2Name, h1Name);
+              const h1Synergies = icyVeins.getSynergies(h1Name).length;
+              const h2Synergies = icyVeins.getSynergies(h2Name).length;
+              const h1Countered = icyVeins.getCounters(h1Name).length;
+              const h2Countered = icyVeins.getCounters(h2Name).length;
+              const avg1 = ALL_MAPS.reduce((s, m) => s + icyVeins.getTierScore(h1Name, m.name), 0) / ALL_MAPS.length;
+              const avg2 = ALL_MAPS.reduce((s, m) => s + icyVeins.getTierScore(h2Name, m.name), 0) / ALL_MAPS.length;
+              
+              let score1 = 0, score2 = 0;
+              if (h1CountersH2) score1 += 3;
+              if (h2CountersH1) score2 += 3;
+              if (avg1 > avg2) score1 += 1; else if (avg2 > avg1) score2 += 1;
+              if (h1Synergies > h2Synergies) score1 += 0.5; else if (h2Synergies > h1Synergies) score2 += 0.5;
+              if (h1Countered < h2Countered) score1 += 0.5; else if (h2Countered < h1Countered) score2 += 0.5;
+              
+              let verdict: string;
+              let verdictColor: string;
+              if (score1 > score2 + 1) { verdict = `${h1Name} has a clear advantage`; verdictColor = '#4488FF'; }
+              else if (score2 > score1 + 1) { verdict = `${h2Name} has a clear advantage`; verdictColor = '#FF6666'; }
+              else if (score1 > score2) { verdict = `${h1Name} has a slight edge`; verdictColor = '#4488FF'; }
+              else if (score2 > score1) { verdict = `${h2Name} has a slight edge`; verdictColor = '#FF6666'; }
+              else { verdict = 'Even matchup — both are equally viable'; verdictColor = '#FFD700'; }
+              
+              return (
+                <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: `1px solid ${verdictColor}44` }}>
+                  <h3 className="text-xs font-bold mb-2" style={{ color: verdictColor }}>⚖️ MATCHUP VERDICT</h3>
+                  <p className="text-sm font-semibold" style={{ color: verdictColor }}>{verdict}</p>
+                  <div className="flex gap-4 mt-2 text-[10px] opacity-60">
+                    <span>Map avg: {avg1.toFixed(1)} vs {avg2.toFixed(1)}</span>
+                    <span>Synergies: {h1Synergies} vs {h2Synergies}</span>
+                    <span>Countered by: {h1Countered} vs {h2Countered}</span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Map Performance Chart */}
+            <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+              <h3 className="text-xs font-bold mb-2" style={{ color: '#87CEEB' }}>📊 MAP PERFORMANCE</h3>
+              <div className="space-y-1.5">
+                {ALL_MAPS.map(map => {
+                  const s1 = icyVeins.getTierScore(hero1.nicknames[0], map.name);
+                  const s2 = icyVeins.getTierScore(hero2.nicknames[0], map.name);
+                  return (
+                    <div key={map.name} className="flex items-center gap-2 text-[10px]">
+                      <span className="w-16 truncate opacity-60 text-right">{map.name.split(' ').slice(0, 2).join(' ')}</span>
+                      <div className="flex-1 flex items-center gap-1">
+                        <div className="flex-1 flex justify-end">
+                          <div style={{ width: `${(s1 / 5) * 100}%`, height: 8, background: '#4488FF', borderRadius: '2px 0 0 2px', minWidth: 2 }} />
+                        </div>
+                        <span className="text-[9px] w-3 text-center opacity-40">|</span>
+                        <div className="flex-1">
+                          <div style={{ width: `${(s2 / 5) * 100}%`, height: 8, background: '#FF6666', borderRadius: '0 2px 2px 0', minWidth: 2 }} />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="flex justify-between mt-2 text-[9px] opacity-40">
+                <span style={{ color: '#4488FF' }}>■ {hero1.nicknames[0]}</span>
+                <span style={{ color: '#FF6666' }}>{hero2.nicknames[0]} ■</span>
+              </div>
+            </div>
+
+            {/* Specialty Overlap */}
             {(() => {
               const shared = hero1.specialties.filter(s => hero2.specialties.includes(s));
-              if (shared.length === 0) return null;
+              const unique1 = hero1.specialties.filter(s => !hero2.specialties.includes(s));
+              const unique2 = hero2.specialties.filter(s => !hero1.specialties.includes(s));
               return (
                 <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-                  <h3 className="text-xs font-bold mb-1" style={{ color: '#00FFFF' }}>SHARED SPECIALTIES ({shared.length})</h3>
-                  <div className="flex flex-wrap gap-1">
-                    {shared.map(s => (
-                      <span key={s} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,255,255,0.1)', border: '1px solid #00FFFF33', color: '#00FFFF' }}>
-                        {specialtyToString(s)}
-                      </span>
-                    ))}
+                  <h3 className="text-xs font-bold mb-2" style={{ color: '#00FFFF' }}>🔀 SPECIALTY OVERLAP</h3>
+                  {shared.length > 0 && (
+                    <div className="mb-2">
+                      <span className="text-[9px] opacity-50 block mb-1">Shared ({shared.length})</span>
+                      <div className="flex flex-wrap gap-1">
+                        {shared.map(s => (
+                          <span key={s} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,255,255,0.15)', border: '1px solid #00FFFF44', color: '#00FFFF' }}>
+                            {specialtyToString(s)}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <span className="text-[9px] opacity-50 block mb-1" style={{ color: '#4488FF' }}>Only {hero1.nicknames[0]} ({unique1.length})</span>
+                      <div className="flex flex-wrap gap-1">
+                        {unique1.length > 0 ? unique1.map(s => (
+                          <span key={s} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(68,136,255,0.12)', border: '1px solid #4488FF33', color: '#4488FF' }}>
+                            {specialtyToString(s)}
+                          </span>
+                        )) : <span className="text-[10px] opacity-30">None</span>}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[9px] opacity-50 block mb-1" style={{ color: '#FF6666' }}>Only {hero2.nicknames[0]} ({unique2.length})</span>
+                      <div className="flex flex-wrap gap-1">
+                        {unique2.length > 0 ? unique2.map(s => (
+                          <span key={s} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,102,102,0.12)', border: '1px solid #FF666633', color: '#FF6666' }}>
+                            {specialtyToString(s)}
+                          </span>
+                        )) : <span className="text-[10px] opacity-30">None</span>}
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
