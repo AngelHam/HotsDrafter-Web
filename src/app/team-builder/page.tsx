@@ -10,7 +10,7 @@ import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import { ROLE_COLORS } from '@/components/RoleFilterBar';
 import HeroPortrait from '@/components/HeroPortrait';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
-import { Specialty } from '@/data/Specialty';
+import { Specialty, specialtyToString } from '@/data/Specialty';
 import type { Hero } from '@/data/Hero';
 
 const SLOT_ROLE_HINTS = ['🛡️ Tank', '✚ Healer', '⚔️ DPS', '🏹 Offlane', '✦ Flex'];
@@ -168,6 +168,33 @@ export default function TeamBuilderPage() {
             </div>
           </div>
 
+          {/* Map Specialty Info */}
+          {(() => {
+            const currentMap = ALL_MAPS[mapIdx];
+            if (!currentMap) return null;
+            const weights = currentMap.specialtyWeights;
+            const sorted = (Object.entries(weights) as [string, number][])
+              .sort(([, a], [, b]) => b - a)
+              .slice(0, 3);
+            return (
+              <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
+                <p className="text-xs font-semibold mb-1.5" style={{ color: '#87CEEB' }}>📍 {currentMap.name} favors:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {sorted.map(([spec, weight]) => (
+                    <span key={spec} className="text-[10px] px-2 py-0.5 rounded-full"
+                      style={{
+                        background: weight >= 3 ? 'rgba(255,215,0,0.15)' : weight >= 2 ? 'rgba(0,255,255,0.1)' : 'rgba(255,255,255,0.05)',
+                        border: `1px solid ${weight >= 3 ? '#FFD70044' : weight >= 2 ? '#00FFFF33' : 'rgba(68,102,136,0.3)'}`,
+                        color: weight >= 3 ? '#FFD700' : weight >= 2 ? '#00FFFF' : '#999',
+                      }}>
+                      {specialtyToString(spec as Specialty)} {weight >= 3 ? '★' : weight >= 2 ? '●' : '○'}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
           {analysis ? (
             <>
               <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
@@ -248,6 +275,9 @@ export default function TeamBuilderPage() {
                   );
                 })}
               </div>
+              <p className="mt-4 text-xs italic" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                Tip: Click any slot to add a hero, or apply a Team Template to get started quickly.
+              </p>
             </div>
           )}
         </div>

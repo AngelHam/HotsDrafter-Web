@@ -34,6 +34,7 @@ function ComparePageInner() {
   const [search, setSearch] = useState('');
   const [detailHero, setDetailHero] = useState<Hero | null>(null);
   const [roleFilter, setRoleFilter] = useState<string>('All');
+  const [matchupRoleFilter, setMatchupRoleFilter] = useState<string>('All');
 
   // Pre-fill from URL params
   useEffect(() => {
@@ -49,6 +50,15 @@ function ComparePageInner() {
     .filter(h => roleFilter === 'All' || h.role === roleFilter)
     .filter(h => !search || h.nicknames.some(n => n.toLowerCase().includes(search.toLowerCase())))
     .sort((a, b) => a.nicknames[0].localeCompare(b.nicknames[0]));
+
+  const filteredMatchups = useMemo(() => {
+    if (matchupRoleFilter === 'All') return POPULAR_MATCHUPS;
+    return POPULAR_MATCHUPS.filter(([n1, n2]) => {
+      const h1 = ALL_HEROES.find(h => h.nicknames[0] === n1);
+      const h2 = ALL_HEROES.find(h => h.nicknames[0] === n2);
+      return (h1 && h1.role === matchupRoleFilter) || (h2 && h2.role === matchupRoleFilter);
+    });
+  }, [matchupRoleFilter]);
 
   const handlePick = (hero: Hero) => {
     if (picker === 1) setHero1(hero);
@@ -89,9 +99,24 @@ function ComparePageInner() {
               <p className="text-xs opacity-40">See roles, specialties, map tiers, synergies, counters, and head-to-head matchup data</p>
             </div>
             <div>
-              <h3 className="text-sm font-bold mb-3 opacity-50">⚡ POPULAR MATCHUPS — click to compare</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold opacity-50">⚡ POPULAR MATCHUPS — click to compare</h3>
+                <div className="flex gap-1">
+                  {[{ role: 'All', color: '#00FFFF' }, { role: 'Tank', color: '#6495ED' }, { role: 'Healer', color: '#90EE90' }, { role: 'DPS', color: '#FF6347' }, { role: 'Mage', color: '#BA55D3' }, { role: 'Offlane', color: '#FFA500' }].map(({ role, color }) => (
+                    <button key={role} onClick={() => setMatchupRoleFilter(role)}
+                      className="text-[10px] px-2 py-0.5 rounded-full transition-all"
+                      style={{
+                        background: matchupRoleFilter === role ? color + '33' : 'rgba(255,255,255,0.05)',
+                        border: `1px solid ${matchupRoleFilter === role ? color + '88' : 'rgba(68,102,136,0.3)'}`,
+                        color: matchupRoleFilter === role ? color : '#777',
+                      }}>
+                      {role}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {POPULAR_MATCHUPS.map(([n1, n2]) => {
+                {filteredMatchups.length > 0 ? filteredMatchups.map(([n1, n2]) => {
                   const h1 = ALL_HEROES.find(h => h.nicknames[0] === n1);
                   const h2 = ALL_HEROES.find(h => h.nicknames[0] === n2);
                   if (!h1 || !h2) return null;
@@ -110,7 +135,9 @@ function ComparePageInner() {
                       </div>
                     </button>
                   );
-                })}
+                }) : (
+                  <p className="col-span-full text-xs text-center py-3 opacity-40">No matchups for this role filter</p>
+                )}
               </div>
               <button
                 onClick={() => {
@@ -122,6 +149,16 @@ function ComparePageInner() {
                 style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.4)', color: '#FFD700' }}>
                 🎲 Random Matchup
               </button>
+            </div>
+
+            {/* Quick Info Panel */}
+            <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
+              <p className="text-sm font-semibold mb-2" style={{ color: '#FFD700' }}>💡 How to Compare</p>
+              <ul className="space-y-1.5 text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                <li>• Click a hero slot above or pick a popular matchup</li>
+                <li>• See synergies, counters, map tiers, and specialties side-by-side</li>
+                <li>• Use this to learn which heroes counter each other</li>
+              </ul>
             </div>
           </div>
         )}
@@ -260,6 +297,8 @@ function ComparePageInner() {
 const POPULAR_MATCHUPS: [string, string][] = [
   ['Kerrigan', 'Illidan'], ['E.T.C.', 'Diablo'], ['Jaina', 'Li-Ming'],
   ['Muradin', "Anub'arak"], ['Rehgar', 'Brightwing'], ['Zeratul', 'Genji'],
+  ['Sonya', 'Thrall'], ['Kael\'thas', 'Chromie'], ['Johanna', 'Garrosh'],
+  ['Malfurion', 'Anduin'], ['Valla', 'Raynor'], ['Dehaka', 'Leoric'],
 ];
 
 function HeroSlot({ hero, label, color, onClick, onDetail, onClear }: { hero: Hero | null; label: string; color: string; onClick: () => void; onDetail?: (h: Hero) => void; onClear?: () => void }) {

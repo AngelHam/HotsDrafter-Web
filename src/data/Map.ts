@@ -27,6 +27,10 @@ export class HotsMap {
     };
   }
 
+  get specialtyWeights(): Partial<Record<Specialty, number>> {
+    return this.importance;
+  }
+
   scoreHero(hero: Hero): number {
     const specialties = hero.specialties;
     if (specialties.length === 0) return 0;

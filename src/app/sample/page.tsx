@@ -33,13 +33,23 @@ function pickDiverseTeam(pool: Hero[]): Hero[] {
       used.add(h.name);
     }
   }
-  // Fill remaining 2 slots from DPS/Mage/Specialist (avoid duplicate healers)
-  const fillers = pool.filter(h => !used.has(h.name) && h.role !== 'Healer');
-  const shuffledFillers = shuffleArray(fillers);
-  for (const h of shuffledFillers) {
+  // Fill remaining slots: prefer DPS/Mage first, then Specialist, avoid duplicate Tank/Healer/Offlane
+  const dpsFillers = pool.filter(h => !used.has(h.name) && (h.role === 'DPS' || h.role === 'Mage'));
+  const shuffledDps = shuffleArray(dpsFillers);
+  for (const h of shuffledDps) {
     if (picked.length >= 5) break;
     picked.push(h);
     used.add(h.name);
+  }
+  // If still not full (unlikely), take any remaining
+  if (picked.length < 5) {
+    const remaining = pool.filter(h => !used.has(h.name) && h.role !== 'Healer');
+    const shuffledRemaining = shuffleArray(remaining);
+    for (const h of shuffledRemaining) {
+      if (picked.length >= 5) break;
+      picked.push(h);
+      used.add(h.name);
+    }
   }
   return shuffleArray(picked);
 }
@@ -223,6 +233,8 @@ function sampleCompScore(picks: Hero[]): number {
   if (picks.some(h => h.specialties.includes(Specialty.HARD_CC))) score += 10;
   if (picks.filter(h => h.role === 'Tank').length >= 2) score -= 10;
   if (picks.filter(h => h.role === 'Healer').length >= 2) score -= 15;
+  if (picks.filter(h => h.role === 'Offlane').length >= 2) score -= 10;
+  if (!picks.some(h => h.role === 'DPS' || h.role === 'Mage')) score -= 15;
   return Math.max(0, Math.min(100, score));
 }
 

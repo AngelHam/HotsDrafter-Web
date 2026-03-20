@@ -9,9 +9,9 @@ const SUGGESTION_ROLE_COLORS: Record<string, string> = {
 };
 
 function getScoreColor(score: number): { color: string; gradient: string; bg: string; border: string } {
-  if (score >= 25) return { color: '#81C784', gradient: 'linear-gradient(90deg, #4CAF50, #81C784)', bg: '#4CAF5022', border: '#81C78444' };
+  if (score >= 26) return { color: '#4CAF50', gradient: 'linear-gradient(90deg, #388E3C, #4CAF50)', bg: '#4CAF5022', border: '#4CAF5044' };
   if (score >= 20) return { color: '#8BC34A', gradient: 'linear-gradient(90deg, #689F38, #8BC34A)', bg: '#8BC34A22', border: '#8BC34A44' };
-  if (score >= 15) return { color: '#FFC107', gradient: 'linear-gradient(90deg, #FF8F00, #FFC107)', bg: '#FFC10722', border: '#FFC10744' };
+  if (score >= 15) return { color: '#FFD700', gradient: 'linear-gradient(90deg, #FFA000, #FFD700)', bg: '#FFD70022', border: '#FFD70044' };
   if (score >= 10) return { color: '#FF9800', gradient: 'linear-gradient(90deg, #E65100, #FF9800)', bg: '#FF980022', border: '#FF980044' };
   return { color: '#F44336', gradient: 'linear-gradient(90deg, #C62828, #F44336)', bg: '#F4433622', border: '#F4433644' };
 }
@@ -80,7 +80,7 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
           <button
             key={s.hero.name}
             onClick={() => onSelect?.(s)}
-            className="suggestion-card flex items-center gap-2 w-full p-2 rounded text-left"
+            className={`suggestion-card flex items-center gap-2 w-full p-2 rounded text-left${i === 0 ? ' suggestion-card-top-pick' : ''}`}
             title={i < 9 ? `Press ${i + 1} to quick-pick` : 'Suggestion'}
             role="listitem"
             aria-label={`Suggestion ${i + 1}: ${s.hero.nicknames[0]} - ${s.hero.role} - Score ${s.totalScore.toFixed(0)}`}
@@ -119,7 +119,7 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
                 </span>
                 <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', minWidth: 60 }}>
                   <div className="h-full rounded-full transition-all" style={{
-                    width: `${Math.min(s.totalScore, 100)}%`,
+                    width: `${Math.min((s.totalScore / 30) * 100, 100)}%`,
                     background: sc.gradient,
                   }} />
                 </div>
