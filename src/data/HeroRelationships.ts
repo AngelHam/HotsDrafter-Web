@@ -64,56 +64,102 @@ class HeroRelationships {
     return entry?.reason || '';
   }
 
+  private static readonly SYNERGY_RULES: { spec1: Specialty; spec2: Specialty; bonus: number }[] = [
+    { spec1: Specialty.ENGAGE, spec2: Specialty.BURST_DAMAGE, bonus: 2 },
+    { spec1: Specialty.ENGAGE, spec2: Specialty.AOE_DAMAGE, bonus: 1 },
+    { spec1: Specialty.HARD_CC, spec2: Specialty.BURST_DAMAGE, bonus: 2 },
+    { spec1: Specialty.HARD_CC, spec2: Specialty.AOE_DAMAGE, bonus: 1 },
+    { spec1: Specialty.BURST_HEALING, spec2: Specialty.MOBILITY, bonus: 1 },
+    { spec1: Specialty.SHIELDS, spec2: Specialty.MOBILITY, bonus: 1 },
+    { spec1: Specialty.ARMOR_APPLICATION, spec2: Specialty.ENGAGE, bonus: 1 },
+    { spec1: Specialty.GLOBAL_PRESENCE, spec2: Specialty.SPLIT_PUSHING, bonus: 1 },
+    { spec1: Specialty.WAVECLEAR, spec2: Specialty.SIEGE_PUSHING, bonus: 1 },
+    { spec1: Specialty.DOUBLE_SOAKING, spec2: Specialty.GLOBAL_PRESENCE, bonus: 2 },
+    { spec1: Specialty.POKE, spec2: Specialty.DISENGAGE, bonus: 1 },
+    { spec1: Specialty.SUSTAINED_DAMAGE, spec2: Specialty.SUSTAINED_HEALING, bonus: 1 },
+    { spec1: Specialty.PICK_POTENTIAL, spec2: Specialty.BURST_DAMAGE, bonus: 1 },
+    { spec1: Specialty.ENGAGE, spec2: Specialty.BURST_HEALING, bonus: 1 },
+    { spec1: Specialty.HIGH_DURABILITY, spec2: Specialty.SUSTAINED_HEALING, bonus: 1 },
+    { spec1: Specialty.OBJECTIVE_CONTROL, spec2: Specialty.ENGAGE, bonus: 1 },
+    { spec1: Specialty.ZONING, spec2: Specialty.OBJECTIVE_CONTROL, bonus: 1 },
+    { spec1: Specialty.BURST_DAMAGE, spec2: Specialty.HARD_CC, bonus: 2 },
+    { spec1: Specialty.ENGAGE, spec2: Specialty.DISENGAGE, bonus: 1 },
+    { spec1: Specialty.MOBILITY, spec2: Specialty.BURST_DAMAGE, bonus: 2 },
+    { spec1: Specialty.GLOBAL_PRESENCE, spec2: Specialty.GLOBAL_PRESENCE, bonus: 2 },
+    { spec1: Specialty.SHIELDS, spec2: Specialty.ENGAGE, bonus: 1 },
+    { spec1: Specialty.SUSTAINED_HEALING, spec2: Specialty.HIGH_DURABILITY, bonus: 1 },
+    { spec1: Specialty.PERCENT_DAMAGE, spec2: Specialty.HARD_CC, bonus: 1 },
+    { spec1: Specialty.PICK_POTENTIAL, spec2: Specialty.HARD_CC, bonus: 2 },
+  ];
+
   private computeSpecialtySynergy(hero1: Hero, hero2: Hero): number {
-    let score = 0;
     const specs1 = hero1.specialties;
     const specs2 = hero2.specialties;
 
-    // Engage + AOE combo
-    if (specs1.includes(Specialty.ENGAGE) && specs2.includes(Specialty.AOE_DAMAGE)) score++;
-    if (specs2.includes(Specialty.ENGAGE) && specs1.includes(Specialty.AOE_DAMAGE)) score++;
+    let totalScore = 0;
+    let matchCount = 0;
 
-    // Engage + Hard CC combo
-    if (specs1.includes(Specialty.ENGAGE) && specs2.includes(Specialty.HARD_CC)) score++;
-    if (specs2.includes(Specialty.ENGAGE) && specs1.includes(Specialty.HARD_CC)) score++;
+    for (const rule of HeroRelationships.SYNERGY_RULES) {
+      const forwardMatch =
+        specs1.includes(rule.spec1) && specs2.includes(rule.spec2);
+      const reverseMatch =
+        specs1.includes(rule.spec2) && specs2.includes(rule.spec1);
 
-    // Tank + Healer basics
-    if (hero1.role === 'Tank' && hero2.role === 'Healer') score++;
-    if (hero2.role === 'Tank' && hero1.role === 'Healer') score++;
+      if (forwardMatch || reverseMatch) {
+        let contribution = rule.bonus;
+        if (matchCount > 0) contribution *= 0.5;
+        totalScore += contribution;
+        matchCount++;
+      }
+    }
 
-    // Global presence synergy
-    if (specs1.includes(Specialty.GLOBAL_PRESENCE) && specs2.includes(Specialty.GLOBAL_PRESENCE)) score++;
-
-    // Dive synergy
-    if (specs1.includes(Specialty.MOBILITY) && specs2.includes(Specialty.BURST_DAMAGE) &&
-        specs1.includes(Specialty.ENGAGE)) score++;
-    if (specs2.includes(Specialty.MOBILITY) && specs1.includes(Specialty.BURST_DAMAGE) &&
-        specs2.includes(Specialty.ENGAGE)) score++;
-
-    return Math.min(score, 3);
+    return Math.min(Math.floor(totalScore), 3);
   }
 
+  private static readonly COUNTER_RULES: { counterSpec: Specialty; targetSpec: Specialty; bonus: number }[] = [
+    { counterSpec: Specialty.PERCENT_DAMAGE, targetSpec: Specialty.HIGH_DURABILITY, bonus: 2 },
+    { counterSpec: Specialty.EXECUTE_DAMAGE, targetSpec: Specialty.BURST_HEALING, bonus: 1 },
+    { counterSpec: Specialty.HARD_CC, targetSpec: Specialty.MOBILITY, bonus: 1 },
+    { counterSpec: Specialty.CLEANSE, targetSpec: Specialty.HARD_CC, bonus: 1 },
+    { counterSpec: Specialty.MOBILITY, targetSpec: Specialty.POKE, bonus: 1 },
+    { counterSpec: Specialty.ANTI_DIVE, targetSpec: Specialty.MOBILITY, bonus: 1 },
+    { counterSpec: Specialty.BURST_DAMAGE, targetSpec: Specialty.SUSTAINED_HEALING, bonus: 1 },
+    { counterSpec: Specialty.EXECUTE_DAMAGE, targetSpec: Specialty.SELF_SUSTAIN, bonus: 1 },
+    { counterSpec: Specialty.GLOBAL_PRESENCE, targetSpec: Specialty.STEALTH, bonus: 1 },
+    { counterSpec: Specialty.DISENGAGE, targetSpec: Specialty.ENGAGE, bonus: 1 },
+    { counterSpec: Specialty.ANTI_DIVE, targetSpec: Specialty.ENGAGE, bonus: 1 },
+    { counterSpec: Specialty.ANTI_POKE, targetSpec: Specialty.POKE, bonus: 1 },
+    { counterSpec: Specialty.SHIELDS, targetSpec: Specialty.POKE, bonus: 1 },
+    { counterSpec: Specialty.BURST_DAMAGE, targetSpec: Specialty.LOW_DURABILITY, bonus: 1 },
+    { counterSpec: Specialty.PICK_POTENTIAL, targetSpec: Specialty.SPLIT_PUSHING, bonus: 1 },
+    { counterSpec: Specialty.HARD_CC, targetSpec: Specialty.STEALTH, bonus: 1 },
+    { counterSpec: Specialty.SHIELDS, targetSpec: Specialty.BURST_DAMAGE, bonus: 1 },
+    { counterSpec: Specialty.DAMAGE_MITIGATION, targetSpec: Specialty.BURST_DAMAGE, bonus: 1 },
+    { counterSpec: Specialty.SUSTAINED_DAMAGE, targetSpec: Specialty.HIGH_DURABILITY, bonus: 1 },
+    { counterSpec: Specialty.AOE_DAMAGE, targetSpec: Specialty.SPLIT_PUSHING, bonus: 1 },
+    { counterSpec: Specialty.PICK_POTENTIAL, targetSpec: Specialty.LOW_DURABILITY, bonus: 2 },
+    { counterSpec: Specialty.MOBILITY, targetSpec: Specialty.SIEGE_PUSHING, bonus: 1 },
+    { counterSpec: Specialty.ENGAGE, targetSpec: Specialty.POKE, bonus: 1 },
+    { counterSpec: Specialty.BURST_DAMAGE, targetSpec: Specialty.SELF_SUSTAIN, bonus: 1 },
+  ];
+
   private computeSpecialtyCounter(counter: Hero, target: Hero): number {
-    let score = 0;
     const cSpecs = counter.specialties;
     const tSpecs = target.specialties;
 
-    // Anti-dive counters dive
-    if (cSpecs.includes(Specialty.ANTI_DIVE) && tSpecs.includes(Specialty.MOBILITY) && tSpecs.includes(Specialty.ENGAGE)) score++;
+    let totalScore = 0;
+    let matchCount = 0;
 
-    // Hard CC counters low durability
-    if (cSpecs.includes(Specialty.HARD_CC) && tSpecs.includes(Specialty.LOW_DURABILITY)) score++;
+    for (const rule of HeroRelationships.COUNTER_RULES) {
+      if (cSpecs.includes(rule.counterSpec) && tSpecs.includes(rule.targetSpec)) {
+        let contribution = rule.bonus;
+        if (matchCount > 0) contribution *= 0.5;
+        totalScore += contribution;
+        matchCount++;
+      }
+    }
 
-    // Percent damage counters high durability
-    if (cSpecs.includes(Specialty.PERCENT_DAMAGE) && tSpecs.includes(Specialty.HIGH_DURABILITY)) score++;
-
-    // Stealth counters squishy poke
-    if (cSpecs.includes(Specialty.STEALTH) && tSpecs.includes(Specialty.POKE) && !tSpecs.includes(Specialty.MOBILITY)) score++;
-
-    // Cleanse counters hard CC
-    if (cSpecs.includes(Specialty.CLEANSE) && tSpecs.includes(Specialty.HARD_CC)) score++;
-
-    return Math.min(score, 3);
+    return Math.min(Math.floor(totalScore), 3);
   }
 
   private initSynergies(): void {
@@ -157,6 +203,71 @@ class HeroRelationships {
     s("Tyrael", "Genji", 2, "Sanctification + Dragonblade");
     s("Stukov", "Arthas", 2, "Slow area + root setup");
     s("Mal'Ganis", "Kael'thas", 2, "Sleep + Living Bomb spread");
+
+    // === Ported from C++ app ===
+    // Dive enablers
+    s("Zarya", "Genji", 2, "Shields enable dive resets");
+    s("Medivh", "Illidan", 2, "Portal enables aggressive plays");
+    s("Tyrael", "Greymane", 2, "Sanctification protects dive");
+    s("Kharazim", "Illidan", 2, "Divine Palm saves diver");
+    s("Ana", "Sonya", 2, "Nano Boost + Wrath spin");
+    s("Ana", "Greymane", 2, "Nano Boost worgen burst");
+
+    // Wombo combo setups
+    s("E.T.C.", "Tassadar", 2, "Mosh Pit enables Wall combo");
+    s("E.T.C.", "Malfurion", 2, "Mosh Pit guarantees Twilight Dream");
+    s("E.T.C.", "Gul'dan", 2, "Mosh Pit enables Rain of Destruction");
+    s("E.T.C.", "Rehgar", 2, "Ancestral during Mosh setup");
+    s("Garrosh", "Kael'thas", 2, "Throw enables burst combo");
+    s("Garrosh", "Kerrigan", 2, "Throw into combo follow-up");
+    s("Garrosh", "Uther", 2, "Throw + Divine Shield aggression");
+    s("Stitches", "Kael'thas", 2, "Hook isolates targets for burst");
+    s("Kerrigan", "Jaina", 2, "Combo enables follow-up burst");
+    s("Maiev", "Zeratul", 2, "Tether enables Void Prison combo");
+    s("Maiev", "Jaina", 2, "Cage enables Ring of Frost");
+    s("Maiev", "Kael'thas", 2, "Cage enables Flamestrike");
+    s("Diablo", "Jaina", 2, "Apocalypse into Ring of Frost");
+    s("Diablo", "Kael'thas", 2, "Flip into Living Bomb spread");
+    s("Diablo", "Uther", 2, "Stun chain + burst healing");
+    s("Zeratul", "E.T.C.", 3, "Void Prison into Mosh Pit");
+    s("Zeratul", "Jaina", 2, "VP into Ring of Frost");
+    s("Anub'arak", "Jaina", 2, "Burrow into Ring of Frost");
+    s("Thrall", "Jaina", 2, "Sundering into follow-up burst");
+
+    // Clone/hat synergies
+    s("Abathur", "Sonya", 2, "Hat enhances spin-to-win");
+    s("Abathur", "Greymane", 2, "Clone doubles dive threat");
+    s("Abathur", "Tracer", 2, "Hat enables aggressive Tracer");
+    s("Abathur", "Zeratul", 2, "Clone doubles VP threat");
+    s("Abathur", "Falstad", 2, "Double global pressure");
+
+    // Energy battery
+    s("Auriel", "Lunara", 2, "Energy battery for healing");
+    s("Auriel", "Cho", 3, "Massive energy generation");
+    s("Auriel", "Fenix", 2, "Sustained energy battery");
+
+    // Follow-up synergies
+    s("Anub'arak", "Zeratul", 2, "Cocoon enables VP setup");
+    s("Thrall", "Greymane", 2, "Sundering enables dive");
+    s("Anduin", "Genji", 2, "Leap of Faith saves diver");
+
+    // Global pressure
+    s("Dehaka", "Falstad", 2, "Map control through globals");
+    s("Brightwing", "Falstad", 2, "Global presence synergy");
+    s("Dehaka", "Brightwing", 2, "Double global presence");
+    s("Falstad", "Brightwing", 2, "Paired global rotations");
+    s("The Lost Vikings", "Falstad", 2, "Soak + global map coverage");
+
+    // Healer + DPS combos
+    s("Whitemane", "Valla", 2, "High damage fuels Whitemane healing");
+
+    // Specialist combos
+    s("Medivh", "Zeratul", 2, "Portal + VP combo potential");
+
+    // Protect the carry
+    s("Zarya", "Valla", 2, "Shields enable aggressive Valla");
+    s("Tyrael", "Valla", 2, "Sanctification protects backline");
+    s("Medivh", "Cho", 2, "Portal + Force of Will protects Cho'gall");
   }
 
   private initCounters(): void {
@@ -199,6 +310,113 @@ class HeroRelationships {
     c("Nova", "Li-Ming", 2, "Snipe picks off squishy mage");
     c("Diablo", "Li-Ming", 2, "Wall slam + burst kills squishy");
     c("Garrosh", "Li-Ming", 2, "Throw into team kills squishy");
+
+    // === Ported from C++ app ===
+    // Tychus vs tanks
+    c("Tychus", "Stitches", 3, "Percent damage vs tank");
+    c("Tychus", "Garrosh", 2, "Percent damage vs tank");
+    c("Tychus", "Muradin", 2, "Percent damage vs tank");
+    c("Tychus", "Johanna", 2, "Percent damage vs tank");
+    c("Tychus", "Arthas", 2, "Percent damage vs slow tank");
+    c("Tychus", "Mal'Ganis", 2, "Percent damage vs tank");
+
+    // Malthael vs tanks
+    c("Malthael", "Diablo", 2, "Percent damage vs tank");
+    c("Malthael", "Stitches", 2, "Percent damage vs tank");
+    c("Malthael", "Garrosh", 2, "Percent damage vs tank");
+    c("Malthael", "Johanna", 2, "Percent damage vs tank");
+    c("Malthael", "Arthas", 2, "Percent damage vs high HP");
+
+    // Leoric vs tanks
+    c("Leoric", "Diablo", 2, "Drain Hope vs high HP");
+    c("Leoric", "Stitches", 2, "Drain Hope vs high HP");
+
+    // Cassia vs AA heroes
+    c("Cassia", "Raynor", 2, "Blind negates auto-attacks");
+    c("Cassia", "Valla", 2, "Blind negates auto-attacks");
+    c("Cassia", "Fenix", 2, "Blind negates auto-attacks");
+    c("Cassia", "Zul'jin", 2, "Blind negates auto-attacks");
+    c("Cassia", "Tychus", 2, "Blind negates auto-attacks");
+    c("Cassia", "Greymane", 2, "Blind negates worgen");
+    c("Cassia", "The Butcher", 2, "Blind negates meat stacks");
+
+    // Anti-mage
+    c("Anub'arak", "Jaina", 2, "Spell armor + Cocoon");
+    c("Anub'arak", "Gul'dan", 2, "Spell armor + dive on drain");
+    c("Anub'arak", "Kel'Thuzad", 2, "Spell armor + cocoon interrupt");
+    c("Anub'arak", "Mephisto", 2, "Spell armor + dive interrupt");
+    c("Varian", "Li-Ming", 2, "Charge + spell block shuts mage");
+    c("Varian", "Kael'thas", 2, "Protected + charge on mage");
+    c("Varian", "E.T.C.", 2, "Taunt cancels Mosh Pit");
+    c("Medivh", "Jaina", 2, "Protected negates burst");
+    c("Medivh", "Kael'thas", 2, "Protected negates burst");
+
+    // Genji vs low mobility
+    c("Genji", "Jaina", 2, "Dive and reset potential");
+    c("Genji", "Ana", 2, "Dive and reset potential");
+    c("Genji", "Li-Ming", 2, "Deflect + dash punishes poke");
+
+    // Dive counters
+    c("Uther", "Greymane", 2, "Divine Shield saves dive target");
+    c("Uther", "Kerrigan", 2, "Divine Shield saves combo target");
+    c("Uther", "Genji", 2, "Stun + Divine Shield saves target");
+    c("Johanna", "Illidan", 2, "Peel and durability");
+    c("Johanna", "Genji", 2, "Peel + blind stops diver");
+    c("Arthas", "Tracer", 2, "Root locks down mobility");
+    c("Arthas", "Genji", 2, "Root locks down mobility");
+    c("Arthas", "Kerrigan", 2, "Root locks combo hero");
+    c("Arthas", "Zeratul", 2, "Root grounds stealth diver");
+    c("Xul", "Tracer", 2, "Bone Prison locks mobility");
+    c("Thrall", "Illidan", 2, "Sundering + root locks diver");
+
+    // Hard engage counters
+    c("Brightwing", "E.T.C.", 2, "Polymorph cancels Mosh Pit");
+    c("Stukov", "E.T.C.", 1, "Silence cancels Mosh Pit");
+    c("Dehaka", "E.T.C.", 2, "Drag cancels Mosh Pit");
+    c("Diablo", "E.T.C.", 2, "Charge interrupts Mosh Pit");
+    c("Maiev", "E.T.C.", 2, "Cage blocks Mosh slide");
+    c("Zeratul", "E.T.C.", 2, "VP counters Mosh timing");
+    c("Anub'arak", "E.T.C.", 2, "Burrow stun cancels Mosh");
+    c("Garrosh", "Muradin", 1, "Throw punishes jump");
+    c("Garrosh", "E.T.C.", 1, "Throw punishes slide");
+
+    // Stealth counters
+    c("Brightwing", "Zeratul", 2, "Global reveals stealth");
+    c("Brightwing", "Nova", 2, "Global reveals stealth");
+    c("Tassadar", "Zeratul", 2, "Oracle reveals stealth");
+    c("Tassadar", "Nova", 2, "Oracle reveals stealth");
+    c("Hanzo", "Zeratul", 2, "Sonic Arrow reveals stealth");
+    c("Hanzo", "Nova", 2, "Sonic Arrow reveals stealth");
+    c("Maiev", "Nova", 2, "Tether catches stealth");
+    c("Maiev", "Valeera", 2, "Tether catches stealth");
+
+    // Poke counters (dive into poke)
+    c("Illidan", "Chromie", 2, "Dive negates poke safety");
+    c("Illidan", "Li-Ming", 2, "Evasion + dive pressure");
+    c("Zeratul", "Chromie", 2, "Dive dismantles poke safety");
+    c("Tracer", "Chromie", 2, "Blink dodges skillshots");
+    c("Tracer", "Li-Ming", 2, "Blink dodges skillshots");
+
+    // Anti-split/macro
+    c("Falstad", "Zagara", 1, "Global answers split pressure");
+    c("Dehaka", "Zagara", 1, "Global counters split push");
+
+    // Anti-sustain
+    c("Ana", "Whitemane", 2, "Anti-heal grenade cuts sustain");
+
+    // Summon counters
+    c("Jaina", "Samuro", 2, "AOE clears clones");
+    c("Kael'thas", "Samuro", 2, "AOE clears clones");
+    c("Kael'thas", "Rexxar", 2, "AOE clears bear");
+
+    // Burst counters
+    c("Alexstrasza", "Nova", 2, "Sustain outlasts burst");
+    c("Alexstrasza", "Zeratul", 2, "Circle heals dive target");
+
+    // Special matchups
+    c("Greymane", "Murky", 2, "Burst through bubble");
+    c("Valeera", "Ana", 2, "Silence prevents sleep");
+    c("Sonya", "Cho", 2, "Sustained damage vs large target");
   }
 }
 
