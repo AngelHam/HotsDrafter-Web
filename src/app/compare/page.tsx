@@ -35,13 +35,28 @@ function ComparePageInner() {
   const [detailHero, setDetailHero] = useState<Hero | null>(null);
   const [roleFilter, setRoleFilter] = useState<string>('All');
   const [matchupRoleFilter, setMatchupRoleFilter] = useState<string>('All');
+  const comparisonRef = typeof window !== 'undefined' ? { current: null as HTMLDivElement | null } : { current: null };
+
+  const findHeroByParam = (param: string): Hero | undefined =>
+    ALL_HEROES.find(h => {
+      const p = param.toLowerCase();
+      return h.name.toLowerCase() === p || h.nicknames.some(n => n.toLowerCase() === p);
+    });
+
+  const updateUrlParams = (h1: Hero | null, h2: Hero | null) => {
+    const params = new URLSearchParams();
+    if (h1) params.set('hero1', h1.nicknames[0]);
+    if (h2) params.set('hero2', h2.nicknames[0]);
+    const qs = params.toString();
+    router.replace(`/compare${qs ? `?${qs}` : ''}`, { scroll: false });
+  };
 
   // Pre-fill from URL params
   useEffect(() => {
-    const h1 = searchParams.get('h1');
-    const h2 = searchParams.get('h2');
-    if (h1) { const found = ALL_HEROES.find(h => h.nicknames[0] === h1); if (found) setHero1(found); }
-    if (h2) { const found = ALL_HEROES.find(h => h.nicknames[0] === h2); if (found) setHero2(found); }
+    const h1Param = searchParams.get('hero1');
+    const h2Param = searchParams.get('hero2');
+    if (h1Param) { const found = findHeroByParam(h1Param); if (found) setHero1(found); }
+    if (h2Param) { const found = findHeroByParam(h2Param); if (found) setHero2(found); }
   }, [searchParams]);
 
   const icyVeins = useMemo(() => IcyVeinsDatabase.getInstance(), []);
@@ -61,10 +76,13 @@ function ComparePageInner() {
   }, [matchupRoleFilter]);
 
   const handlePick = (hero: Hero) => {
+    const newH1 = picker === 1 ? hero : hero1;
+    const newH2 = picker === 2 ? hero : hero2;
     if (picker === 1) setHero1(hero);
     else if (picker === 2) setHero2(hero);
     setPicker(null);
     setSearch('');
+    updateUrlParams(newH1, newH2);
   };
 
   return (
@@ -75,20 +93,20 @@ function ComparePageInner() {
         <div />
       </div>
 
-      <div className="flex-1 p-4 max-w-4xl mx-auto w-full">
+      <div className="flex-1 p-3 sm:p-4 max-w-4xl mx-auto w-full pb-16">
         {/* Hero Selection */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <HeroSlot hero={hero1} label="Hero 1" color="#4488FF" onClick={() => setPicker(1)} onDetail={h => setDetailHero(h)} onClear={hero1 ? () => setHero1(null) : undefined} />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <HeroSlot hero={hero1} label="Hero 1" color="#4488FF" onClick={() => setPicker(1)} onDetail={h => setDetailHero(h)} onClear={hero1 ? () => { setHero1(null); updateUrlParams(null, hero2); } : undefined} />
           <div className="flex flex-col items-center justify-center gap-2">
             <span className="text-3xl font-bold" style={{ color: '#FFD700' }}>VS</span>
             {hero1 && hero2 && (
-              <button onClick={() => { const t = hero1; setHero1(hero2); setHero2(t); }}
+              <button onClick={() => { const t = hero1; setHero1(hero2); setHero2(t); updateUrlParams(hero2, t); }}
                 className="text-xs px-3 py-1.5 rounded hover:bg-white/10 transition-all" style={{ color: '#FFD700', border: '1px solid #FFD70044' }} title="Swap heroes">
                 ⇄ Swap
               </button>
             )}
           </div>
-          <HeroSlot hero={hero2} label="Hero 2" color="#FF6666" onClick={() => setPicker(2)} onDetail={h => setDetailHero(h)} onClear={hero2 ? () => setHero2(null) : undefined} />
+          <HeroSlot hero={hero2} label="Hero 2" color="#FF6666" onClick={() => setPicker(2)} onDetail={h => setDetailHero(h)} onClear={hero2 ? () => { setHero2(null); updateUrlParams(hero1, null); } : undefined} />
         </div>
 
         {/* Empty State - Popular Matchups */}
@@ -115,13 +133,13 @@ function ComparePageInner() {
                   ))}
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                 {filteredMatchups.length > 0 ? filteredMatchups.map(([n1, n2], i) => {
                   const h1 = ALL_HEROES.find(h => h.nicknames[0] === n1);
                   const h2 = ALL_HEROES.find(h => h.nicknames[0] === n2);
                   if (!h1 || !h2) return null;
                   return (
-                    <button key={`${n1}-${n2}`} onClick={() => { setHero1(h1); setHero2(h2); }}
+                    <button key={`${n1}-${n2}`} onClick={() => { setHero1(h1); setHero2(h2); updateUrlParams(h1, h2); setTimeout(() => comparisonRef.current?.scrollIntoView({ behavior: 'smooth' }), 100); }}
                       className="card-enter flex flex-col items-center gap-1 p-2 rounded text-xs smooth-transition hover:brightness-125"
                       style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.4)', animationDelay: `${i * 50}ms` }}>
                       <div className="flex items-center justify-center gap-2 w-full">
@@ -153,6 +171,8 @@ function ComparePageInner() {
                   const shuffled = [...ALL_HEROES].sort(() => Math.random() - 0.5);
                   setHero1(shuffled[0]);
                   setHero2(shuffled[1]);
+                  updateUrlParams(shuffled[0], shuffled[1]);
+                  setTimeout(() => comparisonRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
                 }}
                 className="mt-3 w-full text-xs px-3 py-2 rounded transition-all hover:brightness-125 hover:bg-white/5"
                 style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.4)', color: '#FFD700' }}>
@@ -174,7 +194,7 @@ function ComparePageInner() {
 
         {/* Comparison Table */}
         {hero1 && hero2 && (
-          <div className="space-y-3 animate-fade-slide-up">
+          <div ref={(el) => { comparisonRef.current = el; }} className="space-y-3 animate-fade-slide-up">
             <CompareRow label="Role" v1={hero1.role} v2={hero2.role} c1={ROLE_COLORS[hero1.role]} c2={ROLE_COLORS[hero2.role]} />
             <CompareRow label="Range" v1={`${'█'.repeat(hero1.effectiveRange)}${'░'.repeat(5 - hero1.effectiveRange)} ${hero1.effectiveRange}/5`} v2={`${hero2.effectiveRange}/5 ${'█'.repeat(hero2.effectiveRange)}${'░'.repeat(5 - hero2.effectiveRange)}`} highlight={hero1.effectiveRange > hero2.effectiveRange ? 1 : hero2.effectiveRange > hero1.effectiveRange ? 2 : 0} />
             {(() => {
@@ -367,7 +387,7 @@ function ComparePageInner() {
       {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}\n\n      {/* Picker Modal */}
       {picker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.8)' }}>
-          <div className="rounded-lg p-4 max-w-2xl max-h-[80vh] overflow-auto" style={{ background: '#1a1a2e', border: '2px solid #00FFFF' }}>
+          <div className="rounded-lg p-4 w-[90vw] max-w-2xl max-h-[80vh] overflow-auto" style={{ background: '#1a1a2e', border: '2px solid #00FFFF' }}>
             <div className="flex justify-between mb-3">
               <h3 className="font-bold" style={{ color: '#00FFFF' }}>Select Hero {picker}</h3>
               <button onClick={() => { setPicker(null); setSearch(''); setRoleFilter('All'); }} className="text-sm px-2 py-1 hover:bg-white/10 rounded" style={{ color: '#FF6666' }}>✕</button>

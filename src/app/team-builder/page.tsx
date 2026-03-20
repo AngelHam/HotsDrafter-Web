@@ -123,7 +123,7 @@ export default function TeamBuilderPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex gap-4 p-4">
+      <div className="flex-1 flex flex-col lg:flex-row gap-4 p-3 sm:p-4 pb-16">
         {/* Team 1 */}
         <TeamSlots label="TEAM 1" color="#4488FF" slots={team1}
           onSlotClick={(i) => setPickerOpen({ team: 1, slot: i })}
@@ -227,7 +227,7 @@ export default function TeamBuilderPage() {
                 <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Composition Analysis</h3>
 
                 {/* Draft Grade & Role Balance */}
-                <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                   {([
                     { heroes: team1.filter(Boolean) as Hero[], color: '#4488FF', label: 'Team 1' },
                     { heroes: team2.filter(Boolean) as Hero[], color: '#FF6666', label: 'Team 2' },
@@ -292,7 +292,7 @@ export default function TeamBuilderPage() {
                 })()}
 
                 {/* Win Condition Comparison */}
-                <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                   <div className="p-2 rounded" style={{ background: 'rgba(68,136,255,0.1)', border: '1px solid #4488FF44' }}>
                     <p className="text-xs font-semibold mb-1" style={{ color: '#4488FF' }}>Team 1 Strategy</p>
                     <p className="text-sm font-bold" style={{ color: '#FFD700' }}>{winConditionToString(analysis.team1.primary)}</p>
@@ -386,7 +386,7 @@ export default function TeamBuilderPage() {
       {pickerOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.8)' }}
           onClick={() => { setPickerOpen(null); setPickerSearch(''); setPickerRole('All'); }}>
-          <div className="rounded-lg p-5 w-[720px] max-h-[85vh] flex flex-col" style={{ background: '#1a1a2e', border: '2px solid #00FFFF' }}
+          <div className="rounded-lg p-4 sm:p-5 w-[92vw] max-w-[720px] max-h-[85vh] flex flex-col" style={{ background: '#1a1a2e', border: '2px solid #00FFFF' }}
             onClick={e => e.stopPropagation()}>
             {/* Header */}
             <div className="flex items-center justify-between mb-3">
@@ -439,7 +439,7 @@ export default function TeamBuilderPage() {
                       <span className="w-2 h-2 rounded-full inline-block" style={{ background: ROLE_COLORS[role] || '#A9A9A9' }} />
                       {role}s <span className="opacity-50 font-normal">({roleHeroes.filter(h => !pickedNames.has(h.name)).length} available)</span>
                     </h4>
-                    <div className="grid grid-cols-7 gap-1.5">
+                    <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-1.5">
                       {roleHeroes.map(hero => {
                         const isPicked = pickedNames.has(hero.name);
                         return (
@@ -508,7 +508,7 @@ function TeamSlots({ label, color, slots, onSlotClick, onClear, onClearAll, onHe
   const scoreColor = compScore !== null ? (compScore >= 80 ? '#90EE90' : compScore >= 50 ? '#FFD700' : '#FF6666') : '#666';
 
   return (
-    <div className="w-56 flex-shrink-0">
+    <div className="w-full lg:w-56 flex-shrink-0">
       <div className="flex items-center justify-between mb-2">
         <h2 className="font-bold" style={{ color }}>{label}</h2>
         <div className="flex items-center gap-1.5">

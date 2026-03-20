@@ -103,7 +103,7 @@ export default function TierListPage() {
         <div />
       </div>
 
-      <div className="p-4 max-w-5xl mx-auto w-full">
+      <div className="p-3 sm:p-4 max-w-5xl mx-auto w-full pb-16">
         {/* Filters */}
         <div className="flex flex-wrap gap-2 mb-4 items-center">
           <div>
@@ -134,7 +134,7 @@ export default function TierListPage() {
           </div>
 
           <input type="text" placeholder="🔍 Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-            className="text-sm px-3 py-1 rounded ml-auto" style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff', width: 150 }} />
+            className="text-sm px-3 py-1 rounded ml-auto w-full sm:w-[150px]" style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff' }} />
           {entries.length >= 2 && (
             <button onClick={() => router.push(`/compare?h1=${encodeURIComponent(entries[0].hero.nicknames[0])}&h2=${encodeURIComponent(entries[1].hero.nicknames[0])}`)}
               className="text-xs px-3 py-1.5 rounded font-semibold whitespace-nowrap transition-all duration-200 hover:scale-105"
@@ -204,7 +204,7 @@ export default function TierListPage() {
                   })}
                 </div>
               </div>
-              <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(82px, 1fr))' }}>
+              <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(70px, 1fr))' }}>
                 {tierEntries.map((e, i) => {
                   return (
                   <div key={e.hero.name} className="card-enter group relative flex flex-col items-center p-1.5 rounded hover:bg-white/5 smooth-transition cursor-pointer"

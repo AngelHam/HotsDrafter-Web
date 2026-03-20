@@ -276,7 +276,7 @@ function DraftPageInner() {
     : `${isYourTurn ? '🟢 Your' : '🔴 Enemy'} Turn — ${isBan ? '🚫 BAN' : `✅ PICK ${team1Picks.length + team2Picks.length + 1}/10`} (${step + 1}/${totalSteps})`;
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden page-enter">
+    <div className="h-screen flex flex-col overflow-hidden page-enter pb-12 sm:pb-0">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 flex-wrap gap-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <div className="flex items-center gap-3">
@@ -315,8 +315,8 @@ function DraftPageInner() {
       </div>
 
       {/* Status + Progress */}
-      <div className="flex flex-col items-center gap-2 py-3" style={{ background: 'rgba(20, 25, 45, 0.5)' }}>
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col items-center gap-1.5 sm:gap-2 py-2 sm:py-3 px-2" style={{ background: 'rgba(20, 25, 45, 0.5)' }}>
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center text-center">
           <span className="text-sm font-bold" style={{ color: isBan ? '#FF6666' : (isYourTurn ? '#00FFFF' : '#FF6666') }}>{statusText}</span>
           {phaseName && <span className="text-[10px] px-1.5 py-0.5 rounded opacity-60" style={{ background: 'rgba(255,255,255,0.05)', color: isBan ? '#FF6666' : '#00FFFF' }}>{phaseName}</span>}
           {team1Picks.length > 0 && (
@@ -475,7 +475,7 @@ function DraftPageInner() {
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-1 gap-3 p-3 overflow-hidden">
+      <div className="flex flex-col lg:flex-row flex-1 gap-2 sm:gap-3 p-2 sm:p-3 overflow-hidden">
         {/* Team 1 Panel - hidden on mobile */}
         <div className="w-48 flex-shrink-0 hidden lg:block">
           <TeamPanel teamNumber={1} picks={[...team1Picks]} bans={[...team1Bans]} isActive={!isComplete && currentTeam === 1} enemyPicks={[...team2Picks]} onHeroClick={h => setDetailHero(h)} flashHero={lastAction} />
@@ -665,7 +665,7 @@ function DraftPageInner() {
           {isComplete && analysis && (
             <div className="space-y-3">
               {/* Team Comparison Header */}
-              <div className="grid grid-cols-3 gap-2 items-center">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
                 <div className="p-3 rounded text-center" style={{ background: 'rgba(68,136,255,0.1)', border: '1px solid #4488FF44' }}>
                   <p className="text-xs font-semibold mb-1" style={{ color: '#4488FF' }}>Team 1</p>
                   <p className="text-lg font-bold" style={{ color: '#FFD700' }}>{computeCompScore(team1Picks)}</p>
@@ -700,9 +700,9 @@ function DraftPageInner() {
               </div>
 
               {/* Team Picks Side by Side */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid #4488FF44' }}>
-                  <div className="flex gap-1 justify-center mb-2">
+                  <div className="flex gap-1 justify-center mb-2 flex-wrap">
                     {team1Picks.map(h => (
                       <HeroPortrait key={h.name} hero={h} size="sm" selected />
                     ))}
@@ -710,7 +710,7 @@ function DraftPageInner() {
                   <p className="text-xs text-center opacity-70">{team1Picks.map(h => h.nicknames[0]).join(' · ')}</p>
                 </div>
                 <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid #FF666644' }}>
-                  <div className="flex gap-1 justify-center mb-2">
+                  <div className="flex gap-1 justify-center mb-2 flex-wrap">
                     {team2Picks.map(h => (
                       <HeroPortrait key={h.name} hero={h} size="sm" selected />
                     ))}
@@ -719,7 +719,7 @@ function DraftPageInner() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <AnalysisCard title="Team 1 Strategy" analysis={analysis.team1} color="#4488FF" />
                 <AnalysisCard title="Team 2 Strategy" analysis={analysis.team2} color="#FF6666" />
               </div>

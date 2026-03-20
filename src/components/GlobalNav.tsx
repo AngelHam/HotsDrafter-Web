@@ -23,21 +23,15 @@ export default function GlobalNav() {
   };
 
   return (
-    <nav style={{
-      position: 'fixed',
-      bottom: 12,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      display: 'flex',
-      gap: 2,
-      padding: '4px 12px',
-      background: 'rgba(15, 20, 40, 0.95)',
+    <nav className="fixed bottom-0 sm:bottom-3 left-0 sm:left-1/2 sm:-translate-x-1/2 w-full sm:w-auto flex justify-center sm:justify-start gap-0 sm:gap-0.5 px-1 sm:px-3 py-1 sm:py-1 z-[9999]" style={{
+      background: 'rgba(15, 20, 40, 0.97)',
       backdropFilter: 'blur(10px)',
       WebkitBackdropFilter: 'blur(10px)',
-      borderRadius: '12px',
+      borderRadius: typeof window !== 'undefined' && window.innerWidth < 640 ? '0' : '12px',
       border: '1px solid rgba(68, 102, 136, 0.6)',
-      zIndex: 9999,
-      height: 44,
+      borderBottom: 'none',
+      height: 'auto',
+      minHeight: 44,
       alignItems: 'center',
     }}>
       {NAV_ITEMS.map(({ href, label, emoji }) => {
@@ -46,18 +40,14 @@ export default function GlobalNav() {
           <Link
             key={href}
             href={href}
+            className="flex flex-col items-center justify-center px-1.5 sm:px-2 py-1 no-underline transition-colors"
             style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '2px 8px',
-              textDecoration: 'none',
               color: active ? '#00FFFF' : '#8899aa',
-              fontSize: 11,
+              fontSize: 10,
               lineHeight: 1.1,
               borderBottom: active ? '2px solid #00FFFF' : '2px solid transparent',
-              transition: 'color 0.15s, border-color 0.15s',
+              flex: '1 1 0',
+              maxWidth: 64,
             }}
             onMouseEnter={e => {
               if (!active) (e.currentTarget as HTMLElement).style.color = '#ffffff';
@@ -66,8 +56,8 @@ export default function GlobalNav() {
               if (!active) (e.currentTarget as HTMLElement).style.color = '#8899aa';
             }}
           >
-            <span style={{ fontSize: 16, lineHeight: 1 }}>{emoji}</span>
-            <span>{label}</span>
+            <span className="text-sm sm:text-base leading-none">{emoji}</span>
+            <span className="hidden min-[360px]:inline text-[9px] sm:text-[11px]">{label}</span>
           </Link>
         );
       })}

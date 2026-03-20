@@ -80,17 +80,17 @@ export default function StartupPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center px-4 py-8 page-enter" role="main" aria-label="HotsDrafter main menu">
+    <main className="min-h-screen flex flex-col items-center px-3 sm:px-4 py-6 sm:py-8 pb-20 page-enter" role="main" aria-label="HotsDrafter main menu">
       {showTutorial && <FirstRunTutorial onClose={() => setShowTutorial(false)} />}
       <div className="animate-fade-slide-up" style={{ animationDelay: '0ms' }}>
-        <h1 className="text-4xl font-bold tracking-wider mb-2 text-center" style={{ color: '#00FFFF' }}>
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-wider mb-2 text-center" style={{ color: '#00FFFF' }}>
           HOTS DRAFTER
         </h1>
         <p className="text-center text-sm opacity-60 mb-4">
           Heroes of the Storm Draft Assistant
         </p>
-        <div className="flex items-center justify-center mb-6 w-full max-w-md">
-          <div className="hero-spotlight-fade flex items-center gap-4 px-5 py-4 rounded-xl w-full transition-all hover:brightness-110"
+        <div className="flex items-center justify-center mb-6 w-full max-w-md px-2 sm:px-0">
+          <div className="hero-spotlight-fade flex flex-col sm:flex-row items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3 sm:py-4 rounded-xl w-full transition-all hover:brightness-110"
             style={{ background: 'rgba(30, 40, 70, 0.7)', border: `1px solid ${ROLE_COLORS[spotlightHero.role] || '#446688'}55`, opacity: spotlightVisible ? 1 : 0 }}>
             <HeroPortrait hero={spotlightHero} size="lg" />
             <div className="flex-1 min-w-0">
@@ -118,7 +118,7 @@ export default function StartupPage() {
 
       <div className="animate-fade-slide-up w-full max-w-4xl" style={{ animationDelay: '100ms' }}>
         <h2 className="text-lg font-semibold mb-3" style={{ color: '#4488FF' }}>Select Map</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
+        <div className="grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
           <div className="card-enter" style={{ animationDelay: '0ms' }}>
             <MapCard map={null} selected={useRandom} onClick={() => handleMapSelect(-1)} />
           </div>
@@ -130,7 +130,7 @@ export default function StartupPage() {
         </div>
       </div>
 
-      <div className="animate-fade-slide-up mt-8 flex flex-wrap gap-2 justify-center w-full max-w-4xl" style={{ animationDelay: '350ms' }}>
+      <div className="animate-fade-slide-up mt-6 sm:mt-8 grid grid-cols-2 min-[480px]:grid-cols-3 sm:grid-cols-4 lg:flex lg:flex-wrap gap-2 justify-center w-full max-w-4xl" style={{ animationDelay: '350ms' }}>
         <ActionButton label="Interactive Draft" icon="⚔️" color="#00FFFF" onClick={() => router.push(`/draft?map=${getMapParam()}`)} primary
           tooltip={useRandom ? 'Start a draft with a random map' : `Draft on ${ALL_MAPS[selectedMapIdx]?.name}`} />
         <ActionButton label="Sample Draft" icon="🎲" color="#FFD700" onClick={() => router.push(`/sample?map=${getMapParam()}`)}
@@ -215,8 +215,8 @@ function ActionButton({ label, icon, color, onClick, primary, tooltip }: {
   label: string; icon: string; color: string; onClick: () => void; primary?: boolean; tooltip?: string;
 }) {
   return (
-    <button onClick={onClick} className="action-btn px-4 py-3 rounded-lg font-semibold text-sm"
-      style={{ background: primary ? `${color}22` : 'rgba(30, 40, 70, 0.7)', border: `2px solid ${color}`, color, minWidth: 155, '--btn-glow': `${color}40` } as React.CSSProperties}
+    <button onClick={onClick} className="action-btn px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm"
+      style={{ background: primary ? `${color}22` : 'rgba(30, 40, 70, 0.7)', border: `2px solid ${color}`, color, minWidth: 'auto', '--btn-glow': `${color}40` } as React.CSSProperties}
       title={tooltip || label}>
       {icon} {label}
     </button>

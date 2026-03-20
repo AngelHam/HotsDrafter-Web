@@ -113,7 +113,7 @@ function SampleDraftInner() {
         </select>
       </div>
 
-      <div className="flex-1 flex gap-4 p-4">
+      <div className="flex-1 flex flex-col md:flex-row gap-4 p-3 sm:p-4 pb-16">
         {/* Team 1 */}
         <div className="flex-1">
           <h2 className="font-bold mb-2" style={{ color: '#4488FF' }}>TEAM 1 <ScoreBadge picks={draft.team1Picks} /></h2>
@@ -145,7 +145,7 @@ function SampleDraftInner() {
         </div>
 
         {/* Center Analysis */}
-        <div className="w-80 flex flex-col gap-4">
+        <div className="w-full md:w-80 flex flex-col gap-4 order-first md:order-none">
           <ScoreComparisonBar score1={sampleCompScore(draft.team1Picks)} score2={sampleCompScore(draft.team2Picks)} />
           <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
             <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Draft Analysis</h3>
