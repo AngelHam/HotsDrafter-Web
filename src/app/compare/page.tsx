@@ -33,6 +33,7 @@ function ComparePageInner() {
   const [picker, setPicker] = useState<1 | 2 | null>(null);
   const [search, setSearch] = useState('');
   const [detailHero, setDetailHero] = useState<Hero | null>(null);
+  const [roleFilter, setRoleFilter] = useState<string>('All');
 
   // Pre-fill from URL params
   useEffect(() => {
@@ -45,6 +46,7 @@ function ComparePageInner() {
   const icyVeins = useMemo(() => IcyVeinsDatabase.getInstance(), []);
 
   const filteredHeroes = ALL_HEROES
+    .filter(h => roleFilter === 'All' || h.role === roleFilter)
     .filter(h => !search || h.nicknames.some(n => n.toLowerCase().includes(search.toLowerCase())))
     .sort((a, b) => a.nicknames[0].localeCompare(b.nicknames[0]));
 
@@ -66,18 +68,47 @@ function ComparePageInner() {
       <div className="flex-1 p-4 max-w-4xl mx-auto w-full">
         {/* Hero Selection */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <HeroSlot hero={hero1} label="Hero 1" color="#4488FF" onClick={() => setPicker(1)} onDetail={h => setDetailHero(h)} />
+          <HeroSlot hero={hero1} label="Hero 1" color="#4488FF" onClick={() => setPicker(1)} onDetail={h => setDetailHero(h)} onClear={hero1 ? () => setHero1(null) : undefined} />
           <div className="flex flex-col items-center justify-center gap-2">
-            <span className="text-2xl font-bold" style={{ color: '#FFD700' }}>VS</span>
+            <span className="text-3xl font-bold" style={{ color: '#FFD700' }}>VS</span>
             {hero1 && hero2 && (
               <button onClick={() => { const t = hero1; setHero1(hero2); setHero2(t); }}
-                className="text-xs px-2 py-1 rounded hover:bg-white/10" style={{ color: '#FFD700', border: '1px solid #FFD70033' }} title="Swap heroes">
+                className="text-xs px-3 py-1.5 rounded hover:bg-white/10 transition-all" style={{ color: '#FFD700', border: '1px solid #FFD70044' }} title="Swap heroes">
                 ⇄ Swap
               </button>
             )}
           </div>
-          <HeroSlot hero={hero2} label="Hero 2" color="#FF6666" onClick={() => setPicker(2)} onDetail={h => setDetailHero(h)} />
+          <HeroSlot hero={hero2} label="Hero 2" color="#FF6666" onClick={() => setPicker(2)} onDetail={h => setDetailHero(h)} onClear={hero2 ? () => setHero2(null) : undefined} />
         </div>
+
+        {/* Empty State - Popular Matchups */}
+        {(!hero1 || !hero2) && (
+          <div className="space-y-4 animate-fade-slide-up">
+            <div className="p-4 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
+              <p className="text-sm opacity-60 mb-1">Compare any two heroes side-by-side</p>
+              <p className="text-xs opacity-40">See roles, specialties, map tiers, synergies, counters, and head-to-head matchup data</p>
+            </div>
+            <div>
+              <h3 className="text-xs font-bold mb-2 opacity-50">⚡ POPULAR MATCHUPS — click to compare</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {POPULAR_MATCHUPS.map(([n1, n2]) => {
+                  const h1 = ALL_HEROES.find(h => h.nicknames[0] === n1);
+                  const h2 = ALL_HEROES.find(h => h.nicknames[0] === n2);
+                  if (!h1 || !h2) return null;
+                  return (
+                    <button key={`${n1}-${n2}`} onClick={() => { setHero1(h1); setHero2(h2); }}
+                      className="flex items-center justify-center gap-2 p-2 rounded text-xs transition-all hover:brightness-125"
+                      style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.4)' }}>
+                      <HeroPortrait hero={h1} size="sm" />
+                      <span className="opacity-50">vs</span>
+                      <HeroPortrait hero={h2} size="sm" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Comparison Table */}
         {hero1 && hero2 && (
@@ -179,12 +210,25 @@ function ComparePageInner() {
           <div className="rounded-lg p-4 max-w-2xl max-h-[80vh] overflow-auto" style={{ background: '#1a1a2e', border: '2px solid #00FFFF' }}>
             <div className="flex justify-between mb-3">
               <h3 className="font-bold" style={{ color: '#00FFFF' }}>Select Hero {picker}</h3>
-              <button onClick={() => { setPicker(null); setSearch(''); }} className="text-sm px-2 py-1 hover:bg-white/10 rounded" style={{ color: '#FF6666' }}>✕</button>
+              <button onClick={() => { setPicker(null); setSearch(''); setRoleFilter('All'); }} className="text-sm px-2 py-1 hover:bg-white/10 rounded" style={{ color: '#FF6666' }}>✕</button>
             </div>
             <input type="text" placeholder="🔍 Search..." value={search} onChange={e => setSearch(e.target.value)}
-              className="w-full px-3 py-1.5 mb-3 rounded text-sm focus:outline-none"
+              className="w-full px-3 py-1.5 mb-2 rounded text-sm focus:outline-none"
               style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff' }}
               autoFocus />
+            <div className="flex gap-1 mb-3 flex-wrap">
+              {['All', 'Tank', 'Healer', 'DPS', 'Mage', 'Offlane', 'Specialist'].map(role => (
+                <button key={role} onClick={() => setRoleFilter(role)}
+                  className="text-[10px] px-2 py-1 rounded transition-all"
+                  style={{
+                    background: roleFilter === role ? (ROLE_COLORS[role] || '#00FFFF') + '33' : 'rgba(255,255,255,0.05)',
+                    border: `1px solid ${roleFilter === role ? (ROLE_COLORS[role] || '#00FFFF') + '88' : 'rgba(68,102,136,0.3)'}`,
+                    color: roleFilter === role ? (ROLE_COLORS[role] || '#00FFFF') : '#999',
+                  }}>
+                  {role} {role !== 'All' && <span className="opacity-50">({ALL_HEROES.filter(h => h.role === role).length})</span>}
+                </button>
+              ))}
+            </div>
             <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
               {filteredHeroes.map(h => (
                 <HeroPortrait key={h.name} hero={h} size="md" showName onClick={() => handlePick(h)} />
@@ -197,19 +241,28 @@ function ComparePageInner() {
   );
 }
 
-function HeroSlot({ hero, label, color, onClick, onDetail }: { hero: Hero | null; label: string; color: string; onClick: () => void; onDetail?: (h: Hero) => void }) {
+const POPULAR_MATCHUPS: [string, string][] = [
+  ['Kerrigan', 'Illidan'], ['E.T.C.', 'Diablo'], ['Jaina', 'Li-Ming'],
+  ['Muradin', "Anub'arak"], ['Rehgar', 'Brightwing'], ['Zeratul', 'Genji'],
+];
+
+function HeroSlot({ hero, label, color, onClick, onDetail, onClear }: { hero: Hero | null; label: string; color: string; onClick: () => void; onDetail?: (h: Hero) => void; onClear?: () => void }) {
   return (
-    <button onClick={onClick} onContextMenu={e => { e.preventDefault(); if (hero && onDetail) onDetail(hero); }} className="p-4 rounded text-center transition-all hover:brightness-110" style={{ background: 'rgba(30, 40, 70, 0.7)', border: `2px solid ${hero ? color : 'rgba(68,102,136,0.5)'}` }}>
+    <button onClick={onClick} onContextMenu={e => { e.preventDefault(); if (hero && onDetail) onDetail(hero); }} className="p-4 rounded text-center transition-all hover:brightness-110 relative group" style={{ background: 'rgba(30, 40, 70, 0.7)', border: `2px solid ${hero ? color : 'rgba(68,102,136,0.5)'}` }}>
       {hero ? (
         <div className="flex flex-col items-center gap-2">
           <HeroPortrait hero={hero} size="lg" />
           <span className="text-sm font-bold">{hero.nicknames[0]}</span>
           <span className="text-xs px-2 py-0.5 rounded" style={{ background: (ROLE_COLORS[hero.role] || '#888') + '33', color: ROLE_COLORS[hero.role] }}>{hero.role}</span>
+          {onClear && (
+            <span onClick={e => { e.stopPropagation(); onClear(); }} className="absolute top-1 right-1 text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-white/10" style={{ color: '#FF6666' }}>✕</span>
+          )}
         </div>
       ) : (
         <div className="py-6">
-          <p className="text-sm opacity-40">{label}</p>
-          <p className="text-xs opacity-30 mt-1">Click to select</p>
+          <span className="text-3xl block mb-2">🦸</span>
+          <p className="text-sm font-semibold" style={{ color }}>{label}</p>
+          <p className="text-xs opacity-40 mt-1">Click to select a hero</p>
         </div>
       )}
     </button>

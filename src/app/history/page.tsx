@@ -138,13 +138,28 @@ export default function HistoryPage() {
             <p className="text-sm opacity-40 animate-pulse">Loading history...</p>
           </div>
         ) : history.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-xl opacity-40 mb-2">No drafts saved yet</p>
-            <p className="text-sm opacity-30 mb-4">Complete an Interactive Draft to see it here</p>
-            <button onClick={() => router.push('/')} className="text-sm px-4 py-2 rounded hover:bg-white/10 transition-all"
-              style={{ color: '#00FFFF', border: '1px solid #00FFFF44' }}>
+          <div className="text-center py-16 animate-fade-slide-up">
+            <span className="text-5xl block mb-4">📜</span>
+            <p className="text-xl font-semibold mb-2" style={{ color: '#BA55D3' }}>No drafts saved yet</p>
+            <p className="text-sm opacity-40 mb-6">Complete an Interactive Draft to see it here</p>
+            <button onClick={() => router.push('/')} className="text-sm px-5 py-2.5 rounded font-semibold transition-all hover:scale-105 hover:brightness-110"
+              style={{ color: '#00FFFF', border: '2px solid #00FFFF44', background: 'rgba(0,255,255,0.05)' }}>
               ⚔️ Start Your First Draft
             </button>
+            <div className="grid grid-cols-3 gap-3 mt-8 max-w-md mx-auto">
+              <div className="p-3 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.2)' }}>
+                <span className="text-lg block mb-1">📊</span>
+                <p className="text-[10px] opacity-40">Track your scores and stats</p>
+              </div>
+              <div className="p-3 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.2)' }}>
+                <span className="text-lg block mb-1">🗺️</span>
+                <p className="text-[10px] opacity-40">Filter by map and strategy</p>
+              </div>
+              <div className="p-3 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.2)' }}>
+                <span className="text-lg block mb-1">🔄</span>
+                <p className="text-[10px] opacity-40">Re-draft past games</p>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="space-y-3">
