@@ -80,7 +80,8 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
           <button
             key={s.hero.name}
             onClick={() => onSelect?.(s)}
-            className={`suggestion-card flex items-center gap-1.5 w-full p-2 rounded text-left${i === 0 ? ' suggestion-card-top-pick' : ''}`}
+            className={`suggestion-card card-enter flex items-center gap-1.5 w-full p-2 rounded text-left${i === 0 ? ' suggestion-card-top-pick' : ''}`}
+            style={{ animationDelay: `${i * 50}ms` }}
             title={i < 9 ? `Press ${i + 1} to quick-pick` : 'Suggestion'}
             role="listitem"
             aria-label={`Suggestion ${i + 1}: ${s.hero.nicknames[0]} - ${s.hero.role} - Score ${s.totalScore.toFixed(0)}`}

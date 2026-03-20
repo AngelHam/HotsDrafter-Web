@@ -59,12 +59,15 @@ function DraftPageInner() {
   const [timeLeft, setTimeLeft] = useState(25);
   const hasSavedDraft = useRef(false);
   const [settingsVersion, setSettingsVersion] = useState(0);
+  const [heroGridReady, setHeroGridReady] = useState(false);
 
   useEffect(() => {
     DraftSettings.load();
     setSettingsVersion(v => v + 1);
     const unsub = DraftSettings.onChange(() => setSettingsVersion(v => v + 1));
-    return unsub;
+    // Brief delay for skeleton to show, then reveal grid
+    const timer = setTimeout(() => setHeroGridReady(true), 150);
+    return () => { unsub(); clearTimeout(timer); };
   }, []);
 
   const isQuickDraft = DraftSettings.quickDraft;
@@ -273,7 +276,7 @@ function DraftPageInner() {
     : `${isYourTurn ? '🟢 Your' : '🔴 Enemy'} Turn — ${isBan ? '🚫 BAN' : `✅ PICK ${team1Picks.length + team2Picks.length + 1}/10`} (${step + 1}/${totalSteps})`;
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden page-enter">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 flex-wrap gap-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <div className="flex items-center gap-3">
@@ -503,6 +506,15 @@ function DraftPageInner() {
           {/* Hero Search + Grid */}
           {!isComplete && (
             <div data-hero-grid className="flex-1 overflow-auto p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
+              {!heroGridReady ? (
+                /* Loading skeleton */
+                <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
+                  {Array.from({ length: 30 }).map((_, i) => (
+                    <div key={i} className="skeleton-pulse" style={{ height: 72, animationDelay: `${i * 30}ms` }} />
+                  ))}
+                </div>
+              ) : (
+              <>
               {/* Hero Pool Stats */}
               <div className="flex gap-1.5 mb-1.5 justify-center flex-wrap">
                 {[
@@ -643,6 +655,8 @@ function DraftPageInner() {
                     </div>
                   ))}
                 </div>
+              )}
+              </>
               )}
             </div>
           )}

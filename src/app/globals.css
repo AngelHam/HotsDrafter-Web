@@ -185,3 +185,37 @@ body {
 .hero-spotlight-fade {
   transition: opacity 0.5s ease-in-out;
 }
+
+/* Page entrance animation */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: pageIn 0.3s ease-out;
+}
+
+/* Card entrance stagger animation */
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.card-enter {
+  animation: cardIn 0.3s ease-out both;
+}
+
+/* Smooth transitions for interactive elements */
+.smooth-transition {
+  transition: all 0.2s ease;
+}
+
+/* Loading skeleton pulse */
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.25; }
+}
+.skeleton-pulse {
+  animation: skeletonPulse 1.2s ease-in-out infinite;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}

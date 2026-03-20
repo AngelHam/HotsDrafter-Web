@@ -96,9 +96,9 @@ export default function TierListPage() {
   const tiers = ['S', 'A', 'B', 'C', 'D'];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col page-enter">
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
-        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
+        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10 smooth-transition" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
         <h1 className="text-lg font-bold" style={{ color: '#FFD700' }}>🏆 Meta Tier List</h1>
         <div />
       </div>
@@ -205,11 +205,14 @@ export default function TierListPage() {
                 </div>
               </div>
               <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(82px, 1fr))' }}>
-                {tierEntries.map(e => {
+                {tierEntries.map((e, i) => {
                   return (
-                  <div key={e.hero.name} className="group relative flex flex-col items-center p-1.5 rounded hover:bg-white/5 transition-all cursor-pointer"
+                  <div key={e.hero.name} className="card-enter group relative flex flex-col items-center p-1.5 rounded hover:bg-white/5 smooth-transition cursor-pointer"
                     onClick={() => setDetailHero(e.hero)}
-                    style={e.tier === 'S' ? { boxShadow: '0 0 6px rgba(255,215,0,0.3)', background: 'rgba(255,215,0,0.05)' } : undefined}
+                    style={{
+                      ...(e.tier === 'S' ? { boxShadow: '0 0 6px rgba(255,215,0,0.3)', background: 'rgba(255,215,0,0.05)' } : undefined),
+                      animationDelay: `${i * 30}ms`,
+                    }}
                     title={`${e.hero.nicknames[0]} (${e.hero.role}) — Score: ${e.score.toFixed(1)}${selectedMap === 'all' ? ` | S-tier: ${e.sTierMaps} maps, A-tier: ${e.aTierMaps} maps` : ''}`}>
                     <HeroPortrait hero={e.hero} size="md" showName />
                     <span className="text-[8px] px-1.5 py-0.5 rounded mt-0.5" style={{ background: (ROLE_COLORS[e.hero.role] || '#888') + '22', color: ROLE_COLORS[e.hero.role] || '#888', border: `1px solid ${(ROLE_COLORS[e.hero.role] || '#888')}33` }}>

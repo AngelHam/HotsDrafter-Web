@@ -24,7 +24,7 @@ function getPortraitFilename(hero: Hero): string {
 
 interface HeroPortraitProps {
   hero: Hero;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   selected?: boolean;
   banned?: boolean;
   dimmed?: boolean;
@@ -33,7 +33,7 @@ interface HeroPortraitProps {
   onClick?: () => void;
 }
 
-const SIZE_MAP = { sm: 40, md: 56, lg: 80 };
+const SIZE_MAP = { xs: 30, sm: 40, md: 56, lg: 80 };
 
 const TIER_COLORS: Record<string, string> = {
   S: '#FFD700', A: '#90EE90', B: '#87CEEB', C: '#FFA500', D: '#FF6666',

@@ -80,7 +80,7 @@ export default function StartupPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center px-4 py-8" role="main" aria-label="HotsDrafter main menu">
+    <main className="min-h-screen flex flex-col items-center px-4 py-8 page-enter" role="main" aria-label="HotsDrafter main menu">
       {showTutorial && <FirstRunTutorial onClose={() => setShowTutorial(false)} />}
       <div className="animate-fade-slide-up" style={{ animationDelay: '0ms' }}>
         <h1 className="text-4xl font-bold tracking-wider mb-2 text-center" style={{ color: '#00FFFF' }}>
@@ -119,9 +119,13 @@ export default function StartupPage() {
       <div className="animate-fade-slide-up w-full max-w-4xl" style={{ animationDelay: '100ms' }}>
         <h2 className="text-lg font-semibold mb-3" style={{ color: '#4488FF' }}>Select Map</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
-          <MapCard map={null} selected={useRandom} onClick={() => handleMapSelect(-1)} />
+          <div className="card-enter" style={{ animationDelay: '0ms' }}>
+            <MapCard map={null} selected={useRandom} onClick={() => handleMapSelect(-1)} />
+          </div>
           {ALL_MAPS.map((map, i) => (
-            <MapCard key={map.name} map={map} selected={!useRandom && selectedMapIdx === i} onClick={() => handleMapSelect(i)} />
+            <div key={map.name} className="card-enter" style={{ animationDelay: `${(i + 1) * 50}ms` }}>
+              <MapCard map={map} selected={!useRandom && selectedMapIdx === i} onClick={() => handleMapSelect(i)} />
+            </div>
           ))}
         </div>
       </div>

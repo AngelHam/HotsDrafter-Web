@@ -68,9 +68,9 @@ function ComparePageInner() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col page-enter">
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
-        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
+        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10 smooth-transition" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
         <h1 className="text-lg font-bold" style={{ color: '#FFD700' }}>⚖️ Hero Compare</h1>
         <div />
       </div>
@@ -116,14 +116,14 @@ function ComparePageInner() {
                 </div>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {filteredMatchups.length > 0 ? filteredMatchups.map(([n1, n2]) => {
+                {filteredMatchups.length > 0 ? filteredMatchups.map(([n1, n2], i) => {
                   const h1 = ALL_HEROES.find(h => h.nicknames[0] === n1);
                   const h2 = ALL_HEROES.find(h => h.nicknames[0] === n2);
                   if (!h1 || !h2) return null;
                   return (
                     <button key={`${n1}-${n2}`} onClick={() => { setHero1(h1); setHero2(h2); }}
-                      className="flex flex-col items-center gap-1 p-2 rounded text-xs transition-all hover:brightness-125"
-                      style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.4)' }}>
+                      className="card-enter flex flex-col items-center gap-1 p-2 rounded text-xs smooth-transition hover:brightness-125"
+                      style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.4)', animationDelay: `${i * 50}ms` }}>
                       <div className="flex items-center justify-center gap-2 w-full">
                         <div className="flex flex-col items-center">
                           <HeroPortrait hero={h1} size="sm" />
