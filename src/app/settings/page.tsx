@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { DraftSettings, AnalysisMode } from '@/data/DraftSettings';
 import { clearHistory } from '@/data/DraftHistory';
 import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const CARD = { background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' } as const;
 
@@ -73,6 +74,7 @@ const SHORTCUT_GROUPS = [
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
   const [suggestionCount, setSuggestionCount] = useState(5);
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>(AnalysisMode.Full);
   const [quickDraft, setQuickDraft] = useState(false);
@@ -134,11 +136,11 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col page-enter pb-14" style={{ background: '#1a1a2e' }}>
+    <div className="min-h-screen flex flex-col page-enter pb-14" style={{ background: 'var(--theme-bg-primary)' }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
-        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10 smooth-transition" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
-        <h1 className="text-lg font-bold" style={{ color: '#A9A9A9' }}>⚙️ Settings</h1>
+      <div className="flex items-center justify-between px-4 py-3" style={{ background: 'var(--theme-header-bg)', borderBottom: '1px solid var(--theme-border)' }}>
+        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10 smooth-transition" style={{ color: 'var(--theme-accent)', border: '1px solid var(--theme-accent)33' }} title="Return to main menu">← Back</button>
+        <h1 className="text-lg font-bold" style={{ color: 'var(--theme-muted)' }}>⚙️ Settings</h1>
         <div />
       </div>
 
@@ -371,14 +373,32 @@ export default function SettingsPage() {
           <div className="p-4 rounded" style={CARD}>
             <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>🎨 Theme</h3>
             <div className="flex gap-3 mb-4">
-              <div className="flex-1 px-4 py-2 rounded font-semibold text-center" style={{ background: '#00FFFF22', border: '2px solid #00FFFF', color: '#00FFFF' }}>
+              <button
+                onClick={() => { if (theme !== 'dark') toggleTheme(); }}
+                className="flex-1 px-4 py-2 rounded font-semibold text-center transition-all cursor-pointer"
+                style={{
+                  background: theme === 'dark' ? '#00FFFF22' : 'transparent',
+                  border: `2px solid ${theme === 'dark' ? '#00FFFF' : 'rgba(68,102,136,0.5)'}`,
+                  color: theme === 'dark' ? '#00FFFF' : '#888',
+                  opacity: theme === 'dark' ? 1 : 0.7,
+                }}
+              >
                 🌙 Dark Mode
-                <p className="text-xs opacity-60 mt-1">Active</p>
-              </div>
-              <div className="flex-1 px-4 py-2 rounded font-semibold text-center opacity-40 cursor-not-allowed" style={{ border: '2px solid rgba(68,102,136,0.5)', color: '#888' }}>
+                {theme === 'dark' && <p className="text-xs opacity-60 mt-1">Active</p>}
+              </button>
+              <button
+                onClick={() => { if (theme !== 'light') toggleTheme(); }}
+                className="flex-1 px-4 py-2 rounded font-semibold text-center transition-all cursor-pointer"
+                style={{
+                  background: theme === 'light' ? '#0088aa22' : 'transparent',
+                  border: `2px solid ${theme === 'light' ? '#0088aa' : 'rgba(68,102,136,0.5)'}`,
+                  color: theme === 'light' ? '#0088aa' : '#888',
+                  opacity: theme === 'light' ? 1 : 0.7,
+                }}
+              >
                 ☀️ Light
-                <p className="text-xs opacity-60 mt-1">Coming Soon</p>
-              </div>
+                {theme === 'light' && <p className="text-xs opacity-60 mt-1">Active</p>}
+              </button>
             </div>
             {/* Color Palette Preview */}
             <div>

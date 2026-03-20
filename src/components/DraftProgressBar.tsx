@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { DRAFT_IS_BAN, DRAFT_TEAM_ORDER } from '@/data/DraftingTool';
 
 interface DraftProgressBarProps {
@@ -7,7 +8,7 @@ interface DraftProgressBarProps {
   teamOrder?: number[];
 }
 
-export default function DraftProgressBar({ currentStep, teamOrder }: DraftProgressBarProps) {
+function DraftProgressBar({ currentStep, teamOrder }: DraftProgressBarProps) {
   const order = teamOrder || DRAFT_TEAM_ORDER;
   const currentTeam = currentStep < order.length ? order[currentStep] : 0;
   const currentIsBan = currentStep < DRAFT_IS_BAN.length ? DRAFT_IS_BAN[currentStep] : false;
@@ -73,3 +74,5 @@ export default function DraftProgressBar({ currentStep, teamOrder }: DraftProgre
     </div>
   );
 }
+
+export default React.memo(DraftProgressBar);
