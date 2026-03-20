@@ -19,78 +19,70 @@ function scoreTeamfight(team: TeamComposition): number {
   score += countSpecialty(team, Specialty.AOE_DAMAGE) * 0.3;
   score += countSpecialty(team, Specialty.HARD_CC) * 0.3;
   score += countSpecialty(team, Specialty.ENGAGE) * 0.2;
-  score += countSpecialty(team, Specialty.BURST_HEALING) * 0.1;
-  score += countSpecialty(team, Specialty.DISENGAGE) * 0.1;
+  score += countSpecialty(team, Specialty.BURST_DAMAGE) * 0.1;
+  score += countSpecialty(team, Specialty.SUSTAINED_HEALING) * 0.1;
   return Math.min(score, 1);
 }
 
 function scorePokeSiege(team: TeamComposition): number {
   let score = 0;
-  score += countSpecialty(team, Specialty.POKE) * 0.3;
-  score += countSpecialty(team, Specialty.SIEGE_PUSHING) * 0.25;
+  score += countSpecialty(team, Specialty.POKE) * 0.4;
+  score += countSpecialty(team, Specialty.SIEGE_PUSHING) * 0.3;
   score += countSpecialty(team, Specialty.DISENGAGE) * 0.2;
-  score += countSpecialty(team, Specialty.WAVECLEAR) * 0.15;
-  score += countSpecialty(team, Specialty.ZONING) * 0.1;
+  score += countSpecialty(team, Specialty.WAVECLEAR) * 0.1;
   return Math.min(score, 1);
 }
 
 function scoreDive(team: TeamComposition): number {
   let score = 0;
-  score += countSpecialty(team, Specialty.MOBILITY) * 0.3;
-  score += countSpecialty(team, Specialty.BURST_DAMAGE) * 0.25;
+  score += countSpecialty(team, Specialty.MOBILITY) * 0.4;
+  score += countSpecialty(team, Specialty.BURST_DAMAGE) * 0.3;
   score += countSpecialty(team, Specialty.ENGAGE) * 0.2;
-  score += countSpecialty(team, Specialty.PICK_POTENTIAL) * 0.15;
-  score += countSpecialty(team, Specialty.FINISHER) * 0.1;
+  score += countSpecialty(team, Specialty.PICK_POTENTIAL) * 0.1;
   return Math.min(score, 1);
 }
 
 function scoreSplitMacro(team: TeamComposition): number {
   let score = 0;
-  score += countSpecialty(team, Specialty.GLOBAL_PRESENCE) * 0.3;
-  score += countSpecialty(team, Specialty.SPLIT_PUSHING) * 0.25;
+  score += countSpecialty(team, Specialty.GLOBAL_PRESENCE) * 0.4;
+  score += countSpecialty(team, Specialty.SPLIT_PUSHING) * 0.3;
   score += countSpecialty(team, Specialty.DOUBLE_SOAKING) * 0.2;
-  score += countSpecialty(team, Specialty.WAVECLEAR) * 0.15;
-  score += countSpecialty(team, Specialty.CAMP_TAKING) * 0.1;
+  score += countSpecialty(team, Specialty.WAVECLEAR) * 0.1;
   return Math.min(score, 1);
 }
 
 function scorePickComp(team: TeamComposition): number {
   let score = 0;
-  score += countSpecialty(team, Specialty.PICK_POTENTIAL) * 0.3;
-  score += countSpecialty(team, Specialty.BURST_DAMAGE) * 0.25;
+  score += countSpecialty(team, Specialty.PICK_POTENTIAL) * 0.4;
+  score += countSpecialty(team, Specialty.BURST_DAMAGE) * 0.2;
+  score += countSpecialty(team, Specialty.STEALTH) * 0.2;
   score += countSpecialty(team, Specialty.HARD_CC) * 0.2;
-  score += countSpecialty(team, Specialty.STEALTH) * 0.15;
-  score += countSpecialty(team, Specialty.MOBILITY) * 0.1;
   return Math.min(score, 1);
 }
 
 function scoreSustainAttrition(team: TeamComposition): number {
   let score = 0;
   score += countSpecialty(team, Specialty.SUSTAINED_HEALING) * 0.3;
-  score += countSpecialty(team, Specialty.SELF_SUSTAIN) * 0.25;
+  score += countSpecialty(team, Specialty.SELF_SUSTAIN) * 0.3;
   score += countSpecialty(team, Specialty.HIGH_DURABILITY) * 0.2;
-  score += countSpecialty(team, Specialty.SUSTAINED_DAMAGE) * 0.15;
-  score += countSpecialty(team, Specialty.DAMAGE_MITIGATION) * 0.1;
+  score += countSpecialty(team, Specialty.SUSTAINED_DAMAGE) * 0.2;
   return Math.min(score, 1);
 }
 
 function scoreSnowballEarly(team: TeamComposition): number {
   let score = 0;
-  score += countSpecialty(team, Specialty.SNOWBALL) * 0.3;
-  score += countSpecialty(team, Specialty.BURST_DAMAGE) * 0.25;
+  score += countSpecialty(team, Specialty.SNOWBALL) * 0.4;
+  score += countSpecialty(team, Specialty.BURST_DAMAGE) * 0.3;
   score += countSpecialty(team, Specialty.PICK_POTENTIAL) * 0.2;
-  score += countSpecialty(team, Specialty.ENGAGE) * 0.15;
-  score += countSpecialty(team, Specialty.CAMP_TAKING) * 0.1;
+  score += countSpecialty(team, Specialty.ENGAGE) * 0.1;
   return Math.min(score, 1);
 }
 
 function scoreLateGameScale(team: TeamComposition): number {
   let score = 0;
-  score += countSpecialty(team, Specialty.LATE_GAME_SCALING) * 0.3;
-  score += countSpecialty(team, Specialty.SUSTAINED_DAMAGE) * 0.25;
+  score += countSpecialty(team, Specialty.LATE_GAME_SCALING) * 0.5;
+  score += countSpecialty(team, Specialty.SUSTAINED_DAMAGE) * 0.3;
   score += countSpecialty(team, Specialty.DISENGAGE) * 0.2;
-  score += countSpecialty(team, Specialty.WAVECLEAR) * 0.15;
-  score += countSpecialty(team, Specialty.SELF_SUSTAIN) * 0.1;
   return Math.min(score, 1);
 }
 

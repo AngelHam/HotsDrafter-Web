@@ -8,8 +8,12 @@ import { analyzeWinCondition } from '@/data/WinConditionAnalyzer';
 import { WinCondition, winConditionToString } from '@/data/SuggestionTypes';
 import HeroPortrait from '@/components/HeroPortrait';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
-import { Specialty } from '@/data/Specialty';
+import { Specialty, specialtyToString } from '@/data/Specialty';
+import { HeroRelationships } from '@/data/HeroRelationships';
+import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import type { Hero } from '@/data/Hero';
+
+const TIER_COLORS: Record<string, string> = { S: '#FFD700', A: '#90EE90', B: '#87CEEB', C: '#FFA500', D: '#FF6666' };
 
 function shuffleArray<T>(arr: T[]): T[] {
   const copy = [...arr];
@@ -102,6 +106,13 @@ function SampleDraftInner() {
 
   return (
     <div className="min-h-screen flex flex-col page-enter">
+      <style>{`
+        @keyframes scorePulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.15); }
+        }
+        .score-pulse { animation: scorePulse 2s ease-in-out infinite; display: inline-block; }
+      `}</style>
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10 smooth-transition" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">
           ← Back
@@ -123,7 +134,10 @@ function SampleDraftInner() {
             <div className="flex gap-2 mt-1">
               {draft.team1Bans.map(h => (
                 <div key={h.name} className="flex items-center gap-1">
-                  <HeroPortrait hero={h} size="sm" banned />
+                  <div className="relative" style={{ width: 40 }}>
+                    <HeroPortrait hero={h} size="sm" banned />
+                    <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold pointer-events-none" style={{ color: 'rgba(255,60,60,0.7)' }}>BANNED</span>
+                  </div>
                   <span className="text-xs" style={{ color: '#FF6666' }}>{h.nicknames[0]}</span>
                 </div>
               ))}
@@ -131,15 +145,22 @@ function SampleDraftInner() {
           </div>
           <span className="text-xs font-semibold" style={{ color: '#FFD700' }}>PICKS</span>
           <div className="flex flex-col gap-2 mt-1">
-            {draft.team1Picks.map(h => (
-              <div key={h.name} className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-white/5" style={{ background: 'rgba(30, 40, 70, 0.7)' }} onClick={() => setDetailHero(h)}>
-                <HeroPortrait hero={h} size="md" selected />
-                <div>
-                  <span className="text-sm font-semibold">{h.nicknames[0]}</span>
-                  <span className="text-xs ml-2 opacity-60">{h.role}</span>
+            {draft.team1Picks.map((h, idx) => {
+              const tier = IcyVeinsDatabase.getInstance().getHeroTierOnMap(h.nicknames[0], map.name);
+              const tierColor = TIER_COLORS[tier] || '#87CEEB';
+              const bgColor = idx % 2 === 0 ? 'rgba(30, 40, 70, 0.7)' : 'rgba(35, 45, 75, 0.7)';
+              return (
+                <div key={h.name} className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-white/5" style={{ background: bgColor }} onClick={() => setDetailHero(h)}
+                  title={h.specialties.slice(0, 3).map(s => specialtyToString(s)).join(', ')}>
+                  <HeroPortrait hero={h} size="md" selected />
+                  <div>
+                    <span className="text-sm font-semibold">{h.nicknames[0]}</span>
+                    <span className="text-xs ml-2 opacity-60">{h.role}</span>
+                    <span className="text-[10px] font-bold ml-1.5 px-1 py-0.5 rounded" style={{ background: `${tierColor}22`, color: tierColor, border: `1px solid ${tierColor}44` }}>{tier}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <WinConditionBadges picks={draft.team1Picks} analysis={analysis.team1} />
         </div>
@@ -162,6 +183,7 @@ function SampleDraftInner() {
               <p className="text-[10px]"><span style={{ color: '#FF6666' }}>Counter:</span> <span className="opacity-70">{analysis.team2.enemyCounterStrategy}</span></p>
             </div>
           </div>
+          <DraftInsights team1Picks={draft.team1Picks} team2Picks={draft.team2Picks} mapName={map.name} />
           <button
             onClick={() => setDraft(generateRandomDraft())}
             className="px-8 py-4 rounded-lg text-lg font-bold transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
@@ -188,7 +210,10 @@ function SampleDraftInner() {
             <div className="flex gap-2 mt-1">
               {draft.team2Bans.map(h => (
                 <div key={h.name} className="flex items-center gap-1">
-                  <HeroPortrait hero={h} size="sm" banned />
+                  <div className="relative" style={{ width: 40 }}>
+                    <HeroPortrait hero={h} size="sm" banned />
+                    <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold pointer-events-none" style={{ color: 'rgba(255,60,60,0.7)' }}>BANNED</span>
+                  </div>
                   <span className="text-xs" style={{ color: '#FF6666' }}>{h.nicknames[0]}</span>
                 </div>
               ))}
@@ -196,15 +221,22 @@ function SampleDraftInner() {
           </div>
           <span className="text-xs font-semibold" style={{ color: '#FFD700' }}>PICKS</span>
           <div className="flex flex-col gap-2 mt-1">
-            {draft.team2Picks.map(h => (
-              <div key={h.name} className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-white/5" style={{ background: 'rgba(30, 40, 70, 0.7)' }} onClick={() => setDetailHero(h)}>
-                <HeroPortrait hero={h} size="md" selected />
-                <div>
-                  <span className="text-sm font-semibold">{h.nicknames[0]}</span>
-                  <span className="text-xs ml-2 opacity-60">{h.role}</span>
+            {draft.team2Picks.map((h, idx) => {
+              const tier = IcyVeinsDatabase.getInstance().getHeroTierOnMap(h.nicknames[0], map.name);
+              const tierColor = TIER_COLORS[tier] || '#87CEEB';
+              const bgColor = idx % 2 === 0 ? 'rgba(30, 40, 70, 0.7)' : 'rgba(35, 45, 75, 0.7)';
+              return (
+                <div key={h.name} className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-white/5" style={{ background: bgColor }} onClick={() => setDetailHero(h)}
+                  title={h.specialties.slice(0, 3).map(s => specialtyToString(s)).join(', ')}>
+                  <HeroPortrait hero={h} size="md" selected />
+                  <div>
+                    <span className="text-sm font-semibold">{h.nicknames[0]}</span>
+                    <span className="text-xs ml-2 opacity-60">{h.role}</span>
+                    <span className="text-[10px] font-bold ml-1.5 px-1 py-0.5 rounded" style={{ background: `${tierColor}22`, color: tierColor, border: `1px solid ${tierColor}44` }}>{tier}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <WinConditionBadges picks={draft.team2Picks} analysis={analysis.team2} />
         </div>
@@ -364,19 +396,96 @@ function ScoreComparisonBar({ score1, score2 }: { score1: number; score2: number
     verdict = `Dominant: ${leading}`;
     verdictColor = score1 > score2 ? '#4488FF' : '#FF6666';
   }
+  const t1Leading = score1 >= score2;
   return (
     <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
       <div className="flex justify-between items-center mb-2">
-        <span className="text-xs font-bold" style={{ color: '#4488FF' }}>{score1}</span>
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ color: verdictColor, background: `${verdictColor}1A`, border: `1px solid ${verdictColor}44` }}>
+        <span className={`text-xs font-bold${t1Leading && diff > 5 ? ' score-pulse' : ''}`} style={{ color: '#4488FF' }}>{score1}</span>
+        <span className="text-xs font-bold tracking-wide uppercase px-2 py-0.5 rounded-full" style={{ color: verdictColor, background: `${verdictColor}1A`, border: `1px solid ${verdictColor}44` }}>
           {verdict}
         </span>
-        <span className="text-xs font-bold" style={{ color: '#FF6666' }}>{score2}</span>
+        <span className={`text-xs font-bold${!t1Leading && diff > 5 ? ' score-pulse' : ''}`} style={{ color: '#FF6666' }}>{score2}</span>
       </div>
-      <div className="w-full h-3 rounded-full overflow-hidden flex" style={{ background: 'rgba(0,0,0,0.3)' }}>
+      <div className="w-full h-4 rounded-full overflow-hidden flex" style={{ background: 'rgba(0,0,0,0.3)' }}>
         <div className="h-full transition-all duration-500" style={{ width: `${pct1}%`, background: 'linear-gradient(90deg, #4488FF, #6699FF)' }} />
         <div className="h-full transition-all duration-500" style={{ width: `${100 - pct1}%`, background: 'linear-gradient(90deg, #FF6666, #FF4444)' }} />
       </div>
+    </div>
+  );
+}
+
+function DraftInsights({ team1Picks, team2Picks, mapName }: { team1Picks: Hero[]; team2Picks: Hero[]; mapName: string }) {
+  const hr = HeroRelationships.getInstance();
+  const db = IcyVeinsDatabase.getInstance();
+
+  // Team synergies
+  const synergies: { team: number; h1: string; h2: string; reason: string }[] = [];
+  for (const [teamIdx, picks] of [[1, team1Picks], [2, team2Picks]] as const) {
+    for (let i = 0; i < picks.length; i++) {
+      for (let j = i + 1; j < picks.length; j++) {
+        if (hr.getSynergyScore(picks[i], picks[j]) >= 2) {
+          synergies.push({ team: teamIdx, h1: picks[i].nicknames[0], h2: picks[j].nicknames[0], reason: hr.getSynergyReason(picks[i], picks[j]) });
+        }
+      }
+    }
+  }
+
+  // Key matchup highlights (counters)
+  const matchups: { counter: string; target: string }[] = [];
+  for (const a of team1Picks) {
+    for (const b of team2Picks) {
+      if (db.counters(a.nicknames[0], b.nicknames[0])) matchups.push({ counter: a.nicknames[0], target: b.nicknames[0] });
+      if (db.counters(b.nicknames[0], a.nicknames[0])) matchups.push({ counter: b.nicknames[0], target: a.nicknames[0] });
+    }
+  }
+
+  // Map fitness
+  const avgFitness = (picks: Hero[]) => {
+    if (picks.length === 0) return 0;
+    return picks.reduce((sum, h) => sum + db.getTierScore(h.nicknames[0], mapName), 0) / picks.length;
+  };
+  const t1Fitness = avgFitness(team1Picks);
+  const t2Fitness = avgFitness(team2Picks);
+
+  return (
+    <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+      <h3 className="font-bold mb-3" style={{ color: '#FFD700' }}>💡 Draft Insights</h3>
+
+      {/* Map Fitness */}
+      <div className="mb-3 pb-2" style={{ borderBottom: '1px solid rgba(68,102,136,0.3)' }}>
+        <p className="text-[10px] font-semibold mb-1" style={{ color: '#00FFFF' }}>MAP FITNESS — {mapName}</p>
+        <div className="flex justify-between text-xs">
+          <span style={{ color: '#4488FF' }}>T1: {t1Fitness.toFixed(1)}/5</span>
+          <span style={{ color: '#FF6666' }}>T2: {t2Fitness.toFixed(1)}/5</span>
+        </div>
+      </div>
+
+      {/* Synergies */}
+      {synergies.length > 0 && (
+        <div className="mb-3 pb-2" style={{ borderBottom: '1px solid rgba(68,102,136,0.3)' }}>
+          <p className="text-[10px] font-semibold mb-1" style={{ color: '#90EE90' }}>SYNERGIES</p>
+          {synergies.slice(0, 4).map((s, i) => (
+            <p key={i} className="text-[10px] opacity-80" title={s.reason}>
+              <span style={{ color: s.team === 1 ? '#4488FF' : '#FF6666' }}>T{s.team}</span>{' '}
+              {s.h1} + {s.h2}
+            </p>
+          ))}
+        </div>
+      )}
+
+      {/* Counters */}
+      {matchups.length > 0 && (
+        <div>
+          <p className="text-[10px] font-semibold mb-1" style={{ color: '#FF6347' }}>KEY MATCHUPS</p>
+          {matchups.slice(0, 4).map((c, i) => (
+            <p key={i} className="text-[10px] opacity-80">{c.counter} counters {c.target}</p>
+          ))}
+        </div>
+      )}
+
+      {synergies.length === 0 && matchups.length === 0 && (
+        <p className="text-[10px] opacity-50">No notable synergies or matchups detected.</p>
+      )}
     </div>
   );
 }

@@ -148,6 +148,7 @@ function DraftPageInner() {
   const [exportCopied, setExportCopied] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
+  const [showHeaderMenu, setShowHeaderMenu] = useState(false);
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [timerDuration, setTimerDuration] = useState(25);
   const [timeLeft, setTimeLeft] = useState(25);
@@ -562,7 +563,7 @@ function DraftPageInner() {
 
   const statusText = isComplete
     ? '✅ Draft Complete!'
-    : `${isYourTurn ? '🟢 Your' : '🔴 Enemy'} Turn — ${isBan ? '🚫 BAN' : `✅ PICK ${team1Picks.length + team2Picks.length + 1}/10`} (${step + 1}/${totalSteps})`;
+    : `${isYourTurn ? 'Your Turn' : 'Enemy Turn'} — ${isBan ? 'Ban Phase' : 'Pick Phase'}`;
 
   return (
     <main id="main-content" className="h-screen flex flex-col overflow-hidden page-enter pb-14">
@@ -602,20 +603,27 @@ function DraftPageInner() {
               ⚡ Quick
             </span>
           )}
-          {(team1Picks.length > 0 || team1Bans.length > 0) && (
-            <span className="text-[10px] opacity-40">
-              B:{team1Bans.length + team2Bans.length} P:{team1Picks.length + team2Picks.length}
-            </span>
-          )}
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowShortcutHelp(true)} className="text-sm px-2 py-1 rounded hover:bg-white/10" style={{ color: '#A9A9A9', border: '1px solid #A9A9A933' }} title="Keyboard shortcuts (?)">
-            ?
-          </button>
-          <button onClick={() => router.push('/settings')} className="text-sm px-2 py-1 rounded hover:bg-white/10" style={{ color: '#A9A9A9', border: '1px solid #A9A9A933' }} title="Settings">
-            ⚙️
-          </button>
           <RoleFilterBar activeFilter={roleFilter} onFilterChange={(f) => { setRoleFilter(f); document.querySelector('[data-hero-grid]')?.scrollTo(0, 0); }} />
+          <div className="relative">
+            <button onClick={() => setShowHeaderMenu(v => !v)} className="text-sm px-2 py-1 rounded hover:bg-white/10" style={{ color: '#A9A9A9', border: '1px solid #A9A9A933' }} title="More options">
+              ⋯
+            </button>
+            {showHeaderMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowHeaderMenu(false)} />
+                <div className="absolute right-0 top-full mt-1 z-50 rounded shadow-lg py-1 min-w-[140px]" style={{ background: 'rgba(15,20,40,0.97)', border: '1px solid rgba(68,102,136,0.5)' }}>
+                  <button onClick={() => { setShowShortcutHelp(true); setShowHeaderMenu(false); }} className="w-full text-left text-xs px-3 py-1.5 hover:bg-white/10 flex items-center gap-2" style={{ color: '#A9A9A9' }}>
+                    <span>?</span> Keyboard Shortcuts
+                  </button>
+                  <button onClick={() => { router.push('/settings'); setShowHeaderMenu(false); }} className="w-full text-left text-xs px-3 py-1.5 hover:bg-white/10 flex items-center gap-2" style={{ color: '#A9A9A9' }}>
+                    <span>⚙️</span> Settings
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </header>
       {MAP_TIPS[map.name] && (
@@ -629,15 +637,10 @@ function DraftPageInner() {
       {/* Status + Progress */}
       <div className="flex flex-col items-center gap-1.5 sm:gap-2 py-2 sm:py-3 px-2" style={{ background: 'rgba(20, 25, 45, 0.5)' }}>
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center text-center">
-          <span className="text-sm font-bold" aria-live="polite" style={{ color: isReplaying ? '#FF8C00' : isBan ? '#FF6666' : (isYourTurn ? '#00FFFF' : '#FF6666') }}>
+          <span className="text-xs font-semibold opacity-90" aria-live="polite" style={{ color: isReplaying ? '#FF8C00' : isBan ? '#FF6666' : (isYourTurn ? '#00FFFF' : '#FF6666') }}>
             {isReplaying ? `🎬 Replaying — Step ${replayStep + 1}/16` : statusText}
           </span>
-          {!isReplaying && phaseName && <span className="text-[10px] px-1.5 py-0.5 rounded opacity-70" aria-live="polite" style={{ background: 'rgba(255,255,255,0.05)', color: isBan ? '#FF6666' : '#00FFFF' }}>{phaseName}</span>}
-          {team1Picks.length > 0 && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(144,238,144,0.1)', color: '#90EE90', border: '1px solid #90EE9022' }}>
-              Score: {computeCompScore(team1Picks)}
-            </span>
-          )}
+          {!isReplaying && phaseName && <span className="text-[10px] px-1.5 py-0.5 rounded opacity-60" aria-live="polite" style={{ background: 'rgba(255,255,255,0.05)', color: isBan ? '#FF6666' : '#00FFFF' }}>{phaseName}</span>}
           {team1Picks.length > 0 && (
             <span className="text-[10px] flex gap-0.5">
               {['Tank', 'Healer', 'DPS', 'Mage', 'Offlane'].map(r => {
@@ -672,45 +675,47 @@ function DraftPageInner() {
           >
             ⏱️ Timer {timerEnabled ? 'On' : 'Off'}
           </button>
-          <button
-            onClick={() => setTimerDuration(v => Math.max(10, v - 5))}
-            className="text-xs px-2 py-1 rounded hover:bg-white/10"
-            style={{ color: '#FFD700', border: '1px solid #FFD70055' }}
-            title="Decrease timer duration"
-          >
-            -5s
-          </button>
-          <button
-            onClick={() => setTimerDuration(v => Math.min(90, v + 5))}
-            className="text-xs px-2 py-1 rounded hover:bg-white/10"
-            style={{ color: '#FFD700', border: '1px solid #FFD70055' }}
-            title="Increase timer duration"
-          >
-            +5s
-          </button>
-          <span
-            className={`text-xs font-semibold px-2 py-1 rounded ${timerEnabled && timeLeft <= 5 ? 'animate-pulse' : ''}`}
-            style={{
-              color: timerEnabled ? (timeLeft <= 5 ? '#FF6666' : timeLeft <= 10 ? '#FFA500' : '#00FFFF') : '#A9A9A9',
-              border: `1px solid ${timerEnabled ? (timeLeft <= 5 ? '#FF666655' : timeLeft <= 10 ? '#FFA50055' : '#00FFFF55') : '#A9A9A955'}`,
-              background: timerEnabled ? (timeLeft <= 5 ? 'rgba(255,102,102,0.1)' : 'rgba(255,255,255,0.04)') : 'transparent',
-            }}
-            title="Per-step draft countdown"
-          >
-            {timerEnabled ? (
-              <span className="flex items-center gap-1">
-                <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0">
-                  <circle cx="7" cy="7" r="5.5" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
-                  <circle cx="7" cy="7" r="5.5" fill="none"
-                    stroke={timeLeft <= 5 ? '#FF6666' : timeLeft <= 10 ? '#FFA500' : '#00FFFF'}
-                    strokeWidth="1.5" strokeLinecap="round"
-                    strokeDasharray={`${(timeLeft / timerDuration) * 34.56} 34.56`}
-                    transform="rotate(-90 7 7)" />
-                </svg>
-                {timeLeft}s
+          {timerEnabled && (
+            <>
+              <button
+                onClick={() => setTimerDuration(v => Math.max(10, v - 5))}
+                className="text-xs px-2 py-1 rounded hover:bg-white/10"
+                style={{ color: '#FFD700', border: '1px solid #FFD70055' }}
+                title="Decrease timer duration"
+              >
+                -5s
+              </button>
+              <button
+                onClick={() => setTimerDuration(v => Math.min(90, v + 5))}
+                className="text-xs px-2 py-1 rounded hover:bg-white/10"
+                style={{ color: '#FFD700', border: '1px solid #FFD70055' }}
+                title="Increase timer duration"
+              >
+                +5s
+              </button>
+              <span
+                className={`text-xs font-semibold px-2 py-1 rounded ${timeLeft <= 5 ? 'animate-pulse' : ''}`}
+                style={{
+                  color: timeLeft <= 5 ? '#FF6666' : timeLeft <= 10 ? '#FFA500' : '#00FFFF',
+                  border: `1px solid ${timeLeft <= 5 ? '#FF666655' : timeLeft <= 10 ? '#FFA50055' : '#00FFFF55'}`,
+                  background: timeLeft <= 5 ? 'rgba(255,102,102,0.1)' : 'rgba(255,255,255,0.04)',
+                }}
+                title="Per-step draft countdown"
+              >
+                <span className="flex items-center gap-1">
+                  <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0">
+                    <circle cx="7" cy="7" r="5.5" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+                    <circle cx="7" cy="7" r="5.5" fill="none"
+                      stroke={timeLeft <= 5 ? '#FF6666' : timeLeft <= 10 ? '#FFA500' : '#00FFFF'}
+                      strokeWidth="1.5" strokeLinecap="round"
+                      strokeDasharray={`${(timeLeft / timerDuration) * 34.56} 34.56`}
+                      transform="rotate(-90 7 7)" />
+                  </svg>
+                  {timeLeft}s
+                </span>
               </span>
-            ) : `Duration: ${timerDuration}s`}
-          </span>
+            </>
+          )}
         </div>
       </div>
 
@@ -896,7 +901,7 @@ function DraftPageInner() {
               className="w-full text-left text-xs font-semibold px-3 py-1.5 rounded-t flex items-center justify-between lg:hidden"
               style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)', borderBottom: suggestionsCollapsed ? '1px solid rgba(68,102,136,0.5)' : 'none', color: '#00FFFF' }}
             >
-              <span>{isBan ? '🚫 Ban Suggestions' : '✅ Pick Suggestions'} ({suggestions.length})</span>
+              <span>{isBan ? 'Ban Suggestions' : 'Pick Suggestions'} ({suggestions.length})</span>
               <span>{suggestionsCollapsed ? '▶' : '▼'}</span>
             </button>
             <div className={`${suggestionsCollapsed ? 'hidden lg:block' : ''} max-h-[340px] overflow-y-auto`}>
@@ -908,7 +913,7 @@ function DraftPageInner() {
                 <HeroSuggestionPanel
                   suggestions={suggestions}
                   onSelect={(s) => handleHeroClick(s.hero)}
-                  title={isBan ? '🚫 Ban Suggestions' : '✅ Pick Suggestions'}
+                  title={isBan ? 'Ban Suggestions' : 'Pick Suggestions'}
                   mapName={map.name}
                 />
               )}
@@ -929,21 +934,34 @@ function DraftPageInner() {
               ) : (
               <>
               {/* Hero Pool Stats */}
-              <div className="flex gap-1.5 mb-1.5 justify-center flex-wrap">
-                {[
+              {(() => {
+                const roleData = [
                   { role: 'Tank', color: '#6495ED' }, { role: 'Healer', color: '#90EE90' },
                   { role: 'DPS', color: '#FF6347' }, { role: 'Mage', color: '#BA55D3' },
                   { role: 'Offlane', color: '#FFA500' }, { role: 'Specialist', color: '#A9A9A9' },
-                ].map(({ role, color }) => {
-                  const avail = ALL_HEROES.filter(h => h.role === role && draft.isAvailable(h)).length;
-                  const total = ALL_HEROES.filter(h => h.role === role).length;
-                  return (
-                    <span key={role} className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: color + '11', color, border: `1px solid ${color}22` }}>
-                      {role.slice(0, 3)}: {avail}/{total}
+                ];
+                const totalAvail = ALL_HEROES.filter(h => draft.isAvailable(h)).length;
+                const totalAll = ALL_HEROES.length;
+                return (
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <div className="flex-1 flex h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      {roleData.map(({ role, color }) => {
+                        const count = ALL_HEROES.filter(h => h.role === role).length;
+                        return (
+                          <div
+                            key={role}
+                            style={{ flex: count, background: color + '88', borderRight: '1px solid rgba(0,0,0,0.3)' }}
+                            title={`${role}: ${ALL_HEROES.filter(h => h.role === role && draft.isAvailable(h)).length}/${count}`}
+                          />
+                        );
+                      })}
+                    </div>
+                    <span className="text-[9px] flex-shrink-0 opacity-60" style={{ color: roleFilter !== 'All' ? ROLE_COLORS[roleFilter] || '#87CEEB' : '#87CEEB' }}>
+                      {totalAvail}/{totalAll}{roleFilter !== 'All' ? ` · ${roleFilter}` : ''}
                     </span>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })()}
               <div className="relative mb-2">
                 <input
                   ref={searchInputRef}

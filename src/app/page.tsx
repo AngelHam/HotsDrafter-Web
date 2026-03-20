@@ -147,7 +147,7 @@ export default function StartupPage() {
         <ActionButton label="Draft History" icon="📜" color="#BA55D3" onClick={() => router.push('/history')}
           tooltip="View your previously completed drafts" />
         <ActionButton label="Settings" icon="⚙️" color="#A9A9A9" onClick={() => router.push('/settings')}
-          tooltip="Configure suggestions, analysis mode, and shortcuts" />
+          tooltip="Configure suggestions, analysis mode, and shortcuts" accent="#00FFFF" />
       </div>
 
       {/* Quick Actions */}
@@ -195,12 +195,12 @@ export default function StartupPage() {
         );
       })()}
 
-      <div className="animate-fade-slide-up mt-8 flex flex-wrap gap-2 justify-center max-w-3xl" style={{ animationDelay: '480ms' }}>
-        {['AI Suggestions', 'Ban Predictions', 'Counter Warnings', 'Win Conditions', 'Hero Compare', 'Tier Lists', 'Draft Export', 'Coaching Tips'].map((f, i) => (
-          <span key={f} className="animate-bounce-in text-xs px-3 py-1.5 rounded-full cursor-default transition-all duration-200 hover:scale-110"
-            style={{ background: 'rgba(255,215,0,0.08)', color: '#FFD700', border: '1px solid #FFD70025', boxShadow: '0 0 0 0 rgba(255,215,0,0)', animationDelay: `${480 + i * 60}ms` }}
-            onMouseEnter={e => { (e.target as HTMLElement).style.boxShadow = '0 0 10px 2px rgba(255,215,0,0.2)'; (e.target as HTMLElement).style.background = 'rgba(255,215,0,0.14)'; }}
-            onMouseLeave={e => { (e.target as HTMLElement).style.boxShadow = '0 0 0 0 rgba(255,215,0,0)'; (e.target as HTMLElement).style.background = 'rgba(255,215,0,0.08)'; }}
+      <div className="animate-fade-slide-up mt-8 grid grid-cols-3 sm:grid-cols-3 gap-2 justify-items-center max-w-md" style={{ animationDelay: '480ms' }}>
+        {['AI Suggestions', 'Ban Predictions', 'Counter Warnings', 'Win Conditions', 'Tier Lists', 'Coaching Tips'].map((f, i) => (
+          <span key={f} className="animate-bounce-in feature-pill-shimmer text-xs px-3 py-1.5 rounded-full cursor-default transition-all duration-200 hover:scale-110 text-center"
+            style={{ color: '#FFD700', border: '1px solid #FFD70025', animationDelay: `${480 + i * 60}ms` }}
+            onMouseEnter={e => { (e.target as HTMLElement).style.boxShadow = '0 0 10px 2px rgba(255,215,0,0.2)'; }}
+            onMouseLeave={e => { (e.target as HTMLElement).style.boxShadow = 'none'; }}
           >{f}</span>
         ))}
       </div>
@@ -214,12 +214,13 @@ export default function StartupPage() {
   );
 }
 
-function ActionButton({ label, icon, color, onClick, primary, tooltip }: {
-  label: string; icon: string; color: string; onClick: () => void; primary?: boolean; tooltip?: string;
+function ActionButton({ label, icon, color, onClick, primary, tooltip, accent }: {
+  label: string; icon: string; color: string; onClick: () => void; primary?: boolean; tooltip?: string; accent?: string;
 }) {
+  const borderColor = accent || color;
   return (
     <button onClick={onClick} className="action-btn px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm"
-      style={{ background: primary ? `${color}22` : 'rgba(30, 40, 70, 0.7)', border: `2px solid ${color}`, color, minWidth: 'auto', '--btn-glow': `${color}40` } as React.CSSProperties}
+      style={{ background: primary ? `${color}22` : 'rgba(30, 40, 70, 0.7)', border: `2px solid ${borderColor}`, color, minWidth: 'auto', '--btn-glow': `${borderColor}40` } as React.CSSProperties}
       title={tooltip || label}>
       {icon} {label}
     </button>

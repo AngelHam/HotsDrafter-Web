@@ -260,3 +260,83 @@ body {
 .warning-fade-in {
   animation: warningFadeIn 0.3s ease-out;
 }
+
+/* Hero slot gradient border pulse */
+@keyframes borderPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.hero-slot-border-pulse {
+  position: relative;
+}
+.hero-slot-border-pulse::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 10px;
+  padding: 2px;
+  background: var(--slot-gradient);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  animation: borderPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* VS text animation */
+@keyframes vsPulse {
+  0%, 100% { text-shadow: 0 0 8px rgba(255,215,0,0.3); transform: scale(1); }
+  50% { text-shadow: 0 0 20px rgba(255,215,0,0.6), 0 0 40px rgba(255,215,0,0.2); transform: scale(1.05); }
+}
+.vs-animated {
+  animation: vsPulse 2.5s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* Matchup card hover */
+.matchup-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.matchup-card-hover:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(0, 255, 255, 0.1);
+  border-color: rgba(0, 255, 255, 0.3) !important;
+}
+
+/* Feature pill shimmer */
+@keyframes featurePillShimmer {
+  0%, 100% { background-position: -200% center; }
+  50% { background-position: 200% center; }
+}
+.feature-pill-shimmer {
+  background-size: 200% 100%;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255,215,0,0.08) 0%,
+    rgba(255,215,0,0.15) 50%,
+    rgba(255,215,0,0.08) 100%
+  );
+  animation: featurePillShimmer 4s ease-in-out infinite;
+}
+
+/* Map card left accent border */
+.map-card-accent {
+  position: relative;
+  overflow: hidden;
+}
+.map-card-accent::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--map-accent-color, rgba(68,102,136,0.5));
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+.map-card-accent:hover::after {
+  opacity: 1;
+}

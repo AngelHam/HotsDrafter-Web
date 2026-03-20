@@ -94,12 +94,12 @@ function ComparePageInner() {
         <div />
       </div>
 
-      <div className="flex-1 p-3 sm:p-4 max-w-4xl mx-auto w-full pb-16">
+      <div className="flex-1 p-3 sm:p-4 max-w-4xl mx-auto w-full pb-24">
         {/* Hero Selection */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <HeroSlot hero={hero1} label="Hero 1" color="#4488FF" onClick={() => setPicker(1)} onDetail={h => setDetailHero(h)} onClear={hero1 ? () => { setHero1(null); updateUrlParams(null, hero2); } : undefined} />
           <div className="flex flex-col items-center justify-center gap-2">
-            <span className="text-3xl font-bold" style={{ color: '#FFD700' }}>VS</span>
+            <span className="text-4xl sm:text-5xl font-black vs-animated" style={{ color: '#FFD700', letterSpacing: '0.1em' }}>VS</span>
             {hero1 && hero2 && (
               <button onClick={() => { const t = hero1; setHero1(hero2); setHero2(t); updateUrlParams(hero2, t); }}
                 className="text-xs px-3 py-1.5 rounded hover:bg-white/10 transition-all" style={{ color: '#FFD700', border: '1px solid #FFD70044' }} title="Swap heroes">
@@ -141,8 +141,8 @@ function ComparePageInner() {
                   if (!h1 || !h2) return null;
                   return (
                     <button key={`${n1}-${n2}`} onClick={() => { setHero1(h1); setHero2(h2); updateUrlParams(h1, h2); setTimeout(() => comparisonRef.current?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-                      className="card-enter flex flex-col items-center gap-1 p-2 rounded text-xs smooth-transition hover:brightness-125"
-                      style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.4)', animationDelay: `${i * 50}ms` }}>
+                      className="card-enter matchup-card-hover flex flex-col items-center gap-1 p-2 rounded text-xs hover:brightness-125"
+                      style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.4)', animationDelay: `${i * 80}ms` }}>
                       <div className="flex items-center justify-center gap-2 w-full">
                         <div className="flex flex-col items-center">
                           <HeroPortrait hero={h1} size="sm" />
@@ -157,9 +157,9 @@ function ComparePageInner() {
                       {(() => {
                         const counters1 = icyVeins.counters(n1, n2);
                         const counters2 = icyVeins.counters(n2, n1);
-                        if (counters1) return <span className="text-[8px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(68,136,255,0.15)', color: '#4488FF' }}>⬆ {n1} favored</span>;
-                        if (counters2) return <span className="text-[8px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,102,102,0.15)', color: '#FF6666' }}>⬆ {n2} favored</span>;
-                        return <span className="text-[8px] opacity-30">Even</span>;
+                        if (counters1) return <span className="text-[8px] px-1.5 py-0.5 rounded font-semibold" style={{ background: 'rgba(68,136,255,0.2)', color: '#4488FF', border: '1px solid rgba(68,136,255,0.3)' }}>▲ {n1} favored</span>;
+                        if (counters2) return <span className="text-[8px] px-1.5 py-0.5 rounded font-semibold" style={{ background: 'rgba(255,102,102,0.2)', color: '#FF6666', border: '1px solid rgba(255,102,102,0.3)' }}>▲ {n2} favored</span>;
+                        return <span className="text-[8px] px-1.5 py-0.5 rounded opacity-40" style={{ background: 'rgba(255,255,255,0.05)' }}>— Even</span>;
                       })()}
                     </button>
                   );
@@ -434,8 +434,21 @@ const POPULAR_MATCHUPS: [string, string][] = [
 ];
 
 function HeroSlot({ hero, label, color, onClick, onDetail, onClear }: { hero: Hero | null; label: string; color: string; onClick: () => void; onDetail?: (h: Hero) => void; onClear?: () => void }) {
+  const isHero1 = color === '#4488FF';
+  const gradient = isHero1 ? 'linear-gradient(135deg, #00FFFF, #4488FF)' : 'linear-gradient(135deg, #FF6666, #FF4444)';
   return (
-    <button onClick={onClick} onContextMenu={e => { e.preventDefault(); if (hero && onDetail) onDetail(hero); }} className="p-4 rounded text-center transition-all hover:brightness-110 relative group" style={{ background: 'rgba(30, 40, 70, 0.7)', border: `2px solid ${hero ? color : 'rgba(68,102,136,0.5)'}` }}>
+    <button
+      onClick={onClick}
+      onContextMenu={e => { e.preventDefault(); if (hero && onDetail) onDetail(hero); }}
+      className={`p-4 rounded-lg text-center transition-all relative group ${!hero ? 'hero-slot-border-pulse' : ''}`}
+      style={{
+        background: hero ? 'rgba(30, 40, 70, 0.7)' : `linear-gradient(135deg, ${isHero1 ? 'rgba(0,255,255,0.05)' : 'rgba(255,100,100,0.05)'}, rgba(30,40,70,0.7))`,
+        border: `2px solid ${hero ? color : 'rgba(68,102,136,0.5)'}`,
+        minHeight: hero ? undefined : '200px',
+        '--slot-gradient': gradient,
+        boxShadow: hero ? `0 0 12px ${color}22` : 'none',
+      } as React.CSSProperties}
+    >
       {hero ? (
         <div className="flex flex-col items-center gap-2">
           <HeroPortrait hero={hero} size="lg" />
@@ -446,10 +459,14 @@ function HeroSlot({ hero, label, color, onClick, onDetail, onClear }: { hero: He
           )}
         </div>
       ) : (
-        <div className="py-6">
-          <span className="text-3xl block mb-2">🦸</span>
-          <p className="text-sm font-semibold" style={{ color }}>{label}</p>
-          <p className="text-xs opacity-40 mt-1">Click to select a hero</p>
+        <div className="flex flex-col items-center justify-center h-full gap-3">
+          <span className="text-4xl block opacity-60">🦸</span>
+          <p className="text-base font-bold" style={{ color }}>{label}</p>
+          <p className="text-xs font-medium px-3 py-1 rounded-full transition-all group-hover:scale-105"
+            style={{ color: isHero1 ? '#00FFFF' : '#FF6666', background: isHero1 ? 'rgba(0,255,255,0.1)' : 'rgba(255,100,100,0.1)', border: `1px solid ${isHero1 ? '#00FFFF33' : '#FF666633'}` }}>
+            Click to select
+          </p>
+          <p className="text-[10px] opacity-30 mt-1">or pick a matchup below</p>
         </div>
       )}
     </button>

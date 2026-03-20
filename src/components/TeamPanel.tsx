@@ -110,9 +110,8 @@ function TeamPanel({ teamNumber, picks, bans, isActive, enemyPicks = [], onHeroC
             <div key={i} className="flex flex-col items-center" style={{ width: 42 }}>
               <div className="rounded" aria-label={bans[i] ? `Team ${teamNumber} Ban ${i + 1}: ${bans[i].nicknames[0]}, ${bans[i].role}` : `Team ${teamNumber} Ban ${i + 1}: Empty`} title={bans[i] ? `Ban ${i + 1}: ${bans[i].nicknames[0]} (${bans[i].role})` : `Ban Slot ${i + 1}`} style={{
                 width: 40, height: 40,
-                background: 'rgba(255,102,102,0.1)',
-                border: '1px solid rgba(255,102,102,0.3)',
-                borderStyle: bans[i] ? 'solid' : 'dashed',
+                background: bans[i] ? 'rgba(255,102,102,0.1)' : 'rgba(255,100,100,0.05)',
+                border: bans[i] ? '1px solid rgba(255,102,102,0.3)' : '1px dashed rgba(255,100,100,0.35)',
               }}>
                 {bans[i] && <div className={`animate-pop-in cursor-pointer ${flashHero?.type === 'ban' && flashHero?.heroName === bans[i].name ? 'hero-ban-flash' : ''}`} onClick={() => onHeroClick?.(bans[i])}><HeroPortrait hero={bans[i]} size="sm" banned /></div>}
               </div>
@@ -135,7 +134,7 @@ function TeamPanel({ teamNumber, picks, bans, isActive, enemyPicks = [], onHeroC
               <div className="rounded" aria-label={picks[i] ? `Team ${teamNumber} Pick ${i + 1}: ${picks[i].nicknames[0]}, ${picks[i].role}` : `Team ${teamNumber} Pick ${i + 1}: Empty`} title={picks[i] ? `Pick ${i + 1}: ${picks[i].nicknames[0]}` : `Pick Slot ${i + 1}`} style={{
                 width: 40, height: 40,
                 background: picks[i] ? 'rgba(255,215,0,0.1)' : 'rgba(255,215,0,0.04)',
-                border: `1px ${picks[i] ? 'solid' : 'dashed'} ${picks[i] ? '#FFD700' : 'rgba(255,215,0,0.35)'}`,
+                border: picks[i] ? '1px solid #FFD700' : '1px dashed rgba(255,215,0,0.35)',
               }}>
                 {picks[i] && <div className={`animate-pop-in cursor-pointer ${flashHero?.type === 'pick' && flashHero?.heroName === picks[i].name ? 'hero-pick-flash' : ''}`} onClick={() => onHeroClick?.(picks[i])}><HeroPortrait hero={picks[i]} size="sm" selected /></div>}
               </div>

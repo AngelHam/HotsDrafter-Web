@@ -19,10 +19,10 @@ import type { Hero } from '@/data/Hero';
 const SLOT_ROLE_HINTS = ['🛡️ Tank', '✚ Healer', '⚔️ DPS', '🏹 Offlane', '✦ Flex'];
 
 const TEMPLATE_DESCRIPTIONS: Record<string, string> = {
-  Standard: 'Balanced - all roles filled',
-  Dive: 'Aggressive dive composition',
-  Poke: 'Long-range siege damage',
-  Wombo: 'AoE combo team',
+  Standard: 'Balanced composition with all roles',
+  Dive: 'Aggressive dive with high mobility',
+  Poke: 'Long-range poke and siege damage',
+  Wombo: 'Combo-heavy with AOE damage',
 };
 
 const TEAM_TEMPLATES: Record<string, string[]> = {
@@ -30,6 +30,20 @@ const TEAM_TEMPLATES: Record<string, string[]> = {
   Dive: ['Diablo', 'Uther', 'Illidan', 'Greymane', 'Genji'],
   Poke: ['Johanna', 'Deckard', 'Azmodan', 'Chromie', 'Hanzo'],
   Wombo: ['E.T.C.', 'Stukov', 'Jaina', 'Kael\'thas', 'Mephisto'],
+};
+
+const TEMPLATE_COLORS: Record<string, string> = {
+  Standard: '#00FFFF',
+  Dive: '#FF6347',
+  Poke: '#BA55D3',
+  Wombo: '#FFD700',
+};
+
+const TEMPLATE_ICONS: Record<string, string> = {
+  Standard: '🛡️✚⚔️',
+  Dive: '💨⚡🗡️',
+  Poke: '🏹🎯✦',
+  Wombo: '💥🌀🔥',
 };
 
 function toTeamSlots(heroNames: string[]): (Hero | null)[] {
@@ -142,35 +156,47 @@ export default function TeamBuilderPage() {
               <div>
                 <p className="text-xs mb-1 opacity-70">Apply to Team 1</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {Object.keys(TEAM_TEMPLATES).map(name => (
-                    <button
-                      key={`t1-${name}`}
-                      data-testid={`t1-template-${name}`}
-                      onClick={() => applyTemplate(1, name)}
-                      className="text-xs px-2 py-1 rounded hover:bg-white/10"
-                      style={{ color: '#4488FF', border: '1px solid #4488FF44' }}
-                      title={TEMPLATE_DESCRIPTIONS[name] ?? `Apply ${name} template to Team 1`}
-                    >
-                      {name}
-                    </button>
-                  ))}
+                  {Object.keys(TEAM_TEMPLATES).map(name => {
+                    const accent = TEMPLATE_COLORS[name] || '#4488FF';
+                    return (
+                      <button
+                        key={`t1-${name}`}
+                        data-testid={`t1-template-${name}`}
+                        onClick={() => applyTemplate(1, name)}
+                        className="flex flex-col items-start px-2.5 py-1.5 rounded hover:brightness-125 transition-all"
+                        style={{ color: accent, border: `1px solid ${accent}44`, background: `${accent}0A` }}
+                        title={`${TEMPLATE_DESCRIPTIONS[name]} — ${TEAM_TEMPLATES[name].join(', ')}`}
+                      >
+                        <span className="flex items-center gap-1 text-xs font-semibold">
+                          <span>{TEMPLATE_ICONS[name]}</span> {name}
+                        </span>
+                        <span className="text-[9px] opacity-50 font-normal">{TEMPLATE_DESCRIPTIONS[name]}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
               <div>
                 <p className="text-xs mb-1 opacity-70">Apply to Team 2</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {Object.keys(TEAM_TEMPLATES).map(name => (
-                    <button
-                      key={`t2-${name}`}
-                      data-testid={`t2-template-${name}`}
-                      onClick={() => applyTemplate(2, name)}
-                      className="text-xs px-2 py-1 rounded hover:bg-white/10"
-                      style={{ color: '#FF6666', border: '1px solid #FF666644' }}
-                      title={TEMPLATE_DESCRIPTIONS[name] ?? `Apply ${name} template to Team 2`}
-                    >
-                      {name}
-                    </button>
-                  ))}
+                  {Object.keys(TEAM_TEMPLATES).map(name => {
+                    const accent = TEMPLATE_COLORS[name] || '#FF6666';
+                    return (
+                      <button
+                        key={`t2-${name}`}
+                        data-testid={`t2-template-${name}`}
+                        onClick={() => applyTemplate(2, name)}
+                        className="flex flex-col items-start px-2.5 py-1.5 rounded hover:brightness-125 transition-all"
+                        style={{ color: accent, border: `1px solid ${accent}44`, background: `${accent}0A` }}
+                        title={`${TEMPLATE_DESCRIPTIONS[name]} — ${TEAM_TEMPLATES[name].join(', ')}`}
+                      >
+                        <span className="flex items-center gap-1 text-xs font-semibold">
+                          <span>{TEMPLATE_ICONS[name]}</span> {name}
+                        </span>
+                        <span className="text-[9px] opacity-50 font-normal">{TEMPLATE_DESCRIPTIONS[name]}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -388,21 +414,34 @@ export default function TeamBuilderPage() {
               />
             </>
           ) : (
-            <div className="p-4 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-              <p className="text-sm opacity-60 mb-2">Add 2+ heroes to each team for analysis</p>
-              <p className="text-xs opacity-40">Click the &quot;+ Pick&quot; slots on either side, or use a Team Template above</p>
-              <div className="mt-3 flex justify-center gap-4 flex-wrap">
+            <div className="p-6 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+              <div className="text-4xl animate-icon-pulse mb-3">⚔️</div>
+              <h3 className="text-lg font-bold mb-4" style={{ color: '#FFD700' }}>Build Your Teams</h3>
+              <div className="flex flex-col gap-2 text-left max-w-xs mx-auto mb-4">
+                {[
+                  { step: '1', text: 'Click a "+ Pick" slot on either team panel' },
+                  { step: '2', text: 'Search and select heroes to fill each role' },
+                  { step: '3', text: 'Add 2+ heroes per team to unlock analysis' },
+                ].map(({ step, text }) => (
+                  <div key={step} className="flex items-start gap-2">
+                    <span className="text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0" style={{ background: '#FFD70025', color: '#FFD700', border: '1px solid #FFD70044' }}>{step}</span>
+                    <span className="text-xs opacity-70">{text}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-center gap-3 flex-wrap mb-3">
                 {['Tank', 'Healer', 'DPS', 'Mage', 'Offlane'].map(role => {
                   const count = ALL_HEROES.filter(h => h.role === role).length;
+                  const rc = ROLE_COLORS[role] || '#aaa';
                   return (
-                    <span key={role} className="text-[10px] px-2 py-0.5 rounded" style={{ color: ROLE_COLORS[role] || '#aaa', border: `1px solid ${ROLE_COLORS[role] || '#aaa'}33` }}>
+                    <span key={role} className="text-xs px-3 py-1 rounded-full font-semibold" style={{ color: rc, background: `${rc}15`, border: `1px solid ${rc}44` }}>
                       {role}: {count}
                     </span>
                   );
                 })}
               </div>
-              <p className="mt-4 text-xs italic" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                Tip: Click any slot to add a hero, or apply a Team Template to get started quickly.
+              <p className="text-[10px] italic" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                Or apply a Team Template above to get started instantly
               </p>
             </div>
           )}
@@ -1030,20 +1069,24 @@ function TeamSlots({ label, color, slots, onSlotClick, onClear, onClearAll, onHe
             style={{ background: 'rgba(30, 40, 70, 0.7)', border: `1px solid ${hero ? color : 'rgba(68,102,136,0.3)'}` }}
             onClick={() => hero ? undefined : onSlotClick(i)}>
             {hero ? (
-              <>
+              <div className="flex items-center gap-2 w-full animate-pop-in">
                 <div onContextMenu={e => { e.preventDefault(); if (onHeroDetail) onHeroDetail(hero); }}><HeroPortrait hero={hero} size="sm" selected /></div>
-                <span className="text-sm flex-1">{hero.nicknames[0]}</span>
+                <div className="flex flex-col flex-1 min-w-0">
+                  <span className="text-sm truncate">{hero.nicknames[0]}</span>
+                  <span className="text-[9px] opacity-50" style={{ color: ROLE_COLORS[hero.role] || '#aaa' }}>{hero.role}</span>
+                </div>
                 {mapName && (() => {
                   const tier = IcyVeinsDatabase.getInstance().getHeroTierOnMap(hero.nicknames[0], mapName);
                   const tc: Record<string, string> = { S: '#FFD700', A: '#90EE90', B: '#87CEEB', C: '#FFA500', D: '#FF6666' };
                   return tier !== 'B' ? <span className="text-[8px] px-1 rounded" style={{ color: tc[tier], background: (tc[tier] || '#888') + '15' }}>{tier}</span> : null;
                 })()}
                 <button onClick={(e) => { e.stopPropagation(); onClear(i); }} className="text-xs px-1 rounded hover:bg-white/10" style={{ color: '#FF6666' }} title={`Clear slot ${i + 1}`}>✕</button>
-              </>
+              </div>
             ) : (
-              <div className="flex items-center gap-2 w-full py-1" onClick={() => onSlotClick(i)}>
-                <span className="text-sm opacity-50 cursor-pointer">+ Pick {i + 1}</span>
-                <span className="text-xs opacity-30 ml-auto">{SLOT_ROLE_HINTS[i]}</span>
+              <div className="flex flex-col items-center justify-center w-full py-2 cursor-pointer rounded transition-all hover:shadow-[inset_0_0_12px_rgba(68,102,136,0.4)]" onClick={() => onSlotClick(i)}>
+                <span className="text-base mb-0.5">{SLOT_ROLE_HINTS[i]?.split(' ')[0]}</span>
+                <span className="text-[10px] opacity-40">{SLOT_ROLE_HINTS[i]?.split(' ').slice(1).join(' ')}</span>
+                <span className="text-[9px] opacity-30 mt-0.5">+ Pick {i + 1}</span>
               </div>
             )}
           </div>

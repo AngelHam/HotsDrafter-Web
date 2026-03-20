@@ -62,10 +62,16 @@ interface HeroSuggestionPanelProps {
 }
 
 function HeroSuggestionPanel({ suggestions, onSelect, title = 'Suggestions', mapName }: HeroSuggestionPanelProps) {
+  const isBanPhase = title.toLowerCase().includes('ban');
+  const indicatorColor = isBanPhase ? '#FF6666' : '#00FFFF';
+
   if (suggestions.length === 0) {
     return (
       <div className="p-2 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-        <h3 className="text-xs font-bold mb-1.5" style={{ color: '#00FFFF' }}>{title}</h3>
+        <h3 className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5" style={{ color: indicatorColor }}>
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: indicatorColor }} />
+          {title}
+        </h3>
         <p className="text-xs opacity-70">No suggestions available yet</p>
       </div>
     );
@@ -73,7 +79,10 @@ function HeroSuggestionPanel({ suggestions, onSelect, title = 'Suggestions', map
 
   return (
     <div className="p-2 rounded transition-opacity duration-200" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }} role="region" aria-label={title} aria-live="polite">
-      <h3 className="text-xs font-bold mb-1.5" style={{ color: '#00FFFF' }}>{title}</h3>
+      <h3 className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5" style={{ color: indicatorColor }}>
+        <span className="w-1.5 h-1.5 rounded-full" style={{ background: indicatorColor }} />
+        {title}
+      </h3>
       <div className="space-y-1" role="list" aria-label="Hero suggestions">
         {suggestions.map((s, i) => {
           const sc = getScoreColor(s.totalScore);

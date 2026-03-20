@@ -502,10 +502,34 @@ export class HeroSuggestionEngine {
     const desired = desiredMap[winCon] || [];
     const matches = desired.filter(s => specs.includes(s)).length;
 
-    if (matches >= 3) return 0.95;
-    if (matches >= 2) return 0.78;
-    if (matches >= 1) return 0.58;
-    return 0.32;
+    let fitScore: number;
+    if (matches >= 3) fitScore = 0.95;
+    else if (matches >= 2) fitScore = 0.78;
+    else if (matches >= 1) fitScore = 0.58;
+    else fitScore = 0.32;
+
+    // Anti-synergy specialties by win condition (from C++)
+    const antiSpecialties: Record<string, Specialty[]> = {
+      [WinCondition.DIVE]: [Specialty.SIEGE_PUSHING, Specialty.POKE],
+      [WinCondition.TEAMFIGHT]: [],
+      [WinCondition.POKE_SIEGE]: [Specialty.ENGAGE],
+      [WinCondition.SPLIT_MACRO]: [],
+      [WinCondition.PICK_COMP]: [Specialty.SIEGE_PUSHING],
+      [WinCondition.SUSTAIN_ATTRITION]: [],
+      [WinCondition.SNOWBALL_EARLY]: [Specialty.LATE_GAME_SCALING],
+      [WinCondition.LATE_GAME_SCALE]: [Specialty.SNOWBALL],
+    };
+
+    const antiSpecs = antiSpecialties[winCon] || [];
+    let antiMatches = 0;
+    for (const spec of antiSpecs) {
+      if (specs.includes(spec)) antiMatches++;
+    }
+    if (antiMatches > 0) {
+      fitScore -= 0.12 * antiMatches;
+    }
+
+    return Math.max(0, Math.min(1, fitScore));
   }
 
   private scoreRangeFit(hero: Hero, team: number): number {
