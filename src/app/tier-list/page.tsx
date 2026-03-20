@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
+import { specialtyToString } from '@/data/Specialty';
 import HeroPortrait from '@/components/HeroPortrait';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
 import type { Hero } from '@/data/Hero';
@@ -14,6 +15,10 @@ const ROLE_COLORS: Record<string, string> = {
 
 const TIER_COLORS: Record<string, string> = {
   S: '#FFD700', A: '#90EE90', B: '#87CEEB', C: '#FFA500', D: '#FF6666',
+};
+
+const TIER_DESCRIPTIONS: Record<string, string> = {
+  S: 'Meta-defining', A: 'Strong picks', B: 'Solid choices', C: 'Situational', D: 'Weak on this map',
 };
 
 interface HeroTierEntry {
@@ -110,9 +115,10 @@ export default function TierListPage() {
             className="text-sm px-3 py-1 rounded ml-auto" style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff', width: 150 }} />
           {entries.length >= 2 && (
             <button onClick={() => router.push(`/compare?h1=${encodeURIComponent(entries[0].hero.nicknames[0])}&h2=${encodeURIComponent(entries[1].hero.nicknames[0])}`)}
-              className="text-[10px] px-2 py-1 rounded hover:bg-white/10 whitespace-nowrap" style={{ color: '#87CEEB', border: '1px solid #87CEEB33' }}
+              className="text-xs px-3 py-1.5 rounded font-semibold whitespace-nowrap transition-all duration-200 hover:scale-105"
+              style={{ color: '#00FFFF', border: '2px solid #00FFFF', background: 'rgba(0,255,255,0.08)', boxShadow: '0 0 8px rgba(0,255,255,0.15)' }}
               title={`Compare ${entries[0].hero.nicknames[0]} vs ${entries[1].hero.nicknames[0]}`}>
-              ⚖️ Compare Top 2
+              ⚔️ Compare Top 2
             </button>
           )}
         </div>
@@ -151,9 +157,17 @@ export default function TierListPage() {
           return (
             <div key={tier} className="mb-4">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg font-bold px-2.5 py-0.5 rounded" style={{ background: TIER_COLORS[tier] + '22', color: TIER_COLORS[tier], border: `1px solid ${TIER_COLORS[tier]}44` }}>
-                  {tier}
-                </span>
+                <div className="flex flex-col items-center">
+                  <span className="text-lg font-bold px-2.5 py-0.5 rounded" style={{
+                    background: TIER_COLORS[tier] + '22',
+                    color: TIER_COLORS[tier],
+                    border: `1px solid ${TIER_COLORS[tier]}44`,
+                    ...(tier === 'S' ? { boxShadow: `0 0 12px ${TIER_COLORS.S}55, 0 0 24px ${TIER_COLORS.S}22`, borderColor: TIER_COLORS.S + '88', textShadow: `0 0 8px ${TIER_COLORS.S}88` } : {}),
+                  }}>
+                    {tier}
+                  </span>
+                  <span className="text-[9px] mt-0.5" style={{ color: TIER_COLORS[tier], opacity: 0.5 }}>{TIER_DESCRIPTIONS[tier]}</span>
+                </div>
                 <span className="text-xs opacity-50">{tierEntries.length} hero{tierEntries.length !== 1 ? 'es' : ''}</span>
                 <div className="flex gap-0.5 ml-2">
                   {['Tank', 'Healer', 'DPS', 'Mage', 'Offlane', 'Specialist'].map(r => {
@@ -165,8 +179,10 @@ export default function TierListPage() {
                 </div>
               </div>
               <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))' }}>
-                {tierEntries.map(e => (
-                  <div key={e.hero.name} className="flex flex-col items-center p-1 rounded hover:bg-white/5 transition-all cursor-pointer"
+                {tierEntries.map(e => {
+                  const topSpecs = e.hero.specialties.slice(0, 2).map(s => specialtyToString(s));
+                  return (
+                  <div key={e.hero.name} className="group relative flex flex-col items-center p-1 rounded hover:bg-white/5 transition-all cursor-pointer"
                     onClick={() => setDetailHero(e.hero)}
                     style={e.tier === 'S' ? { boxShadow: '0 0 6px rgba(255,215,0,0.3)', background: 'rgba(255,215,0,0.05)' } : undefined}
                     title={`${e.hero.nicknames[0]} (${e.hero.role}) — Score: ${e.score.toFixed(1)}${selectedMap === 'all' ? ` | S-tier: ${e.sTierMaps} maps, A-tier: ${e.aTierMaps} maps` : ''}`}>
@@ -174,8 +190,18 @@ export default function TierListPage() {
                     {selectedMap === 'all' && e.sTierMaps > 0 && (
                       <span className="text-[8px] mt-0.5" style={{ color: '#FFD700' }}>★{e.sTierMaps}</span>
                     )}
+                    {/* Hover tooltip */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1.5 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 z-20 whitespace-nowrap text-center"
+                      style={{ background: 'rgba(15, 20, 40, 0.95)', border: '1px solid rgba(68,102,136,0.6)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                      <div className="text-[10px] font-semibold" style={{ color: ROLE_COLORS[e.hero.role] || '#ccc' }}>{e.hero.role}</div>
+                      <div className="text-[9px]" style={{ color: TIER_COLORS[e.tier] }}>Score: {e.score.toFixed(1)}</div>
+                      {topSpecs.length > 0 && (
+                        <div className="text-[8px] mt-0.5 opacity-70" style={{ color: '#aaa' }}>{topSpecs.join(' · ')}</div>
+                      )}
+                    </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           );

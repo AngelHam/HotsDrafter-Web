@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
 import { TeamComposition } from '@/data/TeamComposition';
 import { analyzeWinCondition } from '@/data/WinConditionAnalyzer';
-import { winConditionToString } from '@/data/SuggestionTypes';
+import { WinCondition, winConditionToString } from '@/data/SuggestionTypes';
 import HeroPortrait from '@/components/HeroPortrait';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
 import { Specialty } from '@/data/Specialty';
@@ -20,13 +20,42 @@ function shuffleArray<T>(arr: T[]): T[] {
   return copy;
 }
 
+function pickDiverseTeam(pool: Hero[]): Hero[] {
+  const roles = ['Tank', 'Healer', 'Offlane'];
+  const picked: Hero[] = [];
+  const used = new Set<string>();
+  // Guarantee one Tank, one Healer, one Offlane
+  for (const role of roles) {
+    const candidates = pool.filter(h => h.role === role && !used.has(h.name));
+    if (candidates.length > 0) {
+      const h = candidates[Math.floor(Math.random() * candidates.length)];
+      picked.push(h);
+      used.add(h.name);
+    }
+  }
+  // Fill remaining 2 slots from DPS/Mage/Specialist (avoid duplicate healers)
+  const fillers = pool.filter(h => !used.has(h.name) && h.role !== 'Healer');
+  const shuffledFillers = shuffleArray(fillers);
+  for (const h of shuffledFillers) {
+    if (picked.length >= 5) break;
+    picked.push(h);
+    used.add(h.name);
+  }
+  return shuffleArray(picked);
+}
+
 function generateRandomDraft() {
   const shuffled = shuffleArray(ALL_HEROES);
+  const bans = shuffled.slice(0, 6);
+  const pool = shuffled.filter(h => !bans.includes(h));
+  const team1Picks = pickDiverseTeam(pool);
+  const remainingPool = pool.filter(h => !team1Picks.includes(h));
+  const team2Picks = pickDiverseTeam(remainingPool);
   return {
-    team1Bans: shuffled.slice(0, 3),
-    team2Bans: shuffled.slice(3, 6),
-    team1Picks: shuffled.slice(6, 11),
-    team2Picks: shuffled.slice(11, 16),
+    team1Bans: bans.slice(0, 3),
+    team2Bans: bans.slice(3, 6),
+    team1Picks,
+    team2Picks,
   };
 }
 
@@ -102,10 +131,12 @@ function SampleDraftInner() {
               </div>
             ))}
           </div>
+          <WinConditionBadges picks={draft.team1Picks} analysis={analysis.team1} />
         </div>
 
         {/* Center Analysis */}
         <div className="w-80 flex flex-col gap-4">
+          <ScoreComparisonBar score1={sampleCompScore(draft.team1Picks)} score2={sampleCompScore(draft.team2Picks)} />
           <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
             <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Draft Analysis</h3>
             <div className="mb-3 pb-3" style={{ borderBottom: '1px solid rgba(68,102,136,0.3)' }}>
@@ -123,8 +154,15 @@ function SampleDraftInner() {
           </div>
           <button
             onClick={() => setDraft(generateRandomDraft())}
-            className="px-6 py-3 rounded-lg font-bold transition-all hover:scale-105 hover:bg-white/10"
-            style={{ background: '#FFD70022', border: '2px solid #FFD700', color: '#FFD700' }}
+            className="px-8 py-4 rounded-lg text-lg font-bold transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
+            style={{
+              background: 'rgba(0, 255, 255, 0.08)',
+              border: '2px solid #00FFFF',
+              color: '#00FFFF',
+              boxShadow: '0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 15px rgba(0, 255, 255, 0.05)',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 25px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.1)'; e.currentTarget.style.background = 'rgba(0, 255, 255, 0.15)'; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 15px rgba(0, 255, 255, 0.05)'; e.currentTarget.style.background = 'rgba(0, 255, 255, 0.08)'; }}
             title="Generate a new random draft"
           >
             🎲 Re-Roll Draft
@@ -134,7 +172,6 @@ function SampleDraftInner() {
         {/* Team 2 */}
         <div className="flex-1">
           <h2 className="font-bold mb-2" style={{ color: '#FF6666' }}>TEAM 2 <ScoreBadge picks={draft.team2Picks} /></h2>
-          <RoleBadges picks={draft.team2Picks} />
           <RoleBadges picks={draft.team2Picks} />
           <div className="mb-3 mt-2">
             <span className="text-xs font-semibold" style={{ color: '#FF6666' }}>BANS</span>
@@ -159,6 +196,7 @@ function SampleDraftInner() {
               </div>
             ))}
           </div>
+          <WinConditionBadges picks={draft.team2Picks} analysis={analysis.team2} />
         </div>
       </div>
       {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}
@@ -199,25 +237,92 @@ function ScoreBadge({ picks }: { picks: Hero[] }) {
 }
 
 const SAMPLE_ROLE_CHECKS = [
-  { label: 'Tank', icon: '🛡️', check: (h: Hero) => h.role === 'Tank' },
-  { label: 'Healer', icon: '✚', check: (h: Hero) => h.role === 'Healer' },
-  { label: 'DPS', icon: '⚔️', check: (h: Hero) => h.role === 'DPS' || h.role === 'Mage' },
-  { label: 'Offlane', icon: '⚙️', check: (h: Hero) => h.role === 'Offlane' },
-  { label: 'Waveclear', icon: '🌊', check: (h: Hero) => h.specialties.includes(Specialty.WAVECLEAR) },
+  { label: 'Tank', desc: 'Has a frontline tank for engage & peel', icon: '🛡️', color: '#6495ED', check: (h: Hero) => h.role === 'Tank' },
+  { label: 'Healer', desc: 'Has a healer to sustain the team', icon: '✚', color: '#90EE90', check: (h: Hero) => h.role === 'Healer' },
+  { label: 'DPS', desc: 'Has ranged damage dealer (DPS or Mage)', icon: '⚔️', color: '#FF6347', check: (h: Hero) => h.role === 'DPS' || h.role === 'Mage' },
+  { label: 'Offlane', desc: 'Has a solo laner for off-lane pressure', icon: '⚙️', color: '#FFA500', check: (h: Hero) => h.role === 'Offlane' },
+  { label: 'Waveclear', desc: 'Has waveclear to manage lanes', icon: '🌊', color: '#BA55D3', check: (h: Hero) => h.specialties.includes(Specialty.WAVECLEAR) },
 ];
 
 function RoleBadges({ picks }: { picks: Hero[] }) {
   return (
-    <div className="flex gap-1 flex-wrap">
-      {SAMPLE_ROLE_CHECKS.map(({ label, icon, check }) => {
+    <div className="flex gap-1.5 flex-wrap">
+      {SAMPLE_ROLE_CHECKS.map(({ label, desc, icon, color, check }) => {
         const filled = picks.some(check);
         return (
-          <span key={label} className="text-xs px-1 py-0.5 rounded" title={label}
-            style={{ background: filled ? 'rgba(0,255,0,0.15)' : 'rgba(255,0,0,0.15)', color: filled ? '#90EE90' : '#FF6666', border: `1px solid ${filled ? '#90EE9044' : '#FF666644'}` }}>
-            {icon}{filled ? '✓' : '✗'}
+          <span key={label} className="text-xs px-2 py-1 rounded-md font-medium cursor-default"
+            title={`${label}: ${desc}`}
+            style={{
+              background: filled ? `${color}22` : 'rgba(255,0,0,0.1)',
+              color: filled ? color : '#FF666699',
+              border: `1px solid ${filled ? color + '66' : '#FF666633'}`,
+              fontSize: '11px',
+            }}>
+            {icon} {filled ? '✓' : '✗'}
           </span>
         );
       })}
+    </div>
+  );
+}
+
+const WIN_CONDITION_COLORS: Record<string, string> = {
+  [WinCondition.TEAMFIGHT]: '#4488FF',
+  [WinCondition.POKE_SIEGE]: '#BA55D3',
+  [WinCondition.DIVE]: '#FF6347',
+  [WinCondition.SPLIT_MACRO]: '#FFA500',
+  [WinCondition.PICK_COMP]: '#FF6666',
+  [WinCondition.SUSTAIN_ATTRITION]: '#90EE90',
+  [WinCondition.SNOWBALL_EARLY]: '#FFD700',
+  [WinCondition.LATE_GAME_SCALE]: '#6495ED',
+};
+
+function WinConditionBadges({ analysis }: { picks?: Hero[]; analysis: { primary: WinCondition; scores: Record<WinCondition, number> } }) {
+  // Show primary + any secondary conditions scoring above a threshold
+  const sorted = Object.entries(analysis.scores)
+    .sort(([, a], [, b]) => b - a)
+    .filter(([, score]) => score > 0)
+    .slice(0, 3);
+  return (
+    <div className="flex gap-1.5 flex-wrap mt-3">
+      {sorted.map(([wc, score], idx) => {
+        const color = WIN_CONDITION_COLORS[wc] || '#00FFFF';
+        const isPrimary = idx === 0;
+        return (
+          <span key={wc} className="text-[10px] font-semibold px-2 py-1 rounded-full cursor-default"
+            title={`${winConditionToString(wc as WinCondition)} (strength: ${score})`}
+            style={{
+              background: `${color}${isPrimary ? '33' : '1A'}`,
+              color,
+              border: `1px solid ${color}${isPrimary ? '88' : '44'}`,
+            }}>
+            {winConditionToString(wc as WinCondition)}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+function ScoreComparisonBar({ score1, score2 }: { score1: number; score2: number }) {
+  const total = score1 + score2 || 1;
+  const pct1 = Math.round((score1 / total) * 100);
+  const diff = Math.abs(score1 - score2);
+  const verdict = diff <= 10 ? 'Close Match' : diff <= 25 ? (score1 > score2 ? 'Team 1 Favored' : 'Team 2 Favored') : (score1 > score2 ? 'Team 1 Advantage' : 'Team 2 Advantage');
+  const verdictColor = diff <= 10 ? '#FFD700' : score1 > score2 ? '#4488FF' : '#FF6666';
+  return (
+    <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-xs font-bold" style={{ color: '#4488FF' }}>{score1}</span>
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ color: verdictColor, background: `${verdictColor}1A`, border: `1px solid ${verdictColor}44` }}>
+          {verdict}
+        </span>
+        <span className="text-xs font-bold" style={{ color: '#FF6666' }}>{score2}</span>
+      </div>
+      <div className="w-full h-3 rounded-full overflow-hidden flex" style={{ background: 'rgba(0,0,0,0.3)' }}>
+        <div className="h-full transition-all duration-500" style={{ width: `${pct1}%`, background: 'linear-gradient(90deg, #4488FF, #6699FF)' }} />
+        <div className="h-full transition-all duration-500" style={{ width: `${100 - pct1}%`, background: 'linear-gradient(90deg, #FF6666, #FF4444)' }} />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
 import { DraftingTool, DRAFT_TEAM_ORDER, DRAFT_IS_BAN, matchesRoleFilter } from '@/data/DraftingTool';
@@ -56,6 +56,7 @@ function DraftPageInner() {
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [timerDuration, setTimerDuration] = useState(25);
   const [timeLeft, setTimeLeft] = useState(25);
+  const hasSavedDraft = useRef(false);
 
   useEffect(() => { DraftSettings.load(); }, []);
 
@@ -212,7 +213,17 @@ function DraftPageInner() {
     const a1 = analyzeWinCondition(t1, t2);
     const a2 = analyzeWinCondition(t2, t1);
 
-    // Auto-save to history
+    return { team1: a1, team2: a2 };
+  }, [isComplete, draft, map]);
+
+  // Auto-save to history once when draft completes
+  useEffect(() => {
+    if (!isComplete || !analysis || hasSavedDraft.current) return;
+    hasSavedDraft.current = true;
+    const t1 = new TeamComposition(team1Picks);
+    const t2 = new TeamComposition(team2Picks);
+    const a1 = analyzeWinCondition(t1, t2);
+    const a2 = analyzeWinCondition(t2, t1);
     saveDraft({
       timestamp: new Date().toISOString(),
       mapName: map.name,
@@ -226,9 +237,7 @@ function DraftPageInner() {
       team2WinCondition: winConditionToString(a2.primary),
       verdict: `Team 1: ${winConditionToString(a1.primary)} vs Team 2: ${winConditionToString(a2.primary)}`,
     });
-
-    return { team1: a1, team2: a2 };
-  }, [isComplete, draft, map]);
+  }, [isComplete, analysis]);
 
   const yourTeam = firstPick === 2 ? 2 : 1;
   const isYourTurn = currentTeam === yourTeam;

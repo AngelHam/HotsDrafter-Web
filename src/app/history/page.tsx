@@ -2,9 +2,74 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { loadHistory, clearHistory, deleteDraft, type DraftRecord } from '@/data/DraftHistory';
+import { loadHistory, saveDraft, clearHistory, deleteDraft, type DraftRecord } from '@/data/DraftHistory';
 import { findHeroByName, ALL_MAPS } from '@/data/HeroData';
 import HeroPortrait from '@/components/HeroPortrait';
+
+const SAMPLE_DRAFTS: DraftRecord[] = [
+  {
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    mapName: 'Cursed Hollow',
+    firstPickTeam: 1,
+    team1Picks: ['Muradin', 'Anduin', 'Sonya', 'Jaina', 'Valla'],
+    team2Picks: ['Johanna', 'Brightwing', 'Thrall', 'Li-Ming', 'Raynor'],
+    team1Bans: ['Maiev', 'Genji'],
+    team2Bans: ['Deathwing', 'Abathur'],
+    team1Score: 78, team2Score: 72,
+    team1WinCondition: 'Teamfight', team2WinCondition: 'Poke / Siege',
+    verdict: 'Team 1: Teamfight vs Team 2: Poke / Siege',
+  },
+  {
+    timestamp: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
+    mapName: 'Infernal Shrines',
+    firstPickTeam: 2,
+    team1Picks: ['Diablo', 'Rehgar', 'Blaze', 'Kael\'thas', 'Greymane'],
+    team2Picks: ['ETC', 'Stukov', 'Yrel', 'Chromie', 'Hanzo'],
+    team1Bans: ['Maiev', 'Zeratul'],
+    team2Bans: ['Lucio', 'Jaina'],
+    team1Score: 85, team2Score: 68,
+    team1WinCondition: 'Teamfight', team2WinCondition: 'Poke / Siege',
+    verdict: 'Team 1: Teamfight vs Team 2: Poke / Siege',
+  },
+  {
+    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    mapName: 'Dragon Shire',
+    firstPickTeam: 1,
+    team1Picks: ['Anub\'arak', 'Ana', 'Illidan', 'Kerrigan', 'Tychus'],
+    team2Picks: ['Garrosh', 'Malfurion', 'Dehaka', 'Guldan', 'Cassia'],
+    team1Bans: ['Brightwing', 'Uther'],
+    team2Bans: ['Abathur', 'Murky'],
+    team1Score: 91, team2Score: 74,
+    team1WinCondition: 'Dive', team2WinCondition: 'Sustain / Attrition',
+    verdict: 'Team 1: Dive vs Team 2: Sustain / Attrition',
+  },
+  {
+    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    mapName: 'Towers of Doom',
+    firstPickTeam: 1,
+    team1Picks: ['ETC', 'Deckard', 'Ragnaros', 'Nazeebo', 'Fenix'],
+    team2Picks: ['Arthas', 'Whitemane', 'Leoric', 'Azmodan', 'Sylvanas'],
+    team1Bans: ['Chromie', 'Genji'],
+    team2Bans: ['Deathwing', 'Maiev'],
+    team1Score: 65, team2Score: 82,
+    team1WinCondition: 'Poke / Siege', team2WinCondition: 'Split / Macro',
+    verdict: 'Team 1: Poke / Siege vs Team 2: Split / Macro',
+  },
+];
+
+function ScoreBar({ t1, t2 }: { t1: number; t2: number }) {
+  const total = t1 + t2 || 1;
+  const pct1 = Math.round((t1 / total) * 100);
+  return (
+    <div className="flex items-center gap-2 mt-1.5">
+      <span className="text-[10px] font-bold w-7 text-right" style={{ color: '#4488FF' }}>{t1}</span>
+      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+        <div className="h-full rounded-full transition-all" style={{ width: `${pct1}%`, background: `linear-gradient(90deg, #4488FF, ${pct1 > 50 ? '#90EE90' : '#FF6666'})` }} />
+      </div>
+      <span className="text-[10px] font-bold w-7" style={{ color: '#FF6666' }}>{t2}</span>
+    </div>
+  );
+}
 
 function HeroNameStrip({ names, banned = false }: { names: string[]; banned?: boolean }) {
   if (names.length === 0) {
@@ -28,6 +93,13 @@ function HeroNameStrip({ names, banned = false }: { names: string[]; banned?: bo
     </div>
   );
 }
+
+const MAP_ICONS: Record<string, string> = {
+  'Alterac Pass': '🏔️', 'Battlefield of Eternity': '😈', 'Braxis Holdout': '🧬',
+  'Cursed Hollow': '💀', 'Dragon Shire': '🐉', 'Garden of Terror': '🌿',
+  'Infernal Shrines': '🔥', 'Sky Temple': '🏛️', 'Tomb of the Spider Queen': '🕷️',
+  'Towers of Doom': '🏰', 'Volskaya Foundry': '⚙️',
+};
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -63,48 +135,64 @@ export default function HistoryPage() {
     if (expandedIdx === idx) setExpandedIdx(null);
   };
 
+  const handleLoadSamples = () => {
+    for (const draft of SAMPLE_DRAFTS) saveDraft(draft);
+    setHistory(loadHistory());
+  };
+
+  // Compute stats
+  const stats = (() => {
+    if (history.length === 0) return null;
+    const mapCounts = new Map<string, number>();
+    let totalT1 = 0, totalT2 = 0, scoreCount = 0;
+    const wcCounts = new Map<string, number>();
+    for (const r of history) {
+      mapCounts.set(r.mapName, (mapCounts.get(r.mapName) || 0) + 1);
+      if (r.team1Score > 0) { totalT1 += r.team1Score; scoreCount++; }
+      if (r.team2Score > 0) { totalT2 += r.team2Score; }
+      if (r.team1WinCondition) wcCounts.set(r.team1WinCondition, (wcCounts.get(r.team1WinCondition) || 0) + 1);
+      if (r.team2WinCondition) wcCounts.set(r.team2WinCondition, (wcCounts.get(r.team2WinCondition) || 0) + 1);
+    }
+    const topMap = [...mapCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+    const topWc = [...wcCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+    const avgT1 = scoreCount > 0 ? Math.round(totalT1 / scoreCount) : 0;
+    const avgT2 = scoreCount > 0 ? Math.round(totalT2 / scoreCount) : 0;
+    return { topMap, topWc, avgT1, avgT2, scoreCount };
+  })();
+
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
         <h1 className="text-lg font-bold" style={{ color: '#BA55D3' }}>📜 Draft History {history.length > 0 && <span className="text-xs font-normal opacity-60 ml-1">({history.length} draft{history.length !== 1 ? 's' : ''})</span>}</h1>
-        {history.length > 0 && (
+        {history.length > 0 ? (
           <button onClick={handleClear} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Delete all saved drafts">
             Clear All
           </button>
-        )}
+        ) : <div className="w-16" />}
       </div>
 
       <div className="flex-1 p-4 max-w-4xl mx-auto w-full">
         {/* Stats Dashboard */}
-        {history.length > 0 && (
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            {(() => {
-              const mapCounts = new Map<string, number>();
-              let totalScore = 0; let scoreCount = 0;
-              for (const r of history) {
-                mapCounts.set(r.mapName, (mapCounts.get(r.mapName) || 0) + 1);
-                if (r.team1Score > 0) { totalScore += r.team1Score; scoreCount++; }
-              }
-              const topMap = [...mapCounts.entries()].sort((a, b) => b[1] - a[1])[0];
-              const avgScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0;
-              return (
-                <>
-                  <div className="p-2 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
-                    <p className="text-lg font-bold" style={{ color: '#FFD700' }}>{history.length}</p>
-                    <p className="text-[10px] opacity-50">Total Drafts</p>
-                  </div>
-                  <div className="p-2 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
-                    <p className="text-sm font-bold truncate" style={{ color: '#00FFFF' }}>{topMap ? topMap[0].split(' ')[0] : '-'}</p>
-                    <p className="text-[10px] opacity-50">Favorite Map</p>
-                  </div>
-                  <div className="p-2 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
-                    <p className="text-lg font-bold" style={{ color: avgScore >= 80 ? '#90EE90' : avgScore >= 50 ? '#FFD700' : '#FF6666' }}>{avgScore || '-'}</p>
-                    <p className="text-[10px] opacity-50">Avg Score</p>
-                  </div>
-                </>
-              );
-            })()}
+        {stats && (
+          <div className="grid grid-cols-4 gap-2 mb-4">
+            <div className="p-2.5 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
+              <p className="text-xl font-bold" style={{ color: '#FFD700' }}>{history.length}</p>
+              <p className="text-[10px] opacity-50">Total Drafts</p>
+            </div>
+            <div className="p-2.5 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
+              <p className="text-xs mb-0.5">{MAP_ICONS[stats.topMap?.[0]] || '🗺️'}</p>
+              <p className="text-sm font-bold truncate" style={{ color: '#00FFFF' }}>{stats.topMap ? stats.topMap[0] : '-'}</p>
+              <p className="text-[10px] opacity-50">Most Picked Map</p>
+            </div>
+            <div className="p-2.5 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
+              <p className="text-lg font-bold" style={{ color: stats.avgT1 >= 80 ? '#90EE90' : stats.avgT1 >= 50 ? '#FFD700' : '#FF6666' }}>{stats.avgT1 || '-'}</p>
+              <p className="text-[10px] opacity-50">Avg T1 Score</p>
+            </div>
+            <div className="p-2.5 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
+              <p className="text-sm font-bold truncate" style={{ color: '#BA55D3' }}>{stats.topWc ? stats.topWc[0] : '-'}</p>
+              <p className="text-[10px] opacity-50">Top Strategy</p>
+            </div>
           </div>
         )}
         {history.length > 0 && (
@@ -142,11 +230,17 @@ export default function HistoryPage() {
             <span className="text-5xl block mb-4">📜</span>
             <p className="text-xl font-semibold mb-2" style={{ color: '#BA55D3' }}>No drafts saved yet</p>
             <p className="text-sm opacity-40 mb-6">Complete an Interactive Draft to see it here</p>
-            <button onClick={() => router.push('/')} className="text-sm px-5 py-2.5 rounded font-semibold transition-all hover:scale-105 hover:brightness-110"
-              style={{ color: '#00FFFF', border: '2px solid #00FFFF44', background: 'rgba(0,255,255,0.05)' }}>
-              ⚔️ Start Your First Draft
-            </button>
-            <div className="grid grid-cols-3 gap-3 mt-8 max-w-md mx-auto">
+            <div className="flex gap-3 justify-center mb-8">
+              <button onClick={() => router.push('/')} className="text-sm px-5 py-2.5 rounded font-semibold transition-all hover:scale-105 hover:brightness-110"
+                style={{ color: '#00FFFF', border: '2px solid #00FFFF44', background: 'rgba(0,255,255,0.05)' }}>
+                ⚔️ Start Your First Draft
+              </button>
+              <button onClick={handleLoadSamples} className="text-sm px-5 py-2.5 rounded font-semibold transition-all hover:scale-105 hover:brightness-110"
+                style={{ color: '#FFD700', border: '2px solid #FFD70044', background: 'rgba(255,215,0,0.05)' }}>
+                📦 Load Sample Data
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-3 max-w-md mx-auto">
               <div className="p-3 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.2)' }}>
                 <span className="text-lg block mb-1">📊</span>
                 <p className="text-[10px] opacity-40">Track your scores and stats</p>
@@ -165,6 +259,8 @@ export default function HistoryPage() {
           <div className="space-y-3">
             {filteredHistory.map((record, i) => {
               const isExpanded = expandedIdx === i;
+              const mapIcon = MAP_ICONS[record.mapName] || '🗺️';
+              const hasScores = record.team1Score > 0 || record.team2Score > 0;
               return (
               <div key={i}
                 className="p-4 rounded cursor-pointer transition-all hover:brightness-110"
@@ -174,26 +270,20 @@ export default function HistoryPage() {
                 <div className="flex items-start gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="text-sm font-bold" style={{ color: '#FFD700' }}>📍 {record.mapName}</span>
+                      <span className="text-sm font-bold" style={{ color: '#FFD700' }}>{mapIcon} {record.mapName}</span>
                       {record.firstPickTeam && record.firstPickTeam !== 1 && (
                         <span className="text-[10px] px-1 py-0.5 rounded" style={{ background: 'rgba(255,102,102,0.1)', color: '#FF6666', border: '1px solid #FF666622' }}>
                           T{record.firstPickTeam} 1st
                         </span>
                       )}
-                      {record.team1Score > 0 && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(68,136,255,0.15)', color: '#4488FF', border: '1px solid #4488FF33' }}>
-                          T1: {record.team1Score}
-                        </span>
-                      )}
-                      {record.team2Score > 0 && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,102,102,0.15)', color: '#FF6666', border: '1px solid #FF666633' }}>
-                          T2: {record.team2Score}
-                        </span>
-                      )}
-                      <span className="text-xs opacity-50">{new Date(record.timestamp).toLocaleString()}</span>
-                      <span className="text-[10px] ml-auto opacity-40">{isExpanded ? '▼' : '▶'} Details</span>
+                      <span className="text-xs opacity-50 ml-auto">{new Date(record.timestamp).toLocaleString()}</span>
+                      <span className="text-[10px] opacity-40">{isExpanded ? '▼' : '▶'}</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-4 text-xs">
+
+                    {/* Score comparison bar */}
+                    {hasScores && <ScoreBar t1={record.team1Score} t2={record.team2Score} />}
+
+                    <div className="grid grid-cols-2 gap-4 text-xs mt-2">
                       <div>
                         <span style={{ color: '#4488FF' }}>Team 1:</span>
                         <HeroNameStrip names={record.team1Picks} />
