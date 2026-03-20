@@ -132,9 +132,8 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
             <div key={i} className="flex items-center gap-2">
               <div className="rounded" title={picks[i] ? `Pick ${i + 1}: ${picks[i].nicknames[0]}` : `Pick Slot ${i + 1}`} style={{
                 width: 40, height: 40,
-                background: 'rgba(255,215,0,0.1)',
-                border: `1px solid ${picks[i] ? '#FFD700' : 'rgba(255,215,0,0.2)'}`,
-                borderStyle: picks[i] ? 'solid' : 'dashed',
+                background: picks[i] ? 'rgba(255,215,0,0.1)' : 'rgba(255,215,0,0.04)',
+                border: `1px ${picks[i] ? 'solid' : 'dashed'} ${picks[i] ? '#FFD700' : 'rgba(255,215,0,0.35)'}`,
               }}>
                 {picks[i] && <div className="animate-pop-in cursor-pointer" onClick={() => onHeroClick?.(picks[i])}><HeroPortrait hero={picks[i]} size="sm" selected /></div>}
               </div>
@@ -158,7 +157,7 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
                     </span>
                   );
                 })() : (
-                  <span className="opacity-40 italic">
+                  <span className="opacity-50 italic text-[11px]" style={{ color: '#8899aa' }}>
                     {i === 0 ? '🛡️ Tank?' : i === 1 ? '✚ Healer?' : i === 2 ? '⚔️ DPS?' : i === 3 ? '⚙️ Offlane?' : '✨ Flex?'}
                   </span>
                 )}

@@ -227,29 +227,32 @@ export default function HistoryPage() {
           </div>
         ) : history.length === 0 ? (
           <div className="text-center py-16 animate-fade-slide-up">
-            <span className="text-5xl block mb-4">📜</span>
+            <span className="animate-icon-pulse text-5xl block mb-4 inline-block">📜</span>
             <p className="text-xl font-semibold mb-2" style={{ color: '#BA55D3' }}>No drafts saved yet</p>
             <p className="text-sm opacity-40 mb-6">Complete an Interactive Draft to see it here</p>
-            <div className="flex gap-3 justify-center mb-8">
+            <div className="flex gap-3 justify-center mb-4">
               <button onClick={() => router.push('/')} className="text-sm px-5 py-2.5 rounded font-semibold transition-all hover:scale-105 hover:brightness-110"
                 style={{ color: '#00FFFF', border: '2px solid #00FFFF44', background: 'rgba(0,255,255,0.05)' }}>
                 ⚔️ Start Your First Draft
               </button>
-              <button onClick={handleLoadSamples} className="text-sm px-5 py-2.5 rounded font-semibold transition-all hover:scale-105 hover:brightness-110"
-                style={{ color: '#FFD700', border: '2px solid #FFD70044', background: 'rgba(255,215,0,0.05)' }}>
+              <button onClick={handleLoadSamples} className="action-btn text-sm px-6 py-3 rounded-lg font-bold"
+                style={{ color: '#1a1a2e', background: 'linear-gradient(135deg, #FFD700, #FFA500)', border: '2px solid #FFD700', boxShadow: '0 0 20px rgba(255,215,0,0.25)', '--btn-glow': 'rgba(255,215,0,0.4)' } as React.CSSProperties}>
                 📦 Load Sample Data
               </button>
             </div>
+            <p className="text-xs opacity-40 mb-8 max-w-sm mx-auto">
+              Sample data includes 4 drafts across Cursed Hollow, Infernal Shrines, Dragon Shire &amp; Towers of Doom with full team compositions, scores, and win conditions.
+            </p>
             <div className="grid grid-cols-3 gap-3 max-w-md mx-auto">
-              <div className="p-3 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.2)' }}>
+              <div className="p-3 rounded text-center transition-all hover:brightness-110" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.2)' }}>
                 <span className="text-lg block mb-1">📊</span>
                 <p className="text-[10px] opacity-40">Track your scores and stats</p>
               </div>
-              <div className="p-3 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.2)' }}>
+              <div className="p-3 rounded text-center transition-all hover:brightness-110" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.2)' }}>
                 <span className="text-lg block mb-1">🗺️</span>
                 <p className="text-[10px] opacity-40">Filter by map and strategy</p>
               </div>
-              <div className="p-3 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.2)' }}>
+              <div className="p-3 rounded text-center transition-all hover:brightness-110" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.2)' }}>
                 <span className="text-lg block mb-1">🔄</span>
                 <p className="text-[10px] opacity-40">Re-draft past games</p>
               </div>

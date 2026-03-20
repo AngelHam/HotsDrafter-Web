@@ -37,7 +37,7 @@ export default function MapCard({ map, selected, onClick }: MapCardProps) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col justify-center px-3 py-2 rounded transition-all text-left w-full hover:brightness-110 hover:-translate-y-[2px] hover:shadow-lg"
+      className="map-card-hover flex flex-col justify-center px-3 py-2 rounded text-left w-full hover:-translate-y-[2px]"
       style={{
         minHeight: 72,
         background: selected ? 'rgba(0, 255, 255, 0.15)' : 'rgba(30, 40, 70, 0.7)',

@@ -25,12 +25,13 @@ export default function DraftProgressBar({ currentStep, teamOrder }: DraftProgre
           const isBan = DRAFT_IS_BAN[i];
           const isCurrent = i === currentStep;
           const isDone = i < currentStep;
+          const isFuture = i > currentStep;
 
           const teamColor = team === 1 ? '#4488FF' : '#FF4444';
           let bg: string;
-          if (isCurrent) bg = '#FFFFFF';
+          if (isCurrent) bg = isBan ? '#FF6666' : teamColor;
           else if (isDone) bg = isBan ? '#FF666699' : teamColor + '99';
-          else bg = isBan ? '#FF666633' : teamColor + '33';
+          else bg = isBan ? '#FF666618' : teamColor + '18';
 
           return (
             <div
@@ -41,20 +42,22 @@ export default function DraftProgressBar({ currentStep, teamOrder }: DraftProgre
               <div
                 className={`rounded transition-all flex items-center justify-center ${isCurrent ? 'progress-pulse' : ''}`}
                 style={{
-                  width: isCurrent ? 34 : 24,
-                  height: isCurrent ? 26 : 20,
+                  width: isCurrent ? 36 : 24,
+                  height: isCurrent ? 28 : 20,
                   background: bg,
-                  border: isCurrent ? '2px solid #FFD700' : `1px solid ${isDone ? teamColor + '66' : teamColor + '22'}`,
-                  boxShadow: isCurrent ? '0 0 12px rgba(255,215,0,0.5)' : 'none',
+                  border: isCurrent ? '2px solid #FFD700' : `1px solid ${isDone ? teamColor + '66' : teamColor + '15'}`,
+                  boxShadow: isCurrent ? `0 0 16px rgba(255,215,0,0.6), 0 0 6px ${teamColor}88` : 'none',
                   fontSize: isCurrent ? 11 : 10,
-                  color: isDone || isCurrent ? '#fff' : '#888',
+                  color: isDone ? '#fff' : isCurrent ? '#fff' : '#555',
                   fontWeight: isCurrent ? 'bold' : 'normal',
                   letterSpacing: '-0.5px',
+                  transform: isCurrent ? 'scale(1.15)' : 'scale(1)',
+                  opacity: isFuture ? 0.45 : 1,
                 }}
               >
-                {i + 1}
+                {isDone ? '✓' : i + 1}
               </div>
-              <span className="text-[9px] mt-0.5 font-semibold" style={{ color: isBan ? '#FF6666' : teamColor, opacity: isCurrent ? 1 : isDone ? 0.8 : 0.4 }}>
+              <span className="text-[9px] mt-0.5 font-semibold" style={{ color: isBan ? '#FF6666' : teamColor, opacity: isCurrent ? 1 : isDone ? 0.8 : 0.3 }}>
                 {isBan ? 'BAN' : `T${team}`}
               </span>
             </div>

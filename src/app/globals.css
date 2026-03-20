@@ -120,3 +120,51 @@ body {
     border-color: rgba(0, 255, 255, 0.5);
   }
 }
+
+/* Map card hover glow */
+.map-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.map-card-hover:hover {
+  box-shadow: 0 4px 16px rgba(0, 255, 255, 0.12), 0 0 8px rgba(68, 102, 136, 0.3);
+  border-color: rgba(0, 255, 255, 0.4) !important;
+}
+
+/* Action button hover glow */
+.action-btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: scale(1.05);
+  filter: brightness(1.15);
+  box-shadow: 0 0 16px var(--btn-glow, rgba(0, 255, 255, 0.25));
+}
+
+/* Feature pill bounce-in */
+@keyframes bounceIn {
+  0% { opacity: 0; transform: scale(0.6) translateY(8px); }
+  60% { opacity: 1; transform: scale(1.08) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+/* Icon pulse for empty state */
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+
+.animate-icon-pulse {
+  animation: iconPulse 2.5s ease-in-out infinite;
+}
+
+/* Hero spotlight fade */
+.hero-spotlight-fade {
+  transition: opacity 0.5s ease-in-out;
+}

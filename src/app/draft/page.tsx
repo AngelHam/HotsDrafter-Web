@@ -250,7 +250,7 @@ function DraftPageInner() {
     : `${isYourTurn ? '🟢 Your' : '🔴 Enemy'} Turn — ${isBan ? '🚫 BAN' : `✅ PICK ${team1Picks.length + team2Picks.length + 1}/10`} (${step + 1}/${totalSteps})`;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 flex-wrap gap-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <div className="flex items-center gap-3">
@@ -458,7 +458,7 @@ function DraftPageInner() {
         {/* Center: Hero Grid + Suggestions */}
         <div className="flex-1 flex flex-col gap-3 min-w-0">
           {/* Suggestions */}
-          <div>
+          <div className="flex-shrink-0">
             <button
               onClick={() => setSuggestionsCollapsed(c => !c)}
               className="w-full text-left text-xs font-semibold px-3 py-1.5 rounded-t flex items-center justify-between lg:hidden"
@@ -467,7 +467,7 @@ function DraftPageInner() {
               <span>{isBan ? '🚫 Ban Suggestions' : '✅ Pick Suggestions'} ({suggestions.length})</span>
               <span>{suggestionsCollapsed ? '▶' : '▼'}</span>
             </button>
-            <div className={`${suggestionsCollapsed ? 'hidden lg:block' : ''}`}>
+            <div className={`${suggestionsCollapsed ? 'hidden lg:block' : ''} max-h-[340px] overflow-y-auto`}>
               <HeroSuggestionPanel
                 suggestions={suggestions}
                 onSelect={(s) => handleHeroClick(s.hero)}

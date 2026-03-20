@@ -33,7 +33,8 @@ export default function StartupPage() {
   const [selectedMapIdx, setSelectedMapIdx] = useState(-1);
   const [useRandom, setUseRandom] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [spotlightHero, setSpotlightHero] = useState(ALL_HEROES[0]);
+  const [spotlightIdx, setSpotlightIdx] = useState(0);
+  const [spotlightVisible, setSpotlightVisible] = useState(true);
   const [draftCount, setDraftCount] = useState(0);
 
   useEffect(() => {
@@ -41,9 +42,22 @@ export default function StartupPage() {
     setSelectedMapIdx(DraftSettings.selectedMapIndex);
     setUseRandom(DraftSettings.useRandomMap);
     if (shouldShowTutorial()) setShowTutorial(true);
-    setSpotlightHero(ALL_HEROES[Math.floor(Math.random() * ALL_HEROES.length)]);
+    setSpotlightIdx(Math.floor(Math.random() * ALL_HEROES.length));
     setDraftCount(loadHistory().length);
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSpotlightVisible(false);
+      setTimeout(() => {
+        setSpotlightIdx(prev => (prev + 1) % ALL_HEROES.length);
+        setSpotlightVisible(true);
+      }, 400);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const spotlightHero = ALL_HEROES[spotlightIdx];
 
   const handleMapSelect = (idx: number) => {
     if (idx === -1) {
@@ -76,8 +90,8 @@ export default function StartupPage() {
           Heroes of the Storm Draft Assistant
         </p>
         <div className="flex items-center justify-center mb-6 w-full max-w-md">
-          <div className="flex items-center gap-4 px-5 py-4 rounded-xl w-full transition-all hover:brightness-110"
-            style={{ background: 'rgba(30, 40, 70, 0.7)', border: `1px solid ${ROLE_COLORS[spotlightHero.role] || '#446688'}55` }}>
+          <div className="hero-spotlight-fade flex items-center gap-4 px-5 py-4 rounded-xl w-full transition-all hover:brightness-110"
+            style={{ background: 'rgba(30, 40, 70, 0.7)', border: `1px solid ${ROLE_COLORS[spotlightHero.role] || '#446688'}55`, opacity: spotlightVisible ? 1 : 0 }}>
             <HeroPortrait hero={spotlightHero} size="lg" />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -175,9 +189,9 @@ export default function StartupPage() {
       })()}
 
       <div className="animate-fade-slide-up mt-8 flex flex-wrap gap-2 justify-center max-w-3xl" style={{ animationDelay: '480ms' }}>
-        {['AI Suggestions', 'Ban Predictions', 'Counter Warnings', 'Win Conditions', 'Hero Compare', 'Tier Lists', 'Draft Export', 'Coaching Tips'].map(f => (
-          <span key={f} className="text-xs px-3 py-1.5 rounded-full cursor-default transition-all duration-200 hover:scale-110"
-            style={{ background: 'rgba(255,215,0,0.08)', color: '#FFD700', border: '1px solid #FFD70025', boxShadow: '0 0 0 0 rgba(255,215,0,0)' }}
+        {['AI Suggestions', 'Ban Predictions', 'Counter Warnings', 'Win Conditions', 'Hero Compare', 'Tier Lists', 'Draft Export', 'Coaching Tips'].map((f, i) => (
+          <span key={f} className="animate-bounce-in text-xs px-3 py-1.5 rounded-full cursor-default transition-all duration-200 hover:scale-110"
+            style={{ background: 'rgba(255,215,0,0.08)', color: '#FFD700', border: '1px solid #FFD70025', boxShadow: '0 0 0 0 rgba(255,215,0,0)', animationDelay: `${480 + i * 60}ms` }}
             onMouseEnter={e => { (e.target as HTMLElement).style.boxShadow = '0 0 10px 2px rgba(255,215,0,0.2)'; (e.target as HTMLElement).style.background = 'rgba(255,215,0,0.14)'; }}
             onMouseLeave={e => { (e.target as HTMLElement).style.boxShadow = '0 0 0 0 rgba(255,215,0,0)'; (e.target as HTMLElement).style.background = 'rgba(255,215,0,0.08)'; }}
           >{f}</span>
@@ -197,8 +211,8 @@ function ActionButton({ label, icon, color, onClick, primary, tooltip }: {
   label: string; icon: string; color: string; onClick: () => void; primary?: boolean; tooltip?: string;
 }) {
   return (
-    <button onClick={onClick} className="px-4 py-3 rounded-lg font-semibold text-sm transition-all hover:scale-105"
-      style={{ background: primary ? `${color}22` : 'rgba(30, 40, 70, 0.7)', border: `2px solid ${color}`, color, minWidth: 155 }}
+    <button onClick={onClick} className="action-btn px-4 py-3 rounded-lg font-semibold text-sm"
+      style={{ background: primary ? `${color}22` : 'rgba(30, 40, 70, 0.7)', border: `2px solid ${color}`, color, minWidth: 155, '--btn-glow': `${color}40` } as React.CSSProperties}
       title={tooltip || label}>
       {icon} {label}
     </button>

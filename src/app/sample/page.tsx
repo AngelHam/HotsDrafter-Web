@@ -223,19 +223,47 @@ export default function SampleDraftPage() {
 }
 
 function sampleCompScore(picks: Hero[]): number {
-  let score = 20;
-  if (picks.some(h => h.role === 'Tank')) score += 15;
-  if (picks.some(h => h.role === 'Healer')) score += 15;
-  if (picks.some(h => h.role === 'DPS' || h.role === 'Mage')) score += 10;
-  if (picks.some(h => h.role === 'Offlane')) score += 10;
-  if (picks.some(h => h.specialties.includes(Specialty.WAVECLEAR))) score += 10;
-  if (picks.some(h => h.specialties.includes(Specialty.ENGAGE))) score += 10;
-  if (picks.some(h => h.specialties.includes(Specialty.HARD_CC))) score += 10;
-  if (picks.filter(h => h.role === 'Tank').length >= 2) score -= 10;
-  if (picks.filter(h => h.role === 'Healer').length >= 2) score -= 15;
-  if (picks.filter(h => h.role === 'Offlane').length >= 2) score -= 10;
-  if (!picks.some(h => h.role === 'DPS' || h.role === 'Mage')) score -= 15;
-  return Math.max(0, Math.min(100, score));
+  if (picks.length === 0) return 0;
+  let score = 15;
+
+  const countWith = (s: Specialty) => picks.filter(h => h.specialties.includes(s)).length;
+  const depthPts = (count: number, partial: number, full: number) =>
+    count === 0 ? 0 : count === 1 ? partial : full;
+
+  // Specialty depth — reward having multiple heroes covering key areas (0-25)
+  score += depthPts(countWith(Specialty.WAVECLEAR), 3, 6);
+  score += depthPts(countWith(Specialty.ENGAGE), 3, 6);
+  score += depthPts(countWith(Specialty.HARD_CC), 2, 5);
+  score += depthPts(countWith(Specialty.BURST_DAMAGE) + countWith(Specialty.SUSTAINED_DAMAGE), 2, 4);
+  score += depthPts(countWith(Specialty.POKE), 2, 4);
+
+  // Range balance — mixed melee/ranged is ideal, all-melee or all-ranged is penalized (0-15)
+  const ranges = picks.map(h => h.effectiveRange as number);
+  const avgRange = ranges.reduce((a, b) => a + b, 0) / ranges.length;
+  score += Math.max(0, 15 - Math.round(Math.abs(avgRange - 2.5) * 6));
+
+  // Role uniqueness — more distinct roles = better composition (0-10)
+  const uniqueRoles = new Set(picks.map(h => h.role)).size;
+  score += uniqueRoles >= 5 ? 10 : uniqueRoles >= 4 ? 7 : uniqueRoles >= 3 ? 4 : 2;
+
+  // Specialty coverage breadth — count distinct specialties across the team (0-20)
+  const allSpecs = new Set(picks.flatMap(h => h.specialties));
+  score += Math.min(20, Math.round(allSpecs.size * 0.9));
+
+  // Synergy bonuses — reward complementary specialty combos (0-15)
+  if (countWith(Specialty.ENGAGE) >= 1 && (countWith(Specialty.BURST_DAMAGE) >= 1 || countWith(Specialty.AOE_DAMAGE) >= 1)) score += 4;
+  if (countWith(Specialty.SUSTAINED_HEALING) >= 1 && countWith(Specialty.SUSTAINED_DAMAGE) >= 1) score += 3;
+  if (countWith(Specialty.DISENGAGE) >= 1 && countWith(Specialty.POKE) >= 1) score += 3;
+  if (countWith(Specialty.HARD_CC) >= 2) score += 3;
+  if (countWith(Specialty.GLOBAL_PRESENCE) >= 1 || countWith(Specialty.DOUBLE_SOAKING) >= 1) score += 2;
+
+  // Penalties for composition weaknesses
+  if (ranges.every(r => r <= 1)) score -= 8;
+  if (countWith(Specialty.WAVECLEAR) === 0) score -= 5;
+  if (countWith(Specialty.ENGAGE) === 0) score -= 3;
+  if (countWith(Specialty.LOW_DURABILITY) >= 3) score -= 4;
+
+  return Math.max(0, Math.min(100, Math.round(score)));
 }
 
 function ScoreBadge({ picks }: { picks: Hero[] }) {
@@ -320,8 +348,22 @@ function ScoreComparisonBar({ score1, score2 }: { score1: number; score2: number
   const total = score1 + score2 || 1;
   const pct1 = Math.round((score1 / total) * 100);
   const diff = Math.abs(score1 - score2);
-  const verdict = diff <= 10 ? 'Close Match' : diff <= 25 ? (score1 > score2 ? 'Team 1 Favored' : 'Team 2 Favored') : (score1 > score2 ? 'Team 1 Advantage' : 'Team 2 Advantage');
-  const verdictColor = diff <= 10 ? '#FFD700' : score1 > score2 ? '#4488FF' : '#FF6666';
+  const leading = score1 >= score2 ? 'Team 1' : 'Team 2';
+  let verdict: string;
+  let verdictColor: string;
+  if (diff <= 5) {
+    verdict = 'Close Match';
+    verdictColor = '#FFD700';
+  } else if (diff <= 15) {
+    verdict = `Slight Edge: ${leading}`;
+    verdictColor = score1 > score2 ? '#4488FF' : '#FF6666';
+  } else if (diff <= 30) {
+    verdict = `Clear Advantage: ${leading}`;
+    verdictColor = score1 > score2 ? '#4488FF' : '#FF6666';
+  } else {
+    verdict = `Dominant: ${leading}`;
+    verdictColor = score1 > score2 ? '#4488FF' : '#FF6666';
+  }
   return (
     <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
       <div className="flex justify-between items-center mb-2">
