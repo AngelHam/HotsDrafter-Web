@@ -227,7 +227,18 @@ export default function TeamBuilderPage() {
             </>
           ) : (
             <div className="p-4 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-              <p className="text-sm opacity-60">Add 2+ heroes to each team for analysis</p>
+              <p className="text-sm opacity-60 mb-2">Add 2+ heroes to each team for analysis</p>
+              <p className="text-xs opacity-40">Click the &quot;+ Pick&quot; slots on either side, or use a Team Template above</p>
+              <div className="mt-3 flex justify-center gap-4 flex-wrap">
+                {['Tank', 'Healer', 'DPS', 'Mage', 'Offlane'].map(role => {
+                  const count = ALL_HEROES.filter(h => h.role === role).length;
+                  return (
+                    <span key={role} className="text-[10px] px-2 py-0.5 rounded" style={{ color: ROLE_COLORS[role] || '#aaa', border: `1px solid ${ROLE_COLORS[role] || '#aaa'}33` }}>
+                      {role}: {count}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
