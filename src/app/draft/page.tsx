@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef, useCallback, useTransition, Suspense } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
 import { DraftingTool, DRAFT_TEAM_ORDER, DRAFT_IS_BAN, matchesRoleFilter } from '@/data/DraftingTool';
@@ -11,6 +11,7 @@ import { analyzeWinCondition, WinConditionAnalysis } from '@/data/WinConditionAn
 import { Specialty } from '@/data/Specialty';
 import { saveDraft } from '@/data/DraftHistory';
 import { winConditionToString } from '@/data/SuggestionTypes';
+import { exportDraftAsText, encodeDraftUrl } from '@/data/DraftExport';
 import HeroPortrait from '@/components/HeroPortrait';
 import RoleFilterBar, { ROLE_COLORS } from '@/components/RoleFilterBar';
 import HeroSuggestionPanel from '@/components/HeroSuggestionPanel';
@@ -56,6 +57,8 @@ function DraftPageInner() {
   const [lastAction, setLastAction] = useState<{ heroName: string; type: 'pick' | 'ban' } | null>(null);
   const [suggestionsCollapsed, setSuggestionsCollapsed] = useState(false);
   const [exportCopied, setExportCopied] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [timerDuration, setTimerDuration] = useState(25);
   const [timeLeft, setTimeLeft] = useState(25);
@@ -125,18 +128,12 @@ function DraftPageInner() {
       .filter(group => group.heroes.length > 0);
   }, [filtered]);
 
-  const [isSuggestionsComputing, startSuggestionTransition] = useTransition();
-  const [suggestions, setSuggestions] = useState<HeroSuggestion[]>([]);
-  useEffect(() => {
-    startSuggestionTransition(() => {
-      if (isComplete || step >= 16) { setSuggestions([]); return; }
-      const result = isBan
-        ? engine.generateBanSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount)
-        : engine.generateSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount);
-      setSuggestions(result);
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [engine, currentTeam, isBan, roleFilter, isComplete, step, settingsVersion]);
+  const suggestions = useMemo(() => {
+    if (isComplete || step >= totalSteps) return [];
+    return isBan
+      ? engine.generateBanSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount)
+      : engine.generateSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount);
+  }, [engine, currentTeam, isBan, roleFilter, isComplete, step, settingsVersion, totalSteps]);
 
   useEffect(() => {
     if (!timerEnabled || isComplete) {
@@ -185,7 +182,7 @@ function DraftPageInner() {
   const team1PickNames = useMemo(() => new Set(team1Picks.map(h => h.name)), [team1Picks]);
   const team2PickNames = useMemo(() => new Set(team2Picks.map(h => h.name)), [team2Picks]);
 
-  const handleHeroClick = (hero: Hero) => {
+  const handleHeroClick = useCallback((hero: Hero) => {
     if (isComplete) return;
     if (isBan) {
       draft.banHero(currentTeam, hero);
@@ -195,9 +192,12 @@ function DraftPageInner() {
       setLastAction({ heroName: hero.name, type: 'pick' });
     }
     setSearchQuery('');
-    syncDraftState();
+    setTeam1Picks([...draft.team1Picks]);
+    setTeam2Picks([...draft.team2Picks]);
+    setTeam1Bans([...draft.team1Bans]);
+    setTeam2Bans([...draft.team2Bans]);
     setStep(s => s + 1);
-  };
+  }, [draft, isComplete, isBan, currentTeam]);
 
   const handleUndo = () => {
     if (step === 0) return;
@@ -528,7 +528,8 @@ function DraftPageInner() {
 
         {/* Center: Hero Grid + Suggestions */}
         <div className="flex-1 flex flex-col gap-3 min-w-0">
-          {/* Suggestions */}
+          {/* Suggestions (hidden when draft complete) */}
+          {!isComplete && (
           <div className="flex-shrink-0">
             <button
               onClick={() => setSuggestionsCollapsed(c => !c)}
@@ -539,11 +540,7 @@ function DraftPageInner() {
               <span>{suggestionsCollapsed ? '▶' : '▼'}</span>
             </button>
             <div className={`${suggestionsCollapsed ? 'hidden lg:block' : ''} max-h-[340px] overflow-y-auto`}>
-              {isSuggestionsComputing ? (
-                <div className="p-4 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-                  <p className="text-sm animate-pulse" style={{ color: '#00FFFF' }}>Computing suggestions…</p>
-                </div>
-              ) : suggestions.length === 0 && !isComplete ? (
+              {suggestions.length === 0 ? (
                 <div className="p-4 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
                   <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>No heroes match current filters</p>
                 </div>
@@ -557,6 +554,7 @@ function DraftPageInner() {
               )}
             </div>
           </div>
+          )}
 
           {/* Hero Search + Grid */}
           {!isComplete && (
@@ -717,71 +715,177 @@ function DraftPageInner() {
             </div>
           )}
 
-          {/* Analysis + Replay (when complete) */}
-          {isComplete && analysis && (
-            <div className="space-y-3">
-              {/* Team Comparison Header */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                <div className="p-3 rounded text-center" style={{ background: 'rgba(68,136,255,0.1)', border: '1px solid #4488FF44' }}>
-                  <p className="text-xs font-semibold mb-1" style={{ color: '#4488FF' }}>Team 1</p>
-                  <p className="text-lg font-bold" style={{ color: '#FFD700' }}>{computeCompScore(team1Picks)}</p>
-                  <p className="text-[10px] opacity-60">Comp Score</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold" style={{ color: '#FFD700' }}>VS</p>
-                  <p className="text-[10px] opacity-50">📍 {map.name}</p>
-                  {/* Advantage meter */}
-                  {(() => {
-                    const s1 = computeCompScore(team1Picks);
-                    const s2 = computeCompScore(team2Picks);
-                    const diff = s1 - s2;
-                    const label = diff > 10 ? 'Team 1 Favored' : diff < -10 ? 'Team 2 Favored' : 'Even Match';
-                    const color = diff > 10 ? '#4488FF' : diff < -10 ? '#FF6666' : '#FFD700';
-                    return (
-                      <div className="mt-1">
-                        <div className="flex h-1.5 rounded-full overflow-hidden mx-2" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                          <div style={{ width: `${Math.max(20, Math.min(80, 50 + diff))}%`, background: '#4488FF88' }} />
-                          <div style={{ flex: 1, background: '#FF666688' }} />
-                        </div>
-                        <p className="text-[9px] mt-0.5 font-semibold" style={{ color }}>{label}</p>
+          {/* ═══════ Draft Complete Summary ═══════ */}
+          {isComplete && analysis && (() => {
+            const s1 = computeCompScore(team1Picks);
+            const s2 = computeCompScore(team2Picks);
+            const diff = s1 - s2;
+            const verdictLabel = diff > 10 ? 'Team 1 Advantage' : diff < -10 ? 'Team 2 Advantage' : 'Even Match';
+            const verdictColor = diff > 10 ? '#4488FF' : diff < -10 ? '#FF6666' : '#FFD700';
+            const roleChecklist = (picks: Hero[]) => {
+              const checks: { label: string; color: string; met: boolean }[] = [
+                { label: 'Tank', color: '#6495ED', met: picks.some(h => h.role === 'Tank') },
+                { label: 'Healer', color: '#90EE90', met: picks.some(h => h.role === 'Healer') },
+                { label: 'DPS', color: '#FF6347', met: picks.some(h => h.role === 'DPS' || h.role === 'Mage') },
+                { label: 'Offlane', color: '#FFA500', met: picks.some(h => h.role === 'Offlane') },
+                { label: 'Waveclear', color: '#00FFFF', met: picks.some(h => h.specialties.includes(Specialty.WAVECLEAR)) },
+              ];
+              return checks;
+            };
+            const verdictExplanation = (() => {
+              if (Math.abs(diff) <= 10) return 'Both teams have well-rounded compositions with comparable strengths.';
+              const stronger = diff > 0 ? 'Team 1' : 'Team 2';
+              const weaker = diff > 0 ? 'Team 2' : 'Team 1';
+              const sP = diff > 0 ? team1Picks : team2Picks;
+              const wP = diff > 0 ? team2Picks : team1Picks;
+              const gaps: string[] = [];
+              if (!wP.some(h => h.role === 'Tank')) gaps.push('no Tank');
+              if (!wP.some(h => h.role === 'Healer')) gaps.push('no Healer');
+              if (!wP.some(h => h.specialties.includes(Specialty.WAVECLEAR))) gaps.push('lacks waveclear');
+              if (gaps.length > 0) return `${stronger} has a more complete composition. ${weaker} ${gaps.join(', ')}.`;
+              return `${stronger} has better overall role coverage and specialty synergy.`;
+            })();
+
+            return (
+            <div className="space-y-4 overflow-y-auto summary-enter" style={{ animation: 'summarySlideIn 0.5s ease-out' }}>
+              <style>{`
+                @keyframes summarySlideIn {
+                  from { opacity: 0; transform: translateY(20px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+                .summary-enter > * {
+                  animation: summarySlideIn 0.5s ease-out both;
+                }
+                .summary-enter > *:nth-child(2) { animation-delay: 0.05s; }
+                .summary-enter > *:nth-child(3) { animation-delay: 0.1s; }
+                .summary-enter > *:nth-child(4) { animation-delay: 0.15s; }
+                .summary-enter > *:nth-child(5) { animation-delay: 0.2s; }
+                .summary-enter > *:nth-child(6) { animation-delay: 0.25s; }
+                .summary-enter > *:nth-child(7) { animation-delay: 0.3s; }
+              `}</style>
+
+              {/* Header */}
+              <div className="text-center py-3 rounded-lg" style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.12) 0%, rgba(0,255,255,0.08) 100%)', border: '1px solid #FFD70044' }}>
+                <h2 className="text-2xl font-bold" style={{ color: '#FFD700' }}>🏆 Draft Complete!</h2>
+                <p className="text-xs mt-1 opacity-60">📍 {map.name} — {isQuickDraft ? 'Quick Draft' : 'Standard Draft'}</p>
+              </div>
+
+              {/* ── Section 1: Team Composition Overview ── */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { label: 'Team 1', picks: team1Picks, color: '#4488FF', score: s1 },
+                  { label: 'Team 2', picks: team2Picks, color: '#FF6666', score: s2 },
+                ].map(({ label, picks, color, score }) => (
+                  <div key={label} className="p-4 rounded-lg" style={{ background: 'rgba(30, 40, 70, 0.7)', border: `1px solid ${color}55` }}>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-bold" style={{ color }}>{label}</h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold" style={{ color: '#FFD700' }}>{score}</span>
+                        <span className="text-[9px] opacity-50">/ 100</span>
                       </div>
-                    );
-                  })()}
-                </div>
-                <div className="p-3 rounded text-center" style={{ background: 'rgba(255,102,102,0.1)', border: '1px solid #FF666644' }}>
-                  <p className="text-xs font-semibold mb-1" style={{ color: '#FF6666' }}>Team 2</p>
-                  <p className="text-lg font-bold" style={{ color: '#FFD700' }}>{computeCompScore(team2Picks)}</p>
-                  <p className="text-[10px] opacity-60">Comp Score</p>
-                </div>
-              </div>
-
-              {/* Team Picks Side by Side */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid #4488FF44' }}>
-                  <div className="flex gap-1 justify-center mb-2 flex-wrap">
-                    {team1Picks.map(h => (
-                      <HeroPortrait key={h.name} hero={h} size="sm" selected />
-                    ))}
+                    </div>
+                    {/* Hero portraits with roles and tiers */}
+                    <div className="space-y-2 mb-3">
+                      {picks.map(h => {
+                        const tier = icyVeins.getHeroTierOnMap(h.nicknames[0], map.name);
+                        const roleColor: Record<string, string> = { Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347', Mage: '#BA55D3', Offlane: '#FFA500', Specialist: '#A9A9A9' };
+                        return (
+                          <div key={h.name} className="flex items-center gap-2 cursor-pointer hover:bg-white/5 rounded p-1 -m-1" onClick={() => setDetailHero(h)}>
+                            <HeroPortrait hero={h} size="lg" selected />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold truncate">{h.nicknames[0]}</p>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: (roleColor[h.role] || '#888') + '22', color: roleColor[h.role] || '#888', border: `1px solid ${(roleColor[h.role] || '#888')}33` }}>{h.role}</span>
+                                {tier !== 'B' && (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded font-bold" style={{
+                                    background: tier === 'S' ? 'rgba(255,215,0,0.15)' : tier === 'A' ? 'rgba(144,238,144,0.15)' : 'rgba(169,169,169,0.15)',
+                                    color: tier === 'S' ? '#FFD700' : tier === 'A' ? '#90EE90' : '#A9A9A9',
+                                    border: `1px solid ${tier === 'S' ? '#FFD70033' : tier === 'A' ? '#90EE9033' : '#A9A9A933'}`,
+                                  }}>{tier}-Tier</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {/* Role checklist */}
+                    <div className="flex flex-wrap gap-1.5 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                      {roleChecklist(picks).map(({ label: rl, color: rc, met }) => (
+                        <span key={rl} className="text-[10px] px-1.5 py-0.5 rounded" style={{
+                          background: met ? rc + '22' : 'rgba(255,255,255,0.04)',
+                          color: met ? rc : 'rgba(255,255,255,0.25)',
+                          border: `1px solid ${met ? rc + '44' : 'rgba(255,255,255,0.08)'}`,
+                        }}>{met ? '✓' : '✗'} {rl}</span>
+                      ))}
+                    </div>
                   </div>
-                  <p className="text-xs text-center opacity-70">{team1Picks.map(h => h.nicknames[0]).join(' · ')}</p>
+                ))}
+              </div>
+
+              {/* ── Section 2: Win Condition Analysis ── */}
+              <div className="p-4 rounded-lg" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+                <h3 className="text-sm font-bold mb-3 text-center" style={{ color: '#00FFFF' }}>⚔️ WIN CONDITION ANALYSIS</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { label: 'Team 1', a: analysis.team1, color: '#4488FF' },
+                    { label: 'Team 2', a: analysis.team2, color: '#FF6666' },
+                  ].map(({ label, a, color }) => (
+                    <div key={label} className="space-y-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-bold" style={{ color }}>{label}</span>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ background: color + '22', color: '#FFD700', border: `1px solid ${color}44` }}>{winConditionToString(a.primary)}</span>
+                      </div>
+                      <p className="text-xs opacity-80 leading-relaxed">{a.description}</p>
+                      <div className="space-y-1">
+                        <p className="text-[11px]"><span style={{ color: '#00FFFF' }}>🎯 Key Focus:</span> <span className="opacity-80">{a.keyFocus}</span></p>
+                        <p className="text-[11px]"><span style={{ color: '#FF6666' }}>🛡️ Counter:</span> <span className="opacity-80">{a.enemyCounterStrategy}</span></p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid #FF666644' }}>
-                  <div className="flex gap-1 justify-center mb-2 flex-wrap">
-                    {team2Picks.map(h => (
-                      <HeroPortrait key={h.name} hero={h} size="sm" selected />
-                    ))}
+                {/* Win condition strength comparison bar */}
+                <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                  <p className="text-[10px] opacity-50 text-center mb-2">Win Condition Strength</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] w-20 text-right" style={{ color: '#4488FF' }}>{winConditionToString(analysis.team1.primary)}</span>
+                    <div className="flex-1 flex h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      <div className="transition-all duration-700" style={{
+                        width: `${Math.max(15, Math.min(85, 50 + diff))}%`,
+                        background: 'linear-gradient(90deg, #4488FF99, #4488FFCC)',
+                        borderRadius: '9999px 0 0 9999px',
+                      }} />
+                      <div className="transition-all duration-700" style={{
+                        flex: 1,
+                        background: 'linear-gradient(90deg, #FF6666CC, #FF666699)',
+                        borderRadius: '0 9999px 9999px 0',
+                      }} />
+                    </div>
+                    <span className="text-[10px] w-20" style={{ color: '#FF6666' }}>{winConditionToString(analysis.team2.primary)}</span>
                   </div>
-                  <p className="text-xs text-center opacity-70">{team2Picks.map(h => h.nicknames[0]).join(' · ')}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <AnalysisCard title="Team 1 Strategy" analysis={analysis.team1} color="#4488FF" />
-                <AnalysisCard title="Team 2 Strategy" analysis={analysis.team2} color="#FF6666" />
+              {/* ── Section 3: Matchup Verdict ── */}
+              <div className="p-4 rounded-lg text-center" style={{ background: `linear-gradient(135deg, ${verdictColor}11, ${verdictColor}08)`, border: `1px solid ${verdictColor}44` }}>
+                <h3 className="text-sm font-bold mb-2" style={{ color: '#00FFFF' }}>📊 MATCHUP VERDICT</h3>
+                <p className="text-xl font-bold mb-2" style={{ color: verdictColor }}>{verdictLabel}</p>
+                {/* Score comparison bar */}
+                <div className="flex items-center justify-center gap-3 mb-2">
+                  <span className="text-sm font-bold" style={{ color: '#4488FF' }}>{s1}</span>
+                  <div className="w-40 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                    <div className="h-full transition-all duration-700" style={{
+                      width: `${Math.max(10, Math.min(90, 50 + diff))}%`,
+                      background: `linear-gradient(90deg, #4488FF, ${verdictColor})`,
+                    }} />
+                  </div>
+                  <span className="text-sm font-bold" style={{ color: '#FF6666' }}>{s2}</span>
+                </div>
+                <p className="text-xs opacity-70 max-w-lg mx-auto">{verdictExplanation}</p>
               </div>
 
-              {/* Specialty Comparison */}
-              <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+              {/* ── Section 4: Specialty Coverage ── */}
+              <div className="p-3 rounded-lg" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
                 <h3 className="text-xs font-bold mb-2 text-center" style={{ color: '#00FFFF' }}>COVERAGE COMPARISON</h3>
                 <div className="space-y-1">
                   {[
@@ -792,81 +896,92 @@ function DraftPageInner() {
                     { label: 'Poke', spec: Specialty.POKE },
                     { label: 'Sustain', spec: Specialty.SUSTAINED_DAMAGE },
                   ].map(({ label, spec }) => {
-                    const t1 = team1Picks.filter(h => h.specialties.includes(spec)).length;
-                    const t2 = team2Picks.filter(h => h.specialties.includes(spec)).length;
+                    const t1c = team1Picks.filter(h => h.specialties.includes(spec)).length;
+                    const t2c = team2Picks.filter(h => h.specialties.includes(spec)).length;
                     return (
                       <div key={label} className="flex items-center gap-1 text-[10px]">
-                        <div className="w-8 text-right" style={{ color: t1 > t2 ? '#4488FF' : t1 === t2 ? '#888' : '#666' }}>{t1}</div>
+                        <div className="w-8 text-right" style={{ color: t1c > t2c ? '#4488FF' : t1c === t2c ? '#888' : '#666' }}>{t1c}</div>
                         <div className="flex-1 flex h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                          <div style={{ width: `${(t1 / 5) * 50}%`, background: '#4488FF99' }} />
+                          <div style={{ width: `${(t1c / 5) * 50}%`, background: '#4488FF99' }} />
                           <div className="flex-1" />
-                          <div style={{ width: `${(t2 / 5) * 50}%`, background: '#FF666699' }} />
+                          <div style={{ width: `${(t2c / 5) * 50}%`, background: '#FF666699' }} />
                         </div>
-                        <div className="w-8" style={{ color: t2 > t1 ? '#FF6666' : t2 === t1 ? '#888' : '#666' }}>{t2}</div>
+                        <div className="w-8" style={{ color: t2c > t1c ? '#FF6666' : t2c === t1c ? '#888' : '#666' }}>{t2c}</div>
                         <span className="w-16 opacity-50">{label}</span>
                       </div>
                     );
                   })}
                 </div>
               </div>
+
+              {/* ── Section 5: Bans Summary ── */}
+              {(team1Bans.length > 0 || team2Bans.length > 0) && (
+              <div className="p-4 rounded-lg" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid #FF666644' }}>
+                <h3 className="text-sm font-bold mb-3 text-center" style={{ color: '#FF6666' }}>🚫 BANS SUMMARY</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {[
+                    { label: 'Team 1 Bans', bans: team1Bans, color: '#4488FF' },
+                    { label: 'Team 2 Bans', bans: team2Bans, color: '#FF6666' },
+                  ].map(({ label, bans, color }) => (
+                    <div key={label}>
+                      <p className="text-xs font-semibold mb-2" style={{ color }}>{label}</p>
+                      <div className="flex gap-2 flex-wrap">
+                        {bans.map(h => (
+                          <div key={h.name} className="flex items-center gap-1.5 px-2 py-1.5 rounded" style={{ background: 'rgba(255,102,102,0.08)', border: '1px solid #FF666633' }}>
+                            <HeroPortrait hero={h} size="sm" banned />
+                            <div>
+                              <p className="text-xs font-semibold opacity-60 line-through">{h.nicknames[0]}</p>
+                              <p className="text-[9px] opacity-40">{h.role}</p>
+                            </div>
+                          </div>
+                        ))}
+                        {bans.length === 0 && <span className="text-xs opacity-30">No bans</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              )}
+
+              {/* Draft Replay */}
               <DraftReplay
                 team1Picks={[...team1Picks]}
                 team2Picks={[...team2Picks]}
                 team1Bans={[...team1Bans]}
                 team2Bans={[...team2Bans]}
               />
-              <div className="flex gap-3 justify-center flex-wrap">
-                <button
-                  onClick={handleReset}
-                  className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
-                  style={{ background: '#00FFFF22', border: '2px solid #00FFFF', color: '#00FFFF' }}
-                  title="Start a new draft on this map"
-                >
-                  🔄 Same Map Again
-                </button>
-                <button
-                  onClick={() => router.push('/')}
-                  className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
-                  style={{ background: '#FFD70022', border: '2px solid #FFD700', color: '#FFD700' }}
-                  title="Pick a different map"
-                >
-                  🗺️ New Map
-                </button>
-                <button
-                  onClick={() => router.push('/history')}
-                  className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
-                  style={{ background: '#BA55D322', border: '2px solid #BA55D3', color: '#BA55D3' }}
-                  title="View saved drafts"
-                >
-                  📜 History
-                </button>
+
+              {/* ── Section 6: Action Buttons ── */}
+              <div className="flex gap-3 justify-center flex-wrap p-3 rounded-lg" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
                 <button
                   onClick={() => {
-                    const t1Picks = team1Picks.map(h => `${h.nicknames[0]} (${h.role})`).join(', ');
-                    const t2Picks = team2Picks.map(h => `${h.nicknames[0]} (${h.role})`).join(', ');
-                    const t1Bans = team1Bans.map(h => h.nicknames[0]).join(', ');
-                    const t2Bans = team2Bans.map(h => h.nicknames[0]).join(', ');
-                    const wc1 = analysis ? winConditionToString(analysis.team1.primary) : '';
-                    const wc2 = analysis ? winConditionToString(analysis.team2.primary) : '';
-                    const s1 = computeCompScore(team1Picks);
-                    const s2 = computeCompScore(team2Picks);
-                    const diff = s1 - s2;
-                    const verdict = diff > 10 ? 'Team 1 Favored' : diff < -10 ? 'Team 2 Favored' : 'Even Match';
+                    const t1P = team1Picks.map(h => `${h.nicknames[0]} (${h.role})`).join(', ');
+                    const t2P = team2Picks.map(h => `${h.nicknames[0]} (${h.role})`).join(', ');
+                    const t1B = team1Bans.map(h => h.nicknames[0]).join(', ');
+                    const t2B = team2Bans.map(h => h.nicknames[0]).join(', ');
+                    const wc1 = winConditionToString(analysis.team1.primary);
+                    const wc2 = winConditionToString(analysis.team2.primary);
+                    const rc = (picks: Hero[]) => roleChecklist(picks).map(r => `${r.met ? '✓' : '✗'} ${r.label}`).join(', ');
                     const text = [
                       `⚔️ HotsDrafter — ${map.name}`,
                       `━━━━━━━━━━━━━━━━━━━━`,
                       ``,
-                      `🔵 TEAM 1 (Score: ${s1})`,
-                      `  Bans: ${t1Bans}`,
-                      `  Picks: ${t1Picks}`,
+                      `🔵 TEAM 1 (Score: ${s1}/100)`,
+                      `  Bans: ${t1B || 'None'}`,
+                      `  Picks: ${t1P}`,
+                      `  Roles: ${rc(team1Picks)}`,
                       `  Strategy: ${wc1}`,
+                      `  Focus: ${analysis.team1.keyFocus}`,
                       ``,
-                      `🔴 TEAM 2 (Score: ${s2})`,
-                      `  Bans: ${t2Bans}`,
-                      `  Picks: ${t2Picks}`,
+                      `🔴 TEAM 2 (Score: ${s2}/100)`,
+                      `  Bans: ${t2B || 'None'}`,
+                      `  Picks: ${t2P}`,
+                      `  Roles: ${rc(team2Picks)}`,
                       `  Strategy: ${wc2}`,
+                      `  Focus: ${analysis.team2.keyFocus}`,
                       ``,
-                      `📊 Verdict: ${verdict}`,
+                      `📊 Verdict: ${verdictLabel}`,
+                      `   ${verdictExplanation}`,
                     ].join('\n');
                     navigator.clipboard.writeText(text);
                     setExportCopied(true);
@@ -876,11 +991,74 @@ function DraftPageInner() {
                   style={{ background: '#90EE9022', border: '2px solid #90EE90', color: '#90EE90' }}
                   title="Copy draft summary to clipboard"
                 >
-                  {exportCopied ? '✅ Copied!' : '📋 Export'}
+                  {exportCopied ? '✅ Copied!' : '📋 Copy Summary'}
+                </button>
+                <button
+                  onClick={() => {
+                    const url = window.location.origin + encodeDraftUrl(mapIdx, team1Picks, team2Picks, team1Bans, team2Bans);
+                    navigator.clipboard.writeText(url);
+                    setShareCopied(true);
+                    setTimeout(() => setShareCopied(false), 2000);
+                  }}
+                  className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
+                  style={{ background: '#00FF0022', border: '2px solid #00FF00', color: '#00FF00' }}
+                  title="Copy shareable link to clipboard"
+                >
+                  {shareCopied ? '✅ Copied!' : '🔗 Share Link'}
+                </button>
+                <button
+                  onClick={() => {
+                    hasSavedDraft.current = false;
+                    handleReset();
+                  }}
+                  className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
+                  style={{ background: '#00FFFF22', border: '2px solid #00FFFF', color: '#00FFFF' }}
+                  title="Start a new draft"
+                >
+                  🔄 New Draft
+                </button>
+                <button
+                  onClick={() => {
+                    if (!showSaveConfirm) {
+                      const t1 = new TeamComposition(team1Picks);
+                      const t2 = new TeamComposition(team2Picks);
+                      const a1 = analyzeWinCondition(t1, t2);
+                      const a2 = analyzeWinCondition(t2, t1);
+                      saveDraft({
+                        timestamp: new Date().toISOString(),
+                        mapName: map.name,
+                        firstPickTeam: firstPick,
+                        team1Picks: team1Picks.map(h => h.nicknames[0]),
+                        team2Picks: team2Picks.map(h => h.nicknames[0]),
+                        team1Bans: team1Bans.map(h => h.nicknames[0]),
+                        team2Bans: team2Bans.map(h => h.nicknames[0]),
+                        team1Score: s1, team2Score: s2,
+                        team1WinCondition: winConditionToString(a1.primary),
+                        team2WinCondition: winConditionToString(a2.primary),
+                        verdict: `${verdictLabel}: ${verdictExplanation}`,
+                      });
+                      setShowSaveConfirm(true);
+                      setTimeout(() => setShowSaveConfirm(false), 2500);
+                    }
+                  }}
+                  className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
+                  style={{ background: '#BA55D322', border: '2px solid #BA55D3', color: '#BA55D3' }}
+                  title="Save this draft to history"
+                >
+                  {showSaveConfirm ? '✅ Saved!' : '💾 Save to History'}
+                </button>
+                <button
+                  onClick={() => router.push('/')}
+                  className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
+                  style={{ background: '#FFD70022', border: '2px solid #FFD700', color: '#FFD700' }}
+                  title="Return to home page"
+                >
+                  🏠 Return Home
                 </button>
               </div>
             </div>
-          )}
+            );
+          })()}
         </div>
 
         {/* Team 2 Panel - hidden on mobile */}

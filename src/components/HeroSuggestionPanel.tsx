@@ -71,7 +71,7 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
   }
 
   return (
-    <div className="p-2 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }} role="region" aria-label={title}>
+    <div className="p-2 rounded transition-opacity duration-200" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }} role="region" aria-label={title}>
       <h3 className="text-xs font-bold mb-1.5" style={{ color: '#00FFFF' }}>{title}</h3>
       <div className="space-y-1" role="list" aria-label="Hero suggestions">
         {suggestions.map((s, i) => {
