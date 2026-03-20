@@ -7,6 +7,7 @@ import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import { specialtyToString, Specialty } from '@/data/Specialty';
 import HeroPortrait from '@/components/HeroPortrait';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import type { Hero } from '@/data/Hero';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -194,6 +195,7 @@ function ComparePageInner() {
 
         {/* Comparison Table */}
         {hero1 && hero2 && (
+          <ErrorBoundary>
           <div ref={(el) => { comparisonRef.current = el; }} className="space-y-3 animate-fade-slide-up">
             <CompareRow label="Role" v1={hero1.role} v2={hero2.role} c1={ROLE_COLORS[hero1.role]} c2={ROLE_COLORS[hero2.role]} />
             <CompareRow label="Range" v1={`${'█'.repeat(hero1.effectiveRange)}${'░'.repeat(5 - hero1.effectiveRange)} ${hero1.effectiveRange}/5`} v2={`${hero2.effectiveRange}/5 ${'█'.repeat(hero2.effectiveRange)}${'░'.repeat(5 - hero2.effectiveRange)}`} highlight={hero1.effectiveRange > hero2.effectiveRange ? 1 : hero2.effectiveRange > hero1.effectiveRange ? 2 : 0} />
@@ -381,10 +383,13 @@ function ComparePageInner() {
               </div>
             </div>
           </div>
+          </ErrorBoundary>
         )}
       </div>
 
-      {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}\n\n      {/* Picker Modal */}
+      {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}
+
+      {/* Picker Modal */}
       {picker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.8)' }}>
           <div className="rounded-lg p-4 w-[90vw] max-w-2xl max-h-[80vh] overflow-auto" style={{ background: '#1a1a2e', border: '2px solid #00FFFF' }}>

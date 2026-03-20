@@ -11,6 +11,7 @@ import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import { ROLE_COLORS } from '@/components/RoleFilterBar';
 import HeroPortrait from '@/components/HeroPortrait';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { Specialty, specialtyToString } from '@/data/Specialty';
 import type { Hero } from '@/data/Hero';
 
@@ -221,6 +222,7 @@ export default function TeamBuilderPage() {
             );
           })()}
 
+          <ErrorBoundary>
           {analysis ? (
             <>
               <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
@@ -371,6 +373,7 @@ export default function TeamBuilderPage() {
               </p>
             </div>
           )}
+          </ErrorBoundary>
         </div>
 
         {/* Team 2 */}

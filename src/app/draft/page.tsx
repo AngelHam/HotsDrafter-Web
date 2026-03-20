@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef, Suspense } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback, useTransition, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
 import { DraftingTool, DRAFT_TEAM_ORDER, DRAFT_IS_BAN, matchesRoleFilter } from '@/data/DraftingTool';
@@ -17,8 +17,10 @@ import HeroSuggestionPanel from '@/components/HeroSuggestionPanel';
 import TeamPanel from '@/components/TeamPanel';
 import DraftProgressBar from '@/components/DraftProgressBar';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import type { Hero } from '@/data/Hero';
+import type { HeroSuggestion } from '@/data/SuggestionTypes';
 
 function computeCompScore(picks: Hero[]): number {
   let score = 20;
@@ -58,8 +60,10 @@ function DraftPageInner() {
   const [timerDuration, setTimerDuration] = useState(25);
   const [timeLeft, setTimeLeft] = useState(25);
   const hasSavedDraft = useRef(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [settingsVersion, setSettingsVersion] = useState(0);
   const [heroGridReady, setHeroGridReady] = useState(false);
+  const [showShortcutHelp, setShowShortcutHelp] = useState(false);
 
   useEffect(() => {
     DraftSettings.load();
@@ -121,10 +125,16 @@ function DraftPageInner() {
       .filter(group => group.heroes.length > 0);
   }, [filtered]);
 
-  const suggestions = useMemo(() => {
-    if (isComplete || step >= 16) return [];
-    if (isBan) return engine.generateBanSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount);
-    return engine.generateSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount);
+  const [isSuggestionsComputing, startSuggestionTransition] = useTransition();
+  const [suggestions, setSuggestions] = useState<HeroSuggestion[]>([]);
+  useEffect(() => {
+    startSuggestionTransition(() => {
+      if (isComplete || step >= 16) { setSuggestions([]); return; }
+      const result = isBan
+        ? engine.generateBanSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount)
+        : engine.generateSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount);
+      setSuggestions(result);
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [engine, currentTeam, isBan, roleFilter, isComplete, step, settingsVersion]);
 
@@ -208,23 +218,55 @@ function DraftPageInner() {
     setStep(0);
   };
 
-  // Keyboard shortcuts (Ctrl+Z undo, Escape reset, 1-9 suggestion quick-pick)
+  // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'z') { e.preventDefault(); handleUndo(); }
+      const target = e.target as HTMLElement;
+      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+
+      // Ctrl+Z undo (works everywhere)
+      if (e.ctrlKey && e.key === 'z') { e.preventDefault(); handleUndo(); return; }
+
+      // Escape: close shortcut help → close detail popup → clear/blur search → go home
       if (e.key === 'Escape') {
-        if (detailHero) { setDetailHero(null); return; } // Close popup first
-        handleReset();
+        if (showShortcutHelp) { setShowShortcutHelp(false); return; }
+        if (detailHero) { setDetailHero(null); return; }
+        if (isInput && searchQuery) { setSearchQuery(''); searchInputRef.current?.blur(); return; }
+        if (isInput) { searchInputRef.current?.blur(); return; }
+        router.push('/');
+        return;
       }
 
-      const index = Number.parseInt(e.key, 10);
-      if (!Number.isNaN(index) && index >= 1 && index <= 9) {
-        const suggestion = suggestions[index - 1];
-        if (suggestion) {
-          e.preventDefault();
-          handleHeroClick(suggestion.hero);
-        }
+      // Toggle shortcut help with '?'
+      if (e.key === '?' && !isInput) {
+        e.preventDefault();
+        setShowShortcutHelp(prev => !prev);
+        return;
       }
+
+      // Everything below only fires when not typing in an input
+      if (isInput) return;
+
+      // Number keys 1-7 for quick-picking suggestions
+      if (e.key >= '1' && e.key <= '7') {
+        const idx = parseInt(e.key) - 1;
+        if (suggestions[idx]) {
+          e.preventDefault();
+          handleHeroClick(suggestions[idx].hero);
+        }
+        return;
+      }
+
+      // Focus search with '/' or 'f'
+      if (e.key === '/' || e.key === 'f') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        return;
+      }
+
+      // View toggle: 'g' for grid, 'r' for role
+      if (e.key === 'g') { setHeroView('grid'); return; }
+      if (e.key === 'r') { setHeroView('roles'); return; }
     };
 
     window.addEventListener('keydown', handler);
@@ -276,7 +318,7 @@ function DraftPageInner() {
     : `${isYourTurn ? '🟢 Your' : '🔴 Enemy'} Turn — ${isBan ? '🚫 BAN' : `✅ PICK ${team1Picks.length + team2Picks.length + 1}/10`} (${step + 1}/${totalSteps})`;
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden page-enter pb-12 sm:pb-0">
+    <div className="h-screen flex flex-col overflow-hidden page-enter pb-14">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 flex-wrap gap-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <div className="flex items-center gap-3">
@@ -307,6 +349,9 @@ function DraftPageInner() {
           )}
         </div>
         <div className="flex items-center gap-2">
+          <button onClick={() => setShowShortcutHelp(true)} className="text-sm px-2 py-1 rounded hover:bg-white/10" style={{ color: '#A9A9A9', border: '1px solid #A9A9A933' }} title="Keyboard shortcuts (?)">
+            ?
+          </button>
           <button onClick={() => router.push('/settings')} className="text-sm px-2 py-1 rounded hover:bg-white/10" style={{ color: '#A9A9A9', border: '1px solid #A9A9A933' }} title="Settings">
             ⚙️
           </button>
@@ -494,18 +539,28 @@ function DraftPageInner() {
               <span>{suggestionsCollapsed ? '▶' : '▼'}</span>
             </button>
             <div className={`${suggestionsCollapsed ? 'hidden lg:block' : ''} max-h-[340px] overflow-y-auto`}>
-              <HeroSuggestionPanel
-                suggestions={suggestions}
-                onSelect={(s) => handleHeroClick(s.hero)}
-                title={isBan ? '🚫 Ban Suggestions' : '✅ Pick Suggestions'}
-                mapName={map.name}
-              />
+              {isSuggestionsComputing ? (
+                <div className="p-4 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+                  <p className="text-sm animate-pulse" style={{ color: '#00FFFF' }}>Computing suggestions…</p>
+                </div>
+              ) : suggestions.length === 0 && !isComplete ? (
+                <div className="p-4 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>No heroes match current filters</p>
+                </div>
+              ) : (
+                <HeroSuggestionPanel
+                  suggestions={suggestions}
+                  onSelect={(s) => handleHeroClick(s.hero)}
+                  title={isBan ? '🚫 Ban Suggestions' : '✅ Pick Suggestions'}
+                  mapName={map.name}
+                />
+              )}
             </div>
           </div>
 
           {/* Hero Search + Grid */}
           {!isComplete && (
-            <div data-hero-grid className="flex-1 overflow-auto p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
+            <div data-hero-grid className="flex-1 min-h-[220px] overflow-auto p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
               {!heroGridReady ? (
                 /* Loading skeleton */
                 <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
@@ -533,8 +588,9 @@ function DraftPageInner() {
               </div>
               <div className="relative">
                 <input
+                  ref={searchInputRef}
                   type="text"
-                  placeholder="🔍 Search heroes..."
+                  placeholder="🔍 Search heroes... (press / to focus)"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   className="w-full px-3 py-1.5 mb-2 rounded text-sm focus:outline-none"
@@ -833,6 +889,35 @@ function DraftPageInner() {
         </div>
       </div>
       {/* Hero Detail Popup */}
+      {/* Keyboard Shortcut Help Modal */}
+      {showShortcutHelp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0, 0, 0, 0.6)' }} onClick={() => setShowShortcutHelp(false)}>
+          <div className="rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl" style={{ background: 'rgba(15, 20, 40, 0.95)', border: '1px solid #00FFFF44' }} onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold" style={{ color: '#00FFFF' }}>⌨️ Keyboard Shortcuts</h2>
+              <button onClick={() => setShowShortcutHelp(false)} className="text-sm px-2 py-1 rounded hover:bg-white/10" style={{ color: '#FF6666' }}>✕</button>
+            </div>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+              {[
+                ['1 – 7', 'Quick-pick suggestion'],
+                ['/ or F', 'Focus search'],
+                ['Esc', 'Clear search / Go back'],
+                ['G', 'Grid view'],
+                ['R', 'Role view'],
+                ['Ctrl+Z', 'Undo last action'],
+                ['?', 'Toggle this help'],
+              ].map(([key, desc]) => (
+                <div key={key} className="contents">
+                  <kbd className="px-1.5 py-0.5 rounded text-xs font-mono text-right" style={{ background: 'rgba(0,255,255,0.1)', color: '#00FFFF', border: '1px solid #00FFFF33' }}>{key}</kbd>
+                  <span className="text-xs" style={{ color: '#C0C0C0' }}>{desc}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] mt-4 opacity-40 text-center">Press ? or Esc to close</p>
+          </div>
+        </div>
+      )}
+
       {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}
     </div>
   );
@@ -852,9 +937,11 @@ function AnalysisCard({ title, analysis, color }: { title: string; analysis: Win
 
 export default function DraftPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p>Loading draft...</p></div>}>
-      <DraftPageInner />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p>Loading draft...</p></div>}>
+        <DraftPageInner />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 
