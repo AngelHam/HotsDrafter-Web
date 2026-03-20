@@ -13,6 +13,15 @@ import HeroDetailPopup from '@/components/HeroDetailPopup';
 import { Specialty } from '@/data/Specialty';
 import type { Hero } from '@/data/Hero';
 
+const SLOT_ROLE_HINTS = ['🛡️ Tank', '✚ Healer', '⚔️ DPS', '🏹 Offlane', '✦ Flex'];
+
+const TEMPLATE_DESCRIPTIONS: Record<string, string> = {
+  Standard: 'Balanced - all roles filled',
+  Dive: 'Aggressive dive composition',
+  Poke: 'Long-range siege damage',
+  Wombo: 'AoE combo team',
+};
+
 const TEAM_TEMPLATES: Record<string, string[]> = {
   Standard: ['Johanna', 'Malfurion', 'Sonya', 'Jaina', 'Raynor'],
   Dive: ['Diablo', 'Uther', 'Illidan', 'Greymane', 'Genji'],
@@ -133,7 +142,7 @@ export default function TeamBuilderPage() {
                       onClick={() => applyTemplate(1, name)}
                       className="text-xs px-2 py-1 rounded hover:bg-white/10"
                       style={{ color: '#4488FF', border: '1px solid #4488FF44' }}
-                      title={`Apply ${name} template to Team 1`}
+                      title={TEMPLATE_DESCRIPTIONS[name] ?? `Apply ${name} template to Team 1`}
                     >
                       {name}
                     </button>
@@ -149,7 +158,7 @@ export default function TeamBuilderPage() {
                       onClick={() => applyTemplate(2, name)}
                       className="text-xs px-2 py-1 rounded hover:bg-white/10"
                       style={{ color: '#FF6666', border: '1px solid #FF666644' }}
-                      title={`Apply ${name} template to Team 2`}
+                      title={TEMPLATE_DESCRIPTIONS[name] ?? `Apply ${name} template to Team 2`}
                     >
                       {name}
                     </button>
@@ -356,6 +365,18 @@ function TeamSlots({ label, color, slots, onSlotClick, onClear, onHeroDetail, ma
           })}
         </div>
       )}
+      {picks.length > 0 && mapName && (() => {
+        const ivDb = IcyVeinsDatabase.getInstance();
+        const mapScores = picks.map(h => ivDb.getTierScore(h.nicknames[0], mapName));
+        const avgScore = mapScores.reduce((a, b) => a + b, 0) / mapScores.length;
+        const mapFit = avgScore >= 7 ? 'Great' : avgScore >= 5 ? 'Good' : avgScore >= 3 ? 'OK' : 'Poor';
+        const fitColor = avgScore >= 7 ? '#90EE90' : avgScore >= 5 ? '#FFD700' : avgScore >= 3 ? '#FFA500' : '#FF6666';
+        return (
+          <div className="text-[10px] mb-1 px-1.5 py-0.5 rounded" style={{ background: fitColor + '15', color: fitColor, border: `1px solid ${fitColor}33` }}>
+            📍 Map Fit: {mapFit} ({avgScore.toFixed(1)})
+          </div>
+        );
+      })()}
       <div className="flex flex-col gap-2">
         {slots.map((hero, i) => (
           <div key={i} className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-white/5"
@@ -373,7 +394,10 @@ function TeamSlots({ label, color, slots, onSlotClick, onClear, onHeroDetail, ma
                 <button onClick={(e) => { e.stopPropagation(); onClear(i); }} className="text-xs px-1 rounded hover:bg-white/10" style={{ color: '#FF6666' }} title={`Clear slot ${i + 1}`}>✕</button>
               </>
             ) : (
-              <span className="text-sm opacity-40 cursor-pointer" onClick={() => onSlotClick(i)}>+ Pick {i + 1}</span>
+              <div className="flex items-center gap-2 w-full py-1" onClick={() => onSlotClick(i)}>
+                <span className="text-sm opacity-50 cursor-pointer">+ Pick {i + 1}</span>
+                <span className="text-xs opacity-30 ml-auto">{SLOT_ROLE_HINTS[i]}</span>
+              </div>
             )}
           </div>
         ))}

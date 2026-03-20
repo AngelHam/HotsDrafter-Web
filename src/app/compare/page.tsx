@@ -89,7 +89,7 @@ function ComparePageInner() {
               <p className="text-xs opacity-40">See roles, specialties, map tiers, synergies, counters, and head-to-head matchup data</p>
             </div>
             <div>
-              <h3 className="text-xs font-bold mb-2 opacity-50">⚡ POPULAR MATCHUPS — click to compare</h3>
+              <h3 className="text-sm font-bold mb-3 opacity-50">⚡ POPULAR MATCHUPS — click to compare</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {POPULAR_MATCHUPS.map(([n1, n2]) => {
                   const h1 = ALL_HEROES.find(h => h.nicknames[0] === n1);
@@ -99,13 +99,29 @@ function ComparePageInner() {
                     <button key={`${n1}-${n2}`} onClick={() => { setHero1(h1); setHero2(h2); }}
                       className="flex items-center justify-center gap-2 p-2 rounded text-xs transition-all hover:brightness-125"
                       style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.4)' }}>
-                      <HeroPortrait hero={h1} size="sm" />
-                      <span className="opacity-50">vs</span>
-                      <HeroPortrait hero={h2} size="sm" />
+                      <div className="flex flex-col items-center">
+                        <HeroPortrait hero={h1} size="sm" />
+                        <span className="text-[9px] opacity-70 mt-0.5 truncate max-w-[60px]">{h1.nicknames[0]}</span>
+                      </div>
+                      <span className="opacity-50 text-xs">vs</span>
+                      <div className="flex flex-col items-center">
+                        <HeroPortrait hero={h2} size="sm" />
+                        <span className="text-[9px] opacity-70 mt-0.5 truncate max-w-[60px]">{h2.nicknames[0]}</span>
+                      </div>
                     </button>
                   );
                 })}
               </div>
+              <button
+                onClick={() => {
+                  const shuffled = [...ALL_HEROES].sort(() => Math.random() - 0.5);
+                  setHero1(shuffled[0]);
+                  setHero2(shuffled[1]);
+                }}
+                className="mt-3 w-full text-xs px-3 py-2 rounded transition-all hover:brightness-125 hover:bg-white/5"
+                style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.4)', color: '#FFD700' }}>
+                🎲 Random Matchup
+              </button>
             </div>
           </div>
         )}
