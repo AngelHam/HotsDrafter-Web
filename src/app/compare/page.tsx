@@ -87,7 +87,7 @@ function ComparePageInner() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col page-enter">
+    <div className="min-h-screen flex flex-col page-enter pb-16">
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10 smooth-transition" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
         <h1 className="text-lg font-bold" style={{ color: '#FFD700' }}>⚖️ Hero Compare</h1>
@@ -113,13 +113,13 @@ function ComparePageInner() {
         {/* Empty State - Popular Matchups */}
         {(!hero1 || !hero2) && (
           <div className="space-y-4 animate-fade-slide-up">
-            <div className="p-4 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
+            <div className="p-4 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
               <p className="text-sm opacity-60 mb-1">Compare any two heroes side-by-side</p>
               <p className="text-xs opacity-40">See roles, specialties, map tiers, synergies, counters, and head-to-head matchup data</p>
             </div>
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold opacity-50">⚡ POPULAR MATCHUPS — click to compare</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider opacity-50" style={{ color: '#00FFFF' }}>⚡ POPULAR MATCHUPS — click to compare</h3>
                 <div className="flex gap-1">
                   {[{ role: 'All', color: '#00FFFF' }, { role: 'Tank', color: '#6495ED' }, { role: 'Healer', color: '#90EE90' }, { role: 'DPS', color: '#FF6347' }, { role: 'Mage', color: '#BA55D3' }, { role: 'Offlane', color: '#FFA500' }].map(({ role, color }) => (
                     <button key={role} onClick={() => setMatchupRoleFilter(role)}
@@ -142,7 +142,7 @@ function ComparePageInner() {
                   return (
                     <button key={`${n1}-${n2}`} onClick={() => { setHero1(h1); setHero2(h2); updateUrlParams(h1, h2); setTimeout(() => comparisonRef.current?.scrollIntoView({ behavior: 'smooth' }), 100); }}
                       className="card-enter matchup-card-hover flex flex-col items-center gap-1 p-2 rounded text-xs hover:brightness-125"
-                      style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.4)', animationDelay: `${i * 80}ms` }}>
+                      style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)', animationDelay: `${i * 80}ms` }}>
                       <div className="flex items-center justify-center gap-2 w-full">
                         <div className="flex flex-col items-center">
                           <HeroPortrait hero={h1} size="sm" />
@@ -157,9 +157,9 @@ function ComparePageInner() {
                       {(() => {
                         const counters1 = icyVeins.counters(n1, n2);
                         const counters2 = icyVeins.counters(n2, n1);
-                        if (counters1) return <span className="text-[8px] px-1.5 py-0.5 rounded font-semibold" style={{ background: 'rgba(68,136,255,0.2)', color: '#4488FF', border: '1px solid rgba(68,136,255,0.3)' }}>▲ {n1} favored</span>;
-                        if (counters2) return <span className="text-[8px] px-1.5 py-0.5 rounded font-semibold" style={{ background: 'rgba(255,102,102,0.2)', color: '#FF6666', border: '1px solid rgba(255,102,102,0.3)' }}>▲ {n2} favored</span>;
-                        return <span className="text-[8px] px-1.5 py-0.5 rounded opacity-40" style={{ background: 'rgba(255,255,255,0.05)' }}>— Even</span>;
+                        if (counters1) return <span className="text-[9px] px-1.5 py-0.5 rounded font-semibold" style={{ background: 'rgba(68,136,255,0.2)', color: '#4488FF', border: '1px solid rgba(68,136,255,0.3)' }}>▲ {n1} favored</span>;
+                        if (counters2) return <span className="text-[9px] px-1.5 py-0.5 rounded font-semibold" style={{ background: 'rgba(255,102,102,0.2)', color: '#FF6666', border: '1px solid rgba(255,102,102,0.3)' }}>▲ {n2} favored</span>;
+                        return <span className="text-[9px] px-1.5 py-0.5 rounded font-semibold" style={{ background: 'rgba(184,160,80,0.15)', color: '#B8A050', border: '1px solid rgba(184,160,80,0.25)' }}>— No data</span>;
                       })()}
                     </button>
                   );
@@ -176,13 +176,13 @@ function ComparePageInner() {
                   setTimeout(() => comparisonRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
                 }}
                 className="mt-3 w-full text-xs px-3 py-2 rounded transition-all hover:brightness-125 hover:bg-white/5"
-                style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.4)', color: '#FFD700' }}>
+                style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)', color: '#FFD700' }}>
                 🎲 Random Matchup
               </button>
             </div>
 
             {/* Quick Info Panel */}
-            <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
+            <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
               <p className="text-sm font-semibold mb-2" style={{ color: '#FFD700' }}>💡 How to Compare</p>
               <ul className="space-y-1.5 text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>
                 <li>• Click a hero slot above or pick a popular matchup</li>
@@ -231,7 +231,7 @@ function ComparePageInner() {
 
             {/* Head to Head */}
             <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-              <h3 className="text-xs font-bold mb-2" style={{ color: '#FFD700' }}>HEAD TO HEAD</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: '#00FFFF' }}>HEAD TO HEAD</h3>
               <p className="text-xs opacity-80">
                 {icyVeins.counters(hero1.nicknames[0], hero2.nicknames[0])
                   ? <span style={{ color: '#4488FF' }}>{hero1.nicknames[0]} counters {hero2.nicknames[0]}</span>
@@ -278,7 +278,7 @@ function ComparePageInner() {
               
               return (
                 <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: `1px solid ${verdictColor}44` }}>
-                  <h3 className="text-xs font-bold mb-2" style={{ color: verdictColor }}>⚖️ MATCHUP VERDICT</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: verdictColor }}>⚖️ MATCHUP VERDICT</h3>
                   <p className="text-sm font-semibold" style={{ color: verdictColor }}>{verdict}</p>
                   <div className="flex gap-4 mt-2 text-[10px] opacity-60">
                     <span>Map avg: {avg1.toFixed(1)} vs {avg2.toFixed(1)}</span>
@@ -291,7 +291,7 @@ function ComparePageInner() {
 
             {/* Map Performance Chart */}
             <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-              <h3 className="text-xs font-bold mb-2" style={{ color: '#87CEEB' }}>📊 MAP PERFORMANCE</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: '#00FFFF' }}>📊 MAP PERFORMANCE</h3>
               <div className="space-y-1.5">
                 {ALL_MAPS.map(map => {
                   const s1 = icyVeins.getTierScore(hero1.nicknames[0], map.name);
@@ -325,7 +325,7 @@ function ComparePageInner() {
               const unique2 = hero2.specialties.filter(s => !hero1.specialties.includes(s));
               return (
                 <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-                  <h3 className="text-xs font-bold mb-2" style={{ color: '#00FFFF' }}>🔀 SPECIALTY OVERLAP</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: '#00FFFF' }}>🔀 SPECIALTY OVERLAP</h3>
                   {shared.length > 0 && (
                     <div className="mb-2">
                       <span className="text-[9px] opacity-50 block mb-1">Shared ({shared.length})</span>
@@ -366,7 +366,7 @@ function ComparePageInner() {
 
             {/* Map Tier Comparison */}
             <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-              <h3 className="text-xs font-bold mb-2" style={{ color: '#87CEEB' }}>MAP TIERS</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: '#00FFFF' }}>MAP TIERS</h3>
               <div className="space-y-1">
                 {ALL_MAPS.map(map => {
                   const t1 = icyVeins.getHeroTierOnMap(hero1.nicknames[0], map.name);

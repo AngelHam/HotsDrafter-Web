@@ -136,11 +136,11 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col page-enter pb-14" style={{ background: 'var(--theme-bg-primary)' }}>
+    <div className="min-h-screen flex flex-col page-enter pb-16" style={{ background: 'var(--theme-bg-primary)' }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3" style={{ background: 'var(--theme-header-bg)', borderBottom: '1px solid var(--theme-border)' }}>
-        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10 smooth-transition" style={{ color: 'var(--theme-accent)', border: '1px solid var(--theme-accent)33' }} title="Return to main menu">← Back</button>
-        <h1 className="text-lg font-bold" style={{ color: 'var(--theme-muted)' }}>⚙️ Settings</h1>
+      <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
+        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10 smooth-transition" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
+        <h1 className="text-lg font-bold" style={{ color: '#FFD700' }}>⚙️ Settings</h1>
         <div />
       </div>
 
@@ -184,7 +184,7 @@ export default function SettingsPage() {
 
           {/* ── Suggestion Count ── */}
           <div className="p-4 rounded" style={CARD}>
-            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Suggestion Count</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>Suggestion Count</h3>
             <div className="flex gap-3">
               {[3, 5, 7].map(n => (
                 <button key={n} onClick={() => handleSuggestionCount(n)}
@@ -203,7 +203,7 @@ export default function SettingsPage() {
 
           {/* ── Analysis Mode ── */}
           <div className="p-4 rounded" style={CARD}>
-            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Analysis Mode</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>Analysis Mode</h3>
             <div className="flex gap-3">
               <button onClick={() => handleAnalysisMode(AnalysisMode.Simple)}
                 className="px-4 py-2 rounded font-semibold flex-1 transition-all hover:bg-white/10"
@@ -232,7 +232,7 @@ export default function SettingsPage() {
 
           {/* ── Scoring Weights ── */}
           <div className="p-4 rounded" style={CARD}>
-            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Scoring Weights</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>Scoring Weights</h3>
             <div className="space-y-2">
               {[
                 { label: 'Synergy', weight: 30, color: '#90EE90' },
@@ -282,7 +282,7 @@ export default function SettingsPage() {
 
           {/* ── First Pick Team ── */}
           <div className="p-4 rounded" style={CARD}>
-            <h3 className="font-bold mb-2" style={{ color: '#00FFFF' }}>First Pick Team</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: '#00FFFF' }}>First Pick Team</h3>
             <p className="text-xs opacity-50 mb-3">Choose which team bans and picks first in the draft order</p>
             <div className="flex gap-3">
               {[1, 2].map(t => (
@@ -308,7 +308,7 @@ export default function SettingsPage() {
 
           {/* ── Quick Draft Toggle ── */}
           <div className="p-4 rounded" style={CARD}>
-            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Quick Draft Mode</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>Quick Draft Mode</h3>
             <button
               onClick={() => {
                 const next = !quickDraft;
@@ -331,7 +331,7 @@ export default function SettingsPage() {
 
           {/* ── Coaching Tips Toggle ── */}
           <div className="p-4 rounded" style={CARD}>
-            <h3 className="font-bold mb-2" style={{ color: '#00FFFF' }}>💡 Coaching Tips</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: '#00FFFF' }}>💡 Coaching Tips</h3>
             <p className="text-xs opacity-50 mb-3">Show contextual tips during the draft to help with bans, picks, and composition</p>
             <button
               onClick={() => {
@@ -371,7 +371,7 @@ export default function SettingsPage() {
 
           {/* ── Theme ── */}
           <div className="p-4 rounded" style={CARD}>
-            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>🎨 Theme</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>🎨 Theme</h3>
             <div className="flex gap-3 mb-4">
               <button
                 onClick={() => { if (theme !== 'dark') toggleTheme(); }}
@@ -419,7 +419,7 @@ export default function SettingsPage() {
 
           {/* ── Data Statistics ── */}
           <div className="p-4 rounded" style={CARD}>
-            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>📊 Data Statistics</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>📊 Data Statistics</h3>
 
             {/* Summary stats */}
             <div className="grid grid-cols-2 gap-2 text-xs mb-4">
@@ -469,7 +469,7 @@ export default function SettingsPage() {
 
           {/* ── Keyboard Shortcuts ── */}
           <div className="p-4 rounded" style={CARD}>
-            <h3 className="font-bold mb-4" style={{ color: '#00FFFF' }}>⌨️ Keyboard Shortcuts</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-4" style={{ color: '#00FFFF' }}>⌨️ Keyboard Shortcuts</h3>
             <div className="space-y-4">
               {SHORTCUT_GROUPS.map(({ group, shortcuts }) => (
                 <div key={group}>

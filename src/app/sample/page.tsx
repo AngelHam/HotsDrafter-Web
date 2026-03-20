@@ -105,7 +105,7 @@ function SampleDraftInner() {
   }, [draft]);
 
   return (
-    <div className="min-h-screen flex flex-col page-enter">
+    <div className="min-h-screen flex flex-col page-enter pb-16">
       <style>{`
         @keyframes scorePulse {
           0%, 100% { transform: scale(1); }
@@ -131,14 +131,13 @@ function SampleDraftInner() {
           <RoleBadges picks={draft.team1Picks} />
           <div className="mb-3 mt-2">
             <span className="text-xs font-semibold" style={{ color: '#FF6666' }}>BANS</span>
-            <div className="flex gap-2 mt-1">
+            <div className="flex gap-3 mt-1">
               {draft.team1Bans.map(h => (
-                <div key={h.name} className="flex items-center gap-1">
-                  <div className="relative" style={{ width: 40 }}>
+                <div key={h.name} className="flex items-center gap-1.5">
+                  <div className="relative" style={{ width: 48 }}>
                     <HeroPortrait hero={h} size="sm" banned />
-                    <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold pointer-events-none" style={{ color: 'rgba(255,60,60,0.7)' }}>BANNED</span>
                   </div>
-                  <span className="text-xs" style={{ color: '#FF6666' }}>{h.nicknames[0]}</span>
+                  <span className="text-sm font-medium" style={{ color: '#FF6666' }}>{h.nicknames[0]}</span>
                 </div>
               ))}
             </div>
@@ -169,7 +168,7 @@ function SampleDraftInner() {
         <div className="w-full md:w-80 flex flex-col gap-4 order-first md:order-none">
           <ScoreComparisonBar score1={sampleCompScore(draft.team1Picks)} score2={sampleCompScore(draft.team2Picks)} />
           <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-            <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Draft Analysis</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>Draft Analysis</h3>
             <div className="mb-3 pb-3" style={{ borderBottom: '1px solid rgba(68,102,136,0.3)' }}>
               <p className="text-sm font-semibold mb-1"><span style={{ color: '#4488FF' }}>Team 1:</span> {winConditionToString(analysis.team1.primary)}</p>
               <p className="text-xs opacity-70 mb-1">{analysis.team1.description}</p>
@@ -207,14 +206,13 @@ function SampleDraftInner() {
           <RoleBadges picks={draft.team2Picks} />
           <div className="mb-3 mt-2">
             <span className="text-xs font-semibold" style={{ color: '#FF6666' }}>BANS</span>
-            <div className="flex gap-2 mt-1">
+            <div className="flex gap-3 mt-1">
               {draft.team2Bans.map(h => (
-                <div key={h.name} className="flex items-center gap-1">
-                  <div className="relative" style={{ width: 40 }}>
+                <div key={h.name} className="flex items-center gap-1.5">
+                  <div className="relative" style={{ width: 48 }}>
                     <HeroPortrait hero={h} size="sm" banned />
-                    <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold pointer-events-none" style={{ color: 'rgba(255,60,60,0.7)' }}>BANNED</span>
                   </div>
-                  <span className="text-xs" style={{ color: '#FF6666' }}>{h.nicknames[0]}</span>
+                  <span className="text-sm font-medium" style={{ color: '#FF6666' }}>{h.nicknames[0]}</span>
                 </div>
               ))}
             </div>
@@ -449,7 +447,7 @@ function DraftInsights({ team1Picks, team2Picks, mapName }: { team1Picks: Hero[]
 
   return (
     <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-      <h3 className="font-bold mb-3" style={{ color: '#FFD700' }}>💡 Draft Insights</h3>
+      <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>💡 Draft Insights</h3>
 
       {/* Map Fitness */}
       <div className="mb-3 pb-2" style={{ borderBottom: '1px solid rgba(68,102,136,0.3)' }}>

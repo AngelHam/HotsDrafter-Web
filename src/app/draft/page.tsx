@@ -566,12 +566,12 @@ function DraftPageInner() {
     : `${isYourTurn ? 'Your Turn' : 'Enemy Turn'} — ${isBan ? 'Ban Phase' : 'Pick Phase'}`;
 
   return (
-    <main id="main-content" className="h-screen flex flex-col overflow-hidden page-enter pb-14">
+    <main id="main-content" className="h-screen flex flex-col overflow-hidden page-enter pb-16">
       {showDraftTutorial && <TutorialOverlay steps={DRAFT_TUTORIAL_STEPS} storageKey={DRAFT_STORAGE_KEY} onClose={() => setShowDraftTutorial(false)} />}
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-2 flex-wrap gap-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
+      <header className="flex items-center justify-between px-4 py-3 flex-wrap gap-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">
+          <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10 smooth-transition" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">
             ← Back
           </button>
           <button onClick={handleReset} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Reset entire draft">
@@ -637,10 +637,9 @@ function DraftPageInner() {
       {/* Status + Progress */}
       <div className="flex flex-col items-center gap-1.5 sm:gap-2 py-2 sm:py-3 px-2" style={{ background: 'rgba(20, 25, 45, 0.5)' }}>
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center text-center">
-          <span className="text-xs font-semibold opacity-90" aria-live="polite" style={{ color: isReplaying ? '#FF8C00' : isBan ? '#FF6666' : (isYourTurn ? '#00FFFF' : '#FF6666') }}>
+          <span className="text-sm font-semibold opacity-90" aria-live="polite" style={{ color: isReplaying ? '#FF8C00' : (isYourTurn ? '#00FFFF' : '#FF6666') }}>
             {isReplaying ? `🎬 Replaying — Step ${replayStep + 1}/16` : statusText}
           </span>
-          {!isReplaying && phaseName && <span className="text-[10px] px-1.5 py-0.5 rounded opacity-60" aria-live="polite" style={{ background: 'rgba(255,255,255,0.05)', color: isBan ? '#FF6666' : '#00FFFF' }}>{phaseName}</span>}
           {team1Picks.length > 0 && (
             <span className="text-[10px] flex gap-0.5">
               {['Tank', 'Healer', 'DPS', 'Mage', 'Offlane'].map(r => {

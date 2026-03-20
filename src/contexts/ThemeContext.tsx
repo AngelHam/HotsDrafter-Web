@@ -19,6 +19,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (saved === 'dark' || saved === 'light') setTheme(saved);
   }, []);
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);

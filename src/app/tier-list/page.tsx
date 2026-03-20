@@ -8,6 +8,13 @@ import { specialtyToString } from '@/data/Specialty';
 import HeroPortrait from '@/components/HeroPortrait';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
 import type { Hero } from '@/data/Hero';
+import { EffectiveRange } from '@/data/Hero';
+
+function RangeIndicator({ range }: { range: EffectiveRange }) {
+  if (range <= 2) return <span title="Melee" className="text-[8px]">⚔️</span>;
+  if (range === 3) return <span title="Mid-range" className="text-[8px]">🎯</span>;
+  return <span title="Ranged" className="text-[8px]">🏹</span>;
+}
 
 const ROLE_COLORS: Record<string, string> = {
   Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347', Mage: '#BA55D3', Offlane: '#FFA500', Specialist: '#A9A9A9',
@@ -100,7 +107,7 @@ export default function TierListPage() {
   const tiers = ['S', 'A', 'B', 'C', 'D'];
 
   return (
-    <div className="min-h-screen flex flex-col page-enter">
+    <div className="min-h-screen flex flex-col page-enter pb-16">
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10 smooth-transition" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
         <h1 className="text-lg font-bold" style={{ color: '#FFD700' }}>🏆 Meta Tier List</h1>
@@ -150,7 +157,7 @@ export default function TierListPage() {
         </div>
 
         {/* Tier Distribution Bar */}
-        <div className="flex gap-0.5 mb-4 rounded overflow-hidden" style={{ height: 12 }}>
+        <div className="flex gap-0.5 mb-4 rounded overflow-hidden" style={{ height: 16 }}>
           {tiers.map(tier => {
             const count = entries.filter(e => e.tier === tier).length;
             if (count === 0) return null;
@@ -159,11 +166,11 @@ export default function TierListPage() {
               <div key={tier} title={`${tier}-tier: ${count} heroes`} className="relative flex items-center justify-center" style={{
                 flex: count,
                 background: TIER_COLORS[tier],
-                opacity: 0.7,
+                opacity: 0.8,
               }}>
-                {pct > 10 && (
-                  <span className="text-[7px] font-bold" style={{ color: '#000', opacity: 0.8 }}>{Math.round(pct)}%</span>
-                )}
+                <span className="text-[8px] font-bold" style={{ color: '#000', opacity: 0.9 }}>
+                  {tier}: {count}{pct > 15 ? ` (${Math.round(pct)}%)` : ''}
+                </span>
               </div>
             );
           })}
@@ -185,43 +192,58 @@ export default function TierListPage() {
         {tiers.map(tier => {
           const tierEntries = entries.filter(e => e.tier === tier);
           if (tierEntries.length === 0) return null;
+          const tierColor = TIER_COLORS[tier];
           return (
-            <div key={tier} className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="flex flex-col items-center">
-                  <span className="text-lg font-bold px-2.5 py-0.5 rounded" style={{
-                    background: TIER_COLORS[tier] + '22',
-                    color: TIER_COLORS[tier],
-                    border: `1px solid ${TIER_COLORS[tier]}44`,
-                    ...(tier === 'S' ? { boxShadow: `0 0 12px ${TIER_COLORS.S}55, 0 0 24px ${TIER_COLORS.S}22`, borderColor: TIER_COLORS.S + '88', textShadow: `0 0 8px ${TIER_COLORS.S}88` } : {}),
-                  }}>
-                    {tier} <span className="text-xs font-normal opacity-70">({tierEntries.length})</span>
-                  </span>
-                  <span className="text-[9px] mt-0.5" style={{ color: TIER_COLORS[tier], opacity: 0.5 }}>{TIER_DESCRIPTIONS[tier]}</span>
-                </div>
-                <div className="flex gap-0.5 ml-2">
+            <div key={tier} className="mb-5" style={{ borderLeft: `3px solid ${tierColor}44`, paddingLeft: 12 }}>
+              {/* Tier separator line with badge */}
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-xl font-black px-3 py-1 rounded-md flex-shrink-0" style={{
+                  background: tierColor + '22',
+                  color: tierColor,
+                  border: `2px solid ${tierColor}55`,
+                  ...(tier === 'S' ? { boxShadow: `0 0 16px ${TIER_COLORS.S}55, 0 0 32px ${TIER_COLORS.S}22`, borderColor: TIER_COLORS.S + '88', textShadow: `0 0 10px ${TIER_COLORS.S}88` } : {}),
+                }}>
+                  {tier} <span className="text-xs font-normal opacity-70">({tierEntries.length})</span>
+                </span>
+                <span className="text-[10px]" style={{ color: tierColor, opacity: 0.6 }}>{TIER_DESCRIPTIONS[tier]}</span>
+                <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${tierColor}44, transparent)` }} />
+                <div className="flex gap-0.5">
                   {['Tank', 'Healer', 'DPS', 'Mage', 'Offlane', 'Specialist'].map(r => {
                     const c = tierEntries.filter(e => e.hero.role === r).length;
                     if (c === 0) return null;
-                    const rc: Record<string, string> = { Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347', Mage: '#BA55D3', Offlane: '#FFA500', Specialist: '#A9A9A9' };
-                    return <span key={r} className="text-[9px] px-1 rounded" style={{ background: (rc[r] || '#888') + '22', color: rc[r] }} title={`${r}: ${c}`}>{c}</span>;
+                    return <span key={r} className="text-[9px] px-1 rounded" style={{ background: (ROLE_COLORS[r] || '#888') + '22', color: ROLE_COLORS[r] }} title={`${r}: ${c}`}>{c}</span>;
                   })}
                 </div>
               </div>
               <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(70px, 1fr))' }}>
                 {tierEntries.map((e, i) => {
                   return (
-                  <div key={e.hero.name} className="card-enter group relative flex flex-col items-center p-1.5 rounded hover:bg-white/5 smooth-transition cursor-pointer"
+                  <div key={e.hero.name} className="card-enter group relative flex flex-col items-center p-1.5 rounded smooth-transition cursor-pointer"
                     onClick={() => setDetailHero(e.hero)}
                     style={{
-                      ...(e.tier === 'S' ? { boxShadow: '0 0 6px rgba(255,215,0,0.3)', background: 'rgba(255,215,0,0.05)' } : undefined),
+                      background: e.tier === 'S' ? 'rgba(255,215,0,0.05)' : 'transparent',
                       animationDelay: `${i * 30}ms`,
+                      border: '1px solid transparent',
                     }}
+                    onMouseEnter={(ev) => { ev.currentTarget.style.boxShadow = `0 0 10px ${tierColor}55, 0 0 4px ${tierColor}33`; ev.currentTarget.style.borderColor = tierColor + '44'; ev.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                    onMouseLeave={(ev) => { ev.currentTarget.style.boxShadow = e.tier === 'S' ? '0 0 6px rgba(255,215,0,0.3)' : 'none'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.background = e.tier === 'S' ? 'rgba(255,215,0,0.05)' : 'transparent'; }}
                     title={`${e.hero.nicknames[0]} (${e.hero.role}) — Score: ${e.score.toFixed(1)}${selectedMap === 'all' ? ` | S-tier: ${e.sTierMaps} maps, A-tier: ${e.aTierMaps} maps` : ''}`}>
+                    {/* Tier badge */}
+                    <div className="absolute top-0 right-0 z-10">
+                      <span className="text-[9px] font-black px-1.5 py-0.5 rounded-bl rounded-tr" style={{
+                        background: tierColor + '33',
+                        color: tierColor,
+                        border: `1px solid ${tierColor}44`,
+                      }}>{e.tier}</span>
+                    </div>
                     <HeroPortrait hero={e.hero} size="md" showName highlightQuery={searchQuery || undefined} />
-                    <span className="text-[8px] px-1.5 py-0.5 rounded mt-0.5" style={{ background: (ROLE_COLORS[e.hero.role] || '#888') + '22', color: ROLE_COLORS[e.hero.role] || '#888', border: `1px solid ${(ROLE_COLORS[e.hero.role] || '#888')}33` }}>
-                      {e.hero.role}
-                    </span>
+                    {/* Role + Range row */}
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className="text-[8px] px-1.5 py-0.5 rounded" style={{ background: (ROLE_COLORS[e.hero.role] || '#888') + '22', color: ROLE_COLORS[e.hero.role] || '#888', border: `1px solid ${(ROLE_COLORS[e.hero.role] || '#888')}33` }}>
+                        {e.hero.role}
+                      </span>
+                      <RangeIndicator range={e.hero.effectiveRange} />
+                    </div>
                     {e.hero.specialties.length > 0 && (
                       <span className="text-[7px] mt-0.5 opacity-60 text-center leading-tight" style={{ color: '#aaa', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', width: '100%' }}>
                         {specialtyToString(e.hero.specialties[0])}
@@ -232,9 +254,9 @@ export default function TierListPage() {
                     )}
                     {/* Hover tooltip */}
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1.5 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 z-20 whitespace-nowrap text-center"
-                      style={{ background: 'rgba(15, 20, 40, 0.95)', border: '1px solid rgba(68,102,136,0.6)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                      style={{ background: 'rgba(15, 20, 40, 0.95)', border: `1px solid ${tierColor}44`, boxShadow: `0 4px 12px rgba(0,0,0,0.5), 0 0 8px ${tierColor}22` }}>
                       <div className="text-[10px] font-semibold" style={{ color: ROLE_COLORS[e.hero.role] || '#ccc' }}>{e.hero.role}</div>
-                      <div className="text-[9px]" style={{ color: TIER_COLORS[e.tier] }}>Score: {e.score.toFixed(1)}</div>
+                      <div className="text-[10px] font-bold" style={{ color: tierColor }}>Tier {e.tier} — {e.score.toFixed(1)}</div>
                       {e.hero.specialties.length > 0 && (
                         <div className="text-[8px] mt-0.5 opacity-70" style={{ color: '#aaa' }}>{e.hero.specialties.slice(0, 2).map(s => specialtyToString(s)).join(' · ')}</div>
                       )}

@@ -108,10 +108,10 @@ function ScoreBar({ t1, t2 }: { t1: number; t2: number }) {
   );
 }
 
-function HeroRow({ names, banned = false }: { names: string[]; banned?: boolean }) {
+function HeroRow({ names, banned = false, large = false }: { names: string[]; banned?: boolean; large?: boolean }) {
   if (names.length === 0) return <span className="opacity-40 text-[10px]">None</span>;
   return (
-    <div className="flex gap-0.5 flex-wrap">
+    <div className="flex gap-1 flex-wrap items-center">
       {names.map((name, idx) => {
         const hero = findHeroByName(name);
         if (!hero) {
@@ -121,7 +121,7 @@ function HeroRow({ names, banned = false }: { names: string[]; banned?: boolean 
             </span>
           );
         }
-        return <HeroPortrait key={`${name}-${idx}`} hero={hero} size="xs" banned={banned} />;
+        return <HeroPortrait key={`${name}-${idx}`} hero={hero} size={large ? 'sm' : 'xs'} banned={banned} />;
       })}
     </div>
   );
@@ -256,17 +256,43 @@ export default function HistoryPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col pb-14" style={{ background: '#1a1a2e' }}>
+    <div className="min-h-screen flex flex-col pb-16" style={{ background: '#1a1a2e' }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.95)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
-        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10 transition-colors" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
-        <h1 className="text-lg font-bold" style={{ color: '#BA55D3' }}>
+      <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
+        <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10 smooth-transition" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
+        <h1 className="text-lg font-bold" style={{ color: '#FFD700' }}>
           📜 Draft History
           {history.length > 0 && <span className="text-xs font-normal opacity-60 ml-1">({history.length})</span>}
         </h1>
-        {history.length > 0 ? (
-          <button onClick={handleClear} className="text-sm px-3 py-1 rounded hover:bg-white/10 transition-colors" style={{ color: '#FF6666', border: '1px solid #FF666633' }} title="Delete all saved drafts">Clear All</button>
-        ) : <div className="w-16" />}
+        <div className="flex items-center gap-2">
+          {history.length > 0 && (
+            <>
+              <button
+                onClick={() => {
+                  const lines = history.map((r, i) => {
+                    return [
+                      `#${i + 1} — ${MAP_ICONS[r.mapName] || '🗺️'} ${r.mapName} (${formatDate(r.timestamp)})`,
+                      `  Team 1: ${r.team1Picks.join(', ')} [${r.team1WinCondition}] Score: ${r.team1Score}`,
+                      `  Team 2: ${r.team2Picks.join(', ')} [${r.team2WinCondition}] Score: ${r.team2Score}`,
+                      `  Bans: ${r.team1Bans.join(', ')} | ${r.team2Bans.join(', ')}`,
+                      `  ${r.verdict}`,
+                    ].join('\n');
+                  });
+                  navigator.clipboard.writeText(`HotsDrafter — Draft History (${history.length} entries)\n${'='.repeat(50)}\n\n${lines.join('\n\n')}`);
+                }}
+                className="text-sm px-3 py-1 rounded hover:bg-white/10 transition-colors font-semibold"
+                style={{ color: '#90EE90', border: '1px solid #90EE9044' }}
+                title="Copy all history as formatted text to clipboard"
+              >📋 Export</button>
+              <button
+                onClick={handleClear}
+                className="text-sm px-3 py-1.5 rounded font-semibold transition-all hover:brightness-125"
+                style={{ color: '#fff', background: 'rgba(255,60,60,0.2)', border: '1px solid #FF4444aa', boxShadow: '0 0 6px rgba(255,60,60,0.15)' }}
+                title="Delete all saved drafts"
+              >🗑️ Clear All</button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 p-4 max-w-4xl mx-auto w-full">
@@ -274,7 +300,7 @@ export default function HistoryPage() {
         {stats && (
           <div className="grid grid-cols-5 gap-2 mb-4">
             {/* Total Drafts */}
-            <div className="p-2.5 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
+            <div className="p-2.5 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
               <p className="text-xl font-bold" style={{ color: '#FFD700' }}>{stats.totalDrafts}</p>
               <p className="text-[10px] opacity-50">Total Drafts</p>
             </div>
@@ -283,14 +309,14 @@ export default function HistoryPage() {
             {/* Most Banned Hero */}
             <StatHeroCard stats={stats} type="banned" />
             {/* Most Popular Map */}
-            <div className="p-2.5 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
+            <div className="p-2.5 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
               <p className="text-sm mb-0.5">{MAP_ICONS[stats.topMap?.name ?? ''] || '🗺️'}</p>
               <p className="text-[10px] font-bold truncate" style={{ color: '#00FFFF' }}>{stats.topMap?.name ?? '—'}</p>
               {stats.topMap && <p className="text-[10px] opacity-40">×{stats.topMap.count}</p>}
               <p className="text-[10px] opacity-50">Top Map</p>
             </div>
             {/* Average Score */}
-            <div className="p-2.5 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
+            <div className="p-2.5 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
               <p className="text-lg font-bold" style={{ color: stats.avgScore >= 80 ? '#90EE90' : stats.avgScore >= 50 ? '#FFD700' : '#FF6666' }}>
                 {stats.avgScore || '—'}
               </p>
@@ -407,8 +433,22 @@ export default function HistoryPage() {
                           <span className="text-[10px] opacity-30 transition-transform" style={{ transform: isExpanded ? 'rotate(90deg)' : 'none' }}>▶</span>
                         </div>
 
-                        {/* Score bar */}
-                        {hasScores && <div className="mb-2"><ScoreBar t1={record.team1Score} t2={record.team2Score} /></div>}
+                        {/* Score bar + colored indicator */}
+                        {hasScores && (
+                          <div className="mb-2">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{
+                                background: record.team1Score > record.team2Score ? 'rgba(68,136,255,0.15)' : record.team2Score > record.team1Score ? 'rgba(255,102,102,0.15)' : 'rgba(255,215,0,0.15)',
+                                color: record.team1Score > record.team2Score ? '#4488FF' : record.team2Score > record.team1Score ? '#FF6666' : '#FFD700',
+                                border: `1px solid ${record.team1Score > record.team2Score ? '#4488FF33' : record.team2Score > record.team1Score ? '#FF666633' : '#FFD70033'}`,
+                              }}>
+                                {record.team1Score > record.team2Score ? '▲ T1 leads' : record.team2Score > record.team1Score ? '▲ T2 leads' : '= Tied'}
+                              </span>
+                              <span className="text-[10px] opacity-40">+{Math.abs(record.team1Score - record.team2Score)} diff</span>
+                            </div>
+                            <ScoreBar t1={record.team1Score} t2={record.team2Score} />
+                          </div>
+                        )}
 
                         {/* Team compositions with portraits */}
                         <div className="grid grid-cols-2 gap-3">
@@ -417,14 +457,14 @@ export default function HistoryPage() {
                               <span className="text-[10px] font-bold" style={{ color: '#4488FF' }}>Team 1</span>
                               <WcBadge label={record.team1WinCondition} />
                             </div>
-                            <HeroRow names={record.team1Picks} />
+                            <HeroRow names={record.team1Picks} large />
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 mb-1">
                               <span className="text-[10px] font-bold" style={{ color: '#FF6666' }}>Team 2</span>
                               <WcBadge label={record.team2WinCondition} />
                             </div>
-                            <HeroRow names={record.team2Picks} />
+                            <HeroRow names={record.team2Picks} large />
                           </div>
                         </div>
 
@@ -461,7 +501,7 @@ function StatHeroCard({ stats, type }: { stats: HistoryStats; type: 'drafted' | 
   const label = type === 'drafted' ? 'Most Drafted' : 'Most Banned';
 
   return (
-    <div className="p-2.5 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.3)' }}>
+    <div className="p-2.5 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
       {data ? (
         <>
           <div className="flex justify-center mb-0.5">
@@ -497,7 +537,7 @@ function ExpandedDetails({ record, router }: { record: DraftRecord; router: Retu
   }, [record.timestamp]);
 
   return (
-    <div className="mt-3 pt-3 text-xs space-y-3 animate-fade-slide-up" style={{ borderTop: '1px solid rgba(68,102,136,0.3)' }}>
+    <div className="mt-3 pt-3 text-xs space-y-3 animate-fade-slide-up" style={{ borderTop: '1px solid rgba(68,102,136,0.5)' }}>
       {/* Full hero details */}
       <div className="grid grid-cols-2 gap-4">
         <HeroDetailRow names={record.team1Picks} teamLabel="Team 1 — Picks" teamColor="#4488FF" />

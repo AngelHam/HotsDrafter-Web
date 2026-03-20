@@ -66,11 +66,6 @@ function DraftProgressBar({ currentStep, teamOrder }: DraftProgressBarProps) {
         })}
       </div>
 
-      <div className="text-xs font-semibold" style={{ color: currentIsBan ? '#FF6666' : (currentTeam === 1 ? '#4488FF' : '#FF6666') }}>
-        {currentStep >= order.length
-          ? '✅ Draft Complete'
-          : `Now: Team ${currentTeam} ${currentIsBan ? 'BAN' : 'PICK'} (${currentStep + 1}/16)`}
-      </div>
     </div>
   );
 }

@@ -146,8 +146,6 @@ export default function StartupPage() {
           tooltip="View hero rankings across all maps" />
         <ActionButton label="Draft History" icon="📜" color="#BA55D3" onClick={() => router.push('/history')}
           tooltip="View your previously completed drafts" />
-        <ActionButton label="Settings" icon="⚙️" color="#A9A9A9" onClick={() => router.push('/settings')}
-          tooltip="Configure suggestions, analysis mode, and shortcuts" accent="#00FFFF" />
       </div>
 
       {/* Quick Actions */}

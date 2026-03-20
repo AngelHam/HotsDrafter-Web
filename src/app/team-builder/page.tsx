@@ -119,10 +119,10 @@ export default function TeamBuilderPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col page-enter">
+    <div className="min-h-screen flex flex-col page-enter pb-16">
       <div className="flex items-center justify-between px-4 py-3" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10 smooth-transition" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">← Back</button>
-        <h1 className="text-lg font-bold" style={{ color: '#90EE90' }}>🏗️ Team Builder</h1>
+        <h1 className="text-lg font-bold" style={{ color: '#FFD700' }}>🏗️ Team Builder</h1>
         <div className="flex items-center gap-2">
           <button onClick={() => { const t = [...team1]; setTeam1([...team2]); setTeam2(t); }}
             className="text-xs px-2 py-1 rounded hover:bg-white/10" style={{ color: '#FFD700', border: '1px solid #FFD70033' }} title="Swap Team 1 and Team 2">
@@ -151,7 +151,7 @@ export default function TeamBuilderPage() {
         {/* Center Analysis */}
         <div className="flex-1 flex flex-col gap-4">
           <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-            <h3 className="font-bold mb-2" style={{ color: '#FFD700' }}>Team Templates</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: '#00FFFF' }}>Team Templates</h3>
             <div className="grid sm:grid-cols-2 gap-2">
               <div>
                 <p className="text-xs mb-1 opacity-70">Apply to Team 1</p>
@@ -233,7 +233,7 @@ export default function TeamBuilderPage() {
               .sort(([, a], [, b]) => b - a)
               .slice(0, 3);
             return (
-              <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
+              <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
                 <p className="text-xs font-semibold mb-1.5" style={{ color: '#87CEEB' }}>📍 {currentMap.name} favors:</p>
                 <div className="flex flex-wrap gap-1.5">
                   {sorted.map(([spec, weight]) => (
@@ -255,7 +255,7 @@ export default function TeamBuilderPage() {
           {analysis ? (
             <>
               <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-                <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>Composition Analysis</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>Composition Analysis</h3>
 
                 {/* Draft Grade & Role Balance */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
@@ -597,7 +597,7 @@ function SpecialtyCoverageChart({ team1, team2 }: { team1: Hero[]; team2: Hero[]
 
   return (
     <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-      <h3 className="font-bold mb-3 text-sm" style={{ color: '#00FFFF' }}>Specialty Coverage</h3>
+      <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>Specialty Coverage</h3>
       <div className="flex gap-4 mb-2 text-[10px]">
         <span style={{ color: '#4488FF' }}>● Team 1</span>
         <span style={{ color: '#FF6666' }}>● Team 2</span>
@@ -690,7 +690,7 @@ function CounterMatchupMatrix({ team1, team2 }: { team1: Hero[]; team2: Hero[] }
 
   return (
     <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-      <h3 className="font-bold mb-3 text-sm" style={{ color: '#00FFFF' }}>Counter Matrix</h3>
+      <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>Counter Matrix</h3>
       <div className="overflow-x-auto">
         <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: '2px' }}>
           <thead>
@@ -753,7 +753,7 @@ function MapRecommendations({ team1, team2 }: { team1: Hero[]; team2: Hero[] }) 
 
   return (
     <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-      <h3 className="font-bold mb-3 text-sm" style={{ color: '#00FFFF' }}>Map Recommendations</h3>
+      <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>Map Recommendations</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Best maps for T1 */}
         <div>
@@ -883,7 +883,7 @@ function DamageTypeBalance({ team1, team2 }: { team1: Hero[]; team2: Hero[] }) {
 
   return (
     <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-      <h3 className="font-bold mb-3 text-sm" style={{ color: '#00FFFF' }}>Damage Type Balance</h3>
+      <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>Damage Type Balance</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <p className="text-[10px] font-semibold mb-1.5" style={{ color: '#4488FF' }}>Team 1</p>
@@ -988,7 +988,7 @@ function TeamRangeProfile({ team1, team2 }: { team1: Hero[]; team2: Hero[] }) {
 
   return (
     <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-      <h3 className="font-bold mb-3 text-sm" style={{ color: '#00FFFF' }}>Team Range Profile</h3>
+      <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: '#00FFFF' }}>Team Range Profile</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <p className="text-[10px] font-semibold mb-1.5" style={{ color: '#4488FF' }}>Team 1</p>
