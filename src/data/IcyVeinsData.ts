@@ -23,6 +23,16 @@ interface IcyVeinsRaw {
 
 const data = icyVeinsRawData as unknown as IcyVeinsRaw;
 
+// Build a case-insensitive lookup for map names (JSON keys use "Of"/"The" title case)
+const mapKeyLookup: Record<string, string> = {};
+for (const key of Object.keys(data.maps)) {
+  mapKeyLookup[key.toLowerCase()] = key;
+}
+
+function resolveMapKey(mapName: string): string | undefined {
+  return data.maps[mapName] ? mapName : mapKeyLookup[mapName.toLowerCase()];
+}
+
 function flattenTier(tier: RoleTierList | undefined): string[] {
   if (!tier) return [];
   return Object.values(tier).flat();
@@ -69,7 +79,8 @@ class IcyVeinsDatabase {
   }
 
   getHeroTierOnMap(heroName: string, mapName: string): string {
-    const mapData = data.maps[mapName];
+    const key = resolveMapKey(mapName);
+    const mapData = key ? data.maps[key] : undefined;
     if (!mapData) return 'B';
     if (flattenTier(mapData.S).includes(heroName)) return 'S';
     if (flattenTier(mapData.A).includes(heroName)) return 'A';
@@ -86,7 +97,8 @@ class IcyVeinsDatabase {
   }
 
   getSTierHeroes(mapName: string): string[] {
-    const mapData = data.maps[mapName];
+    const key = resolveMapKey(mapName);
+    const mapData = key ? data.maps[key] : undefined;
     if (!mapData) return [];
     return flattenTier(mapData.S);
   }

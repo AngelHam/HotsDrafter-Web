@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DraftSettings, AnalysisMode } from '@/data/DraftSettings';
-import { clearHistory, loadHistory } from '@/data/DraftHistory';
+import { clearHistory } from '@/data/DraftHistory';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -226,39 +226,48 @@ export default function SettingsPage() {
           {/* Keyboard Shortcuts */}
           <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
             <h3 className="font-bold mb-3" style={{ color: '#00FFFF' }}>⌨️ Keyboard Shortcuts</h3>
-            <div className="space-y-2 text-xs">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
               {[
-                { keys: 'Ctrl + Z', desc: 'Undo last pick or ban' },
-                { keys: 'Escape', desc: 'Reset the entire draft' },
-                { keys: '1 – 9', desc: 'Quick-pick the numbered suggestion' },
-                { keys: 'Right-click', desc: 'Open hero detail popup' },
+                { keys: '1-9', desc: 'Quick-pick suggestion by number' },
+                { keys: 'U / Ctrl+Z', desc: 'Undo last pick/ban' },
+                { keys: 'R', desc: 'Reset draft' },
+                { keys: 'Escape', desc: 'Close modals' },
+                { keys: '/', desc: 'Focus search box' },
               ].map(({ keys, desc }) => (
-                <div key={keys} className="flex items-center justify-between gap-2">
-                  <span className="px-1.5 py-0.5 rounded font-mono" style={{ background: 'rgba(0,255,255,0.1)', color: '#00FFFF', border: '1px solid #00FFFF33' }}>
+                <div key={keys} className="flex items-center gap-2">
+                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[11px] shrink-0" style={{ background: 'rgba(0,255,255,0.1)', color: '#00FFFF', border: '1px solid #00FFFF33' }}>
                     {keys}
-                  </span>
-                  <span className="opacity-70 text-right">{desc}</span>
+                  </kbd>
+                  <span className="opacity-70">{desc}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* About */}
-          <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold" style={{ color: '#FFD700' }}>About</h3>
-              <span className="text-[10px] px-2 py-0.5 rounded" style={{ background: 'rgba(0,255,255,0.1)', color: '#00FFFF', border: '1px solid #00FFFF33' }}>v3.3</span>
-            </div>
-            <div className="text-xs space-y-1 opacity-70">
-              <p>HotsDrafter — Heroes of the Storm Draft Assistant</p>
-              <p>90 Heroes • 11 Maps • 8 Win Conditions • 8 Pages</p>
-              <p>129 development cycles completed</p>
-              <p>Data sourced from Icy Veins community guides</p>
-              <p>Your drafts: {typeof window !== 'undefined' ? loadHistory().length : 0} saved</p>
-            </div>
+          {/* Version & Credits */}
+          <div className="p-4 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+            <p className="font-bold text-sm mb-1" style={{ color: '#00FFFF' }}>HotsDrafter v3.2</p>
+            <p className="text-xs opacity-40 mb-2">Data sourced from Icy Veins</p>
+            <p className="text-xs opacity-60">90 Heroes · 11 Maps · 8 Win Conditions</p>
           </div>
 
-          <p className="text-center text-xs opacity-30 mt-4">Settings are saved automatically</p>
+          {/* Reset All Settings */}
+          <button
+            onClick={() => {
+              if (window.confirm('Reset all settings to defaults? This will reload the page.')) {
+                localStorage.removeItem('hotsDrafter-settings');
+                localStorage.removeItem('hotsDrafter-history');
+                window.location.reload();
+              }
+            }}
+            className="w-full px-4 py-3 rounded font-semibold transition-all hover:scale-[1.02] hover:bg-red-500/10"
+            style={{ background: 'transparent', border: '2px solid #FF4444', color: '#FF4444' }}
+            title="Clear all saved settings and reload the page"
+          >
+            Reset All Settings
+          </button>
+
+          <p className="text-center text-xs opacity-30 mt-2">Settings are saved automatically</p>
         </div>
       </div>
     </div>

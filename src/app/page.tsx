@@ -8,6 +8,25 @@ import MapCard from '@/components/MapCard';
 import HeroPortrait from '@/components/HeroPortrait';
 import FirstRunTutorial, { shouldShowTutorial } from '@/components/FirstRunTutorial';
 import { loadHistory } from '@/data/DraftHistory';
+import type { Hero } from '@/data/Hero';
+
+const ROLE_COLORS: Record<string, string> = {
+  Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347',
+  Mage: '#BA55D3', Offlane: '#FFA500', Specialist: '#87CEEB',
+};
+
+function formatSpecialty(s: string): string {
+  return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+const HERO_TIPS: Record<string, string> = {
+  Tank: 'Initiate fights and protect your backline.',
+  Healer: 'Keep your team alive through sustained fights.',
+  DPS: 'Maximize damage output in teamfights.',
+  Mage: 'Control zones and burst down priority targets.',
+  Offlane: 'Win the solo lane and apply macro pressure.',
+  Specialist: 'Create unique advantages with unconventional play.',
+};
 
 export default function StartupPage() {
   const router = useRouter();
@@ -56,9 +75,30 @@ export default function StartupPage() {
         <p className="text-center text-sm opacity-60 mb-4">
           Heroes of the Storm Draft Assistant
         </p>
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <HeroPortrait hero={spotlightHero} size="sm" />
-          <span className="text-xs opacity-60">Hero Spotlight: <span style={{ color: '#FFD700' }}>{spotlightHero.nicknames[0]}</span> — {spotlightHero.role}</span>
+        <div className="flex items-center justify-center mb-6 w-full max-w-md">
+          <div className="flex items-center gap-4 px-5 py-4 rounded-xl w-full transition-all hover:brightness-110"
+            style={{ background: 'rgba(30, 40, 70, 0.7)', border: `1px solid ${ROLE_COLORS[spotlightHero.role] || '#446688'}55` }}>
+            <HeroPortrait hero={spotlightHero} size="lg" />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold text-base" style={{ color: '#FFD700' }}>{spotlightHero.nicknames[0]}</span>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                  style={{ background: `${ROLE_COLORS[spotlightHero.role] || '#888'}33`, color: ROLE_COLORS[spotlightHero.role] || '#888', border: `1px solid ${ROLE_COLORS[spotlightHero.role] || '#888'}55` }}>
+                  {spotlightHero.role}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1 mt-1.5">
+                {spotlightHero.specialties.slice(0, 2).map(s => (
+                  <span key={s} className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.08)', color: '#ccc' }}>
+                    {formatSpecialty(s)}
+                  </span>
+                ))}
+              </div>
+              <p className="text-[10px] opacity-50 mt-1.5 leading-snug">
+                {HERO_TIPS[spotlightHero.role] || 'A versatile hero for any team composition.'}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -134,9 +174,13 @@ export default function StartupPage() {
         );
       })()}
 
-      <div className="animate-fade-slide-up mt-8 flex flex-wrap gap-1.5 justify-center max-w-3xl" style={{ animationDelay: '480ms' }}>
+      <div className="animate-fade-slide-up mt-8 flex flex-wrap gap-2 justify-center max-w-3xl" style={{ animationDelay: '480ms' }}>
         {['AI Suggestions', 'Ban Predictions', 'Counter Warnings', 'Win Conditions', 'Hero Compare', 'Tier Lists', 'Draft Export', 'Coaching Tips'].map(f => (
-          <span key={f} className="text-[9px] px-2 py-0.5 rounded" style={{ background: 'rgba(255,215,0,0.06)', color: '#FFD700', border: '1px solid #FFD70015' }}>{f}</span>
+          <span key={f} className="text-xs px-3 py-1.5 rounded-full cursor-default transition-all duration-200 hover:scale-110"
+            style={{ background: 'rgba(255,215,0,0.08)', color: '#FFD700', border: '1px solid #FFD70025', boxShadow: '0 0 0 0 rgba(255,215,0,0)' }}
+            onMouseEnter={e => { (e.target as HTMLElement).style.boxShadow = '0 0 10px 2px rgba(255,215,0,0.2)'; (e.target as HTMLElement).style.background = 'rgba(255,215,0,0.14)'; }}
+            onMouseLeave={e => { (e.target as HTMLElement).style.boxShadow = '0 0 0 0 rgba(255,215,0,0)'; (e.target as HTMLElement).style.background = 'rgba(255,215,0,0.08)'; }}
+          >{f}</span>
         ))}
       </div>
 
