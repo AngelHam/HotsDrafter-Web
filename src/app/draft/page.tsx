@@ -7,7 +7,7 @@ import { DraftingTool, DRAFT_TEAM_ORDER, DRAFT_IS_BAN, matchesRoleFilter } from 
 import { HeroSuggestionEngine } from '@/data/HeroSuggestionEngine';
 import { DraftSettings } from '@/data/DraftSettings';
 import { TeamComposition } from '@/data/TeamComposition';
-import { analyzeWinCondition } from '@/data/WinConditionAnalyzer';
+import { analyzeWinCondition, WinConditionAnalysis } from '@/data/WinConditionAnalyzer';
 import { Specialty } from '@/data/Specialty';
 import { saveDraft } from '@/data/DraftHistory';
 import { winConditionToString } from '@/data/SuggestionTypes';
@@ -57,8 +57,14 @@ function DraftPageInner() {
   const [timerDuration, setTimerDuration] = useState(25);
   const [timeLeft, setTimeLeft] = useState(25);
   const hasSavedDraft = useRef(false);
+  const [settingsVersion, setSettingsVersion] = useState(0);
 
-  useEffect(() => { DraftSettings.load(); }, []);
+  useEffect(() => {
+    DraftSettings.load();
+    setSettingsVersion(v => v + 1);
+    const unsub = DraftSettings.onChange(() => setSettingsVersion(v => v + 1));
+    return unsub;
+  }, []);
 
   const isQuickDraft = DraftSettings.quickDraft;
   const firstPick = DraftSettings.firstPickTeam;
@@ -115,7 +121,8 @@ function DraftPageInner() {
     if (isComplete || step >= 16) return [];
     if (isBan) return engine.generateBanSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount);
     return engine.generateSuggestions(currentTeam, roleFilter, DraftSettings.suggestionCount);
-  }, [engine, currentTeam, isBan, roleFilter, isComplete, step]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [engine, currentTeam, isBan, roleFilter, isComplete, step, settingsVersion]);
 
   useEffect(() => {
     if (!timerEnabled || isComplete) {
@@ -787,7 +794,7 @@ function DraftPageInner() {
   );
 }
 
-function AnalysisCard({ title, analysis, color }: { title: string; analysis: any; color: string }) {
+function AnalysisCard({ title, analysis, color }: { title: string; analysis: WinConditionAnalysis; color: string }) {
   return (
     <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: `1px solid ${color}55` }}>
       <h3 className="font-bold mb-2" style={{ color }}>{title}</h3>

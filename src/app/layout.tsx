@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import GlobalNav from "@/components/GlobalNav";
 
 export const metadata: Metadata = {
   title: "HotsDrafter - Heroes of the Storm Draft Assistant",
@@ -15,6 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         {children}
+        <GlobalNav />
       </body>
     </html>
   );
