@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import type { Hero } from '@/data/Hero';
 
@@ -40,7 +40,7 @@ const TIER_COLORS: Record<string, string> = {
   S: '#FFD700', A: '#90EE90', B: '#87CEEB', C: '#FFA500', D: '#FF6666',
 };
 
-export default function HeroPortrait({ hero, size = 'md', selected, banned, dimmed, showName, tierBadge, highlightQuery, onClick }: HeroPortraitProps) {
+function HeroPortrait({ hero, size = 'md', selected, banned, dimmed, showName, tierBadge, highlightQuery, onClick }: HeroPortraitProps) {
   const px = SIZE_MAP[size];
   const borderColor = selected ? '#FFD700' : banned ? '#FF6666' : ROLE_COLORS[hero.role] || '#666';
   const [imgError, setImgError] = useState(false);
@@ -72,9 +72,10 @@ export default function HeroPortrait({ hero, size = 'md', selected, banned, dimm
       ) : (
         <Image
           src={`/hero_portraits/${getPortraitFilename(hero)}.png`}
-          alt={hero.nicknames[0]}
+          alt={`${hero.nicknames[0]} - ${hero.role}${banned ? ' (banned)' : ''}${selected ? ' (selected)' : ''}`}
           width={px}
           height={px}
+          loading="lazy"
           className="rounded"
           onError={() => setImgError(true)}
         />
@@ -108,3 +109,5 @@ export default function HeroPortrait({ hero, size = 'md', selected, banned, dimm
     </div>
   );
 }
+
+export default React.memo(HeroPortrait);

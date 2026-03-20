@@ -1,7 +1,9 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home', emoji: '🏠' },
@@ -14,21 +16,26 @@ const NAV_ITEMS = [
   { href: '/settings', label: 'Settings', emoji: '⚙️' },
 ];
 
-export default function GlobalNav() {
+function GlobalNav() {
   const pathname = usePathname();
+  const { theme } = useTheme();
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
     return pathname.startsWith(href);
   };
 
+  const accent = theme === 'light' ? '#0088aa' : '#00FFFF';
+  const muted = theme === 'light' ? '#5a6a7a' : '#8899aa';
+  const hoverColor = theme === 'light' ? '#1a1a2e' : '#ffffff';
+
   return (
-    <nav className="fixed bottom-0 sm:bottom-3 left-0 sm:left-1/2 sm:-translate-x-1/2 w-full sm:w-auto flex justify-center sm:justify-start gap-0 sm:gap-0.5 px-1 sm:px-3 py-1 sm:py-1 z-[9999]" style={{
-      background: 'rgba(15, 20, 40, 0.97)',
+    <nav aria-label="Main navigation" className="fixed bottom-0 sm:bottom-3 left-0 sm:left-1/2 sm:-translate-x-1/2 w-full sm:w-auto flex justify-center sm:justify-start gap-0 sm:gap-0.5 px-1 sm:px-3 py-1 sm:py-1 z-[9999]" style={{
+      background: 'var(--theme-nav-bg)',
       backdropFilter: 'blur(10px)',
       WebkitBackdropFilter: 'blur(10px)',
       borderRadius: typeof window !== 'undefined' && window.innerWidth < 640 ? '0' : '12px',
-      border: '1px solid rgba(68, 102, 136, 0.6)',
+      border: `1px solid var(--theme-nav-border)`,
       borderBottom: 'none',
       height: 'auto',
       minHeight: 44,
@@ -42,21 +49,23 @@ export default function GlobalNav() {
             href={href}
             className="flex flex-col items-center justify-center px-1.5 sm:px-2 py-1 no-underline transition-colors"
             style={{
-              color: active ? '#00FFFF' : '#8899aa',
+              color: active ? accent : muted,
               fontSize: 10,
               lineHeight: 1.1,
-              borderBottom: active ? '2px solid #00FFFF' : '2px solid transparent',
+              borderBottom: active ? `2px solid ${accent}` : '2px solid transparent',
               flex: '1 1 0',
               maxWidth: 64,
             }}
+            aria-label={`Navigate to ${label} page`}
+            aria-current={active ? 'page' : undefined}
             onMouseEnter={e => {
-              if (!active) (e.currentTarget as HTMLElement).style.color = '#ffffff';
+              if (!active) (e.currentTarget as HTMLElement).style.color = hoverColor;
             }}
             onMouseLeave={e => {
-              if (!active) (e.currentTarget as HTMLElement).style.color = '#8899aa';
+              if (!active) (e.currentTarget as HTMLElement).style.color = muted;
             }}
           >
-            <span className="text-sm sm:text-base leading-none">{emoji}</span>
+            <span className="text-sm sm:text-base leading-none" aria-hidden="true">{emoji}</span>
             <span className="hidden min-[360px]:inline text-[9px] sm:text-[11px]">{label}</span>
           </Link>
         );
@@ -64,3 +73,5 @@ export default function GlobalNav() {
     </nav>
   );
 }
+
+export default React.memo(GlobalNav);

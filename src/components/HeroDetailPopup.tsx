@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import type { Hero } from '@/data/Hero';
 import { Specialty, specialtyToString } from '@/data/Specialty';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
@@ -90,6 +90,7 @@ export default function HeroDetailPopup({ hero, onClose }: HeroDetailPopupProps)
   const counters = icyVeins.getCounters(hero.nicknames[0]);
   const countersFor = icyVeins.getCountersFor(hero.nicknames[0]);
   const roleColor = ROLE_COLORS[hero.role] || '#999';
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   const mapTiers = useMemo(() => {
     return ALL_MAPS.map(m => ({
@@ -102,10 +103,35 @@ export default function HeroDetailPopup({ hero, onClose }: HeroDetailPopupProps)
   const bestMaps = mapTiers.filter(m => m.tier === 'S' || m.tier === 'A');
   const worstMaps = mapTiers.filter(m => m.tier === 'D');
 
+  // Focus trap for modal
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const focusable = dialog.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    first?.focus();
+
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center"
+      role="dialog" aria-modal="true" aria-label={`${hero.nicknames[0]} details`}
       style={{ background: 'rgba(0,0,0,0.75)' }} onClick={onClose}>
-      <div className="w-full mx-4 rounded-xl overflow-y-auto max-h-[90vh]"
+      <div ref={dialogRef} className="w-full mx-4 rounded-xl overflow-y-auto max-h-[90vh]"
         style={{
           maxWidth: 600,
           background: 'rgba(15, 20, 40, 0.98)',
@@ -131,7 +157,7 @@ export default function HeroDetailPopup({ hero, onClose }: HeroDetailPopupProps)
                 {hero.role}
               </span>
               {hero.nicknames.length > 1 && (
-                <span className="text-[10px] opacity-40 italic">
+                <span className="text-[10px] opacity-70 italic">
                   aka {hero.nicknames.slice(1).join(', ')}
                 </span>
               )}
@@ -148,12 +174,12 @@ export default function HeroDetailPopup({ hero, onClose }: HeroDetailPopupProps)
                   }} />
                 ))}
               </div>
-              <span className="text-[10px] opacity-40">{hero.effectiveRange}/5</span>
+              <span className="text-[10px] opacity-70">{hero.effectiveRange}/5</span>
             </div>
           </div>
           <button onClick={onClose}
             className="text-lg px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors"
-            style={{ color: '#FF6666' }} title="Close">✕</button>
+            style={{ color: '#FF6666' }} title="Close" aria-label="Close hero details">✕</button>
         </div>
 
         {/* Specialty Tags */}
@@ -182,7 +208,7 @@ export default function HeroDetailPopup({ hero, onClose }: HeroDetailPopupProps)
             <RelationSection title="🛡️ Countered By" color="#FF6347" names={counters} limit={5} />
             <RelationSection title="⚔️ Counters" color="#FFD700" names={countersFor} limit={5} />
             {synergies.length === 0 && counters.length === 0 && countersFor.length === 0 && (
-              <p className="text-[10px] opacity-40 text-center py-2">No relationship data available</p>
+              <p className="text-[10px] opacity-70 text-center py-2">No relationship data available</p>
             )}
           </div>
         </div>

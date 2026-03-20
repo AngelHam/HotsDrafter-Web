@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import type { Hero } from '@/data/Hero';
 import { Specialty } from '@/data/Specialty';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
@@ -27,7 +28,7 @@ const ROLE_CHECKS = [
   { label: 'Waveclear', icon: '🌊', check: (h: Hero) => h.specialties.includes(Specialty.WAVECLEAR) },
 ];
 
-export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPicks = [], onHeroClick, flashHero }: TeamPanelProps) {
+function TeamPanel({ teamNumber, picks, bans, isActive, enemyPicks = [], onHeroClick, flashHero }: TeamPanelProps) {
   const teamColor = teamNumber === 1 ? '#4488FF' : '#FF6666';
   const teamLabel = teamNumber === 1 ? 'TEAM 1 (You)' : 'TEAM 2 (Enemy)';
 
@@ -36,7 +37,7 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
   const scoreColor = compScore !== null ? (compScore >= 80 ? '#90EE90' : compScore >= 50 ? '#FFD700' : '#FF6666') : '#666';
 
   return (
-    <div className={`p-3 rounded transition-all ${isActive ? 'team-panel-active' : ''}`} style={{
+    <section aria-label={`Team ${teamNumber} panel`} className={`p-3 rounded transition-all ${isActive ? 'team-panel-active' : ''}`} style={{
       background: 'rgba(30, 40, 70, 0.7)',
       border: isActive ? `2px solid ${teamColor}` : '1px solid rgba(68,102,136,0.5)',
       boxShadow: isActive ? `0 0 15px ${teamColor}33, inset 0 0 20px ${teamColor}11` : 'none',
@@ -107,7 +108,7 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
         <div className="flex gap-1 mt-1">
           {[0, 1, 2].map(i => (
             <div key={i} className="flex flex-col items-center" style={{ width: 42 }}>
-              <div className="rounded" title={bans[i] ? `Ban ${i + 1}: ${bans[i].nicknames[0]} (${bans[i].role})` : `Ban Slot ${i + 1}`} style={{
+              <div className="rounded" aria-label={bans[i] ? `Team ${teamNumber} Ban ${i + 1}: ${bans[i].nicknames[0]}, ${bans[i].role}` : `Team ${teamNumber} Ban ${i + 1}: Empty`} title={bans[i] ? `Ban ${i + 1}: ${bans[i].nicknames[0]} (${bans[i].role})` : `Ban Slot ${i + 1}`} style={{
                 width: 40, height: 40,
                 background: 'rgba(255,102,102,0.1)',
                 border: '1px solid rgba(255,102,102,0.3)',
@@ -131,7 +132,7 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
         <div className="flex flex-col gap-1.5 mt-1">
           {[0, 1, 2, 3, 4].map(i => (
             <div key={i} className="flex items-center gap-2">
-              <div className="rounded" title={picks[i] ? `Pick ${i + 1}: ${picks[i].nicknames[0]}` : `Pick Slot ${i + 1}`} style={{
+              <div className="rounded" aria-label={picks[i] ? `Team ${teamNumber} Pick ${i + 1}: ${picks[i].nicknames[0]}, ${picks[i].role}` : `Team ${teamNumber} Pick ${i + 1}: Empty`} title={picks[i] ? `Pick ${i + 1}: ${picks[i].nicknames[0]}` : `Pick Slot ${i + 1}`} style={{
                 width: 40, height: 40,
                 background: picks[i] ? 'rgba(255,215,0,0.1)' : 'rgba(255,215,0,0.04)',
                 border: `1px ${picks[i] ? 'solid' : 'dashed'} ${picks[i] ? '#FFD700' : 'rgba(255,215,0,0.35)'}`,
@@ -158,7 +159,7 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
                     </span>
                   );
                 })() : (
-                  <span className="opacity-50 italic text-[11px]" style={{ color: '#8899aa' }}>
+                  <span className="opacity-70 italic text-[11px]" style={{ color: '#8899aa' }}>
                     {i === 0 ? '🛡️ Tank?' : i === 1 ? '✚ Healer?' : i === 2 ? '⚔️ DPS?' : i === 3 ? '⚙️ Offlane?' : '✨ Flex?'}
                   </span>
                 )}
@@ -168,7 +169,6 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
         </div>
       </div>
 
-      {/* Synergy Lines */}
       {picks.length >= 2 && <SynergyLines picks={picks} />}
 
       {/* Damage Type Mix */}
@@ -180,7 +180,7 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
         return (
           <div className="mt-2 pt-1" style={{ borderTop: '1px solid rgba(68,102,136,0.2)' }}>
             <div className="flex items-center gap-1">
-              <span className="text-[9px] opacity-50">DMG:</span>
+              <span className="text-[9px] opacity-70">DMG:</span>
               <div className="flex-1 flex h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
                 <div style={{ flex: physical || 1, background: '#FF634788' }} />
                 <div style={{ flex: magical || 1, background: '#BA55D388' }} />
@@ -189,17 +189,17 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
             </div>
             {/* Range indicator */}
             <div className="flex items-center gap-1 mt-0.5">
-              <span className="text-[9px] opacity-50">RNG:</span>
+              <span className="text-[9px] opacity-70">RNG:</span>
               <div className="flex gap-0.5 flex-1">
                 {picks.map((h, idx) => (
                   <div key={idx} className="h-1.5 rounded-full" style={{ flex: 1, background: `rgba(0,255,255,${0.15 + h.effectiveRange * 0.15})` }} title={`${h.nicknames[0]}: ${h.effectiveRange}/5`} />
                 ))}
               </div>
-              <span className="text-[8px] opacity-50">{(picks.reduce((s, h) => s + h.effectiveRange, 0) / picks.length).toFixed(1)}</span>
+              <span className="text-[8px] opacity-70">{(picks.reduce((s, h) => s + h.effectiveRange, 0) / picks.length).toFixed(1)}</span>
             </div>
             {/* Engage/CC indicator */}
             <div className="flex items-center gap-1 mt-0.5">
-              <span className="text-[9px] opacity-50">UTIL:</span>
+              <span className="text-[9px] opacity-70">UTIL:</span>
               <div className="flex gap-1 flex-1">
                 {[
                   { label: 'CC', has: picks.some(h => h.specialties.includes(Specialty.HARD_CC)), color: '#87CEEB' },
@@ -215,7 +215,7 @@ export default function TeamPanel({ teamNumber, picks, bans, isActive, enemyPick
           </div>
         );
       })()}
-    </div>
+    </section>
   );
 }
 
@@ -250,6 +250,8 @@ function computeCompScore(picks: Hero[]): number {
   return Math.max(0, Math.min(100, score));
 }
 
+export default React.memo(TeamPanel);
+
 function SynergyLines({ picks }: { picks: Hero[] }) {
   const icyVeins = IcyVeinsDatabase.getInstance();
   const synergies: string[] = [];
@@ -274,7 +276,7 @@ function SynergyLines({ picks }: { picks: Hero[] }) {
           <p key={s} className="text-[10px]" style={{ color: '#90EE90' }}>✦ {s}</p>
         ))}
         {synergies.length > 3 && (
-          <p className="text-[10px] opacity-50">+{synergies.length - 3} more</p>
+          <p className="text-[10px] opacity-70">+{synergies.length - 3} more</p>
         )}
       </div>
     </div>

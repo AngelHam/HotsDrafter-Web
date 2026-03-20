@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import type { HeroSuggestion } from '@/data/SuggestionTypes';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import HeroPortrait from './HeroPortrait';
@@ -60,18 +61,18 @@ interface HeroSuggestionPanelProps {
   mapName?: string;
 }
 
-export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Suggestions', mapName }: HeroSuggestionPanelProps) {
+function HeroSuggestionPanel({ suggestions, onSelect, title = 'Suggestions', mapName }: HeroSuggestionPanelProps) {
   if (suggestions.length === 0) {
     return (
       <div className="p-2 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
         <h3 className="text-xs font-bold mb-1.5" style={{ color: '#00FFFF' }}>{title}</h3>
-        <p className="text-xs opacity-60">No suggestions available yet</p>
+        <p className="text-xs opacity-70">No suggestions available yet</p>
       </div>
     );
   }
 
   return (
-    <div className="p-2 rounded transition-opacity duration-200" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }} role="region" aria-label={title}>
+    <div className="p-2 rounded transition-opacity duration-200" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }} role="region" aria-label={title} aria-live="polite">
       <h3 className="text-xs font-bold mb-1.5" style={{ color: '#00FFFF' }}>{title}</h3>
       <div className="space-y-1" role="list" aria-label="Hero suggestions">
         {suggestions.map((s, i) => {
@@ -125,7 +126,7 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
                   }} />
                 </div>
               </div>
-              <p className="text-[11px] opacity-60 truncate mt-0.5">{s.explanation}</p>
+              <p className="text-[11px] opacity-70 truncate mt-0.5">{s.explanation}</p>
               {(s.synergyCount > 0 || s.counterCount > 0 || s.counteredByCount > 0) && (
                 <div className="flex gap-2 mt-0.5 flex-wrap">
                   {s.synergyWith && s.synergyWith.length > 0 && (
@@ -159,3 +160,5 @@ export default function HeroSuggestionPanel({ suggestions, onSelect, title = 'Su
     </div>
   );
 }
+
+export default React.memo(HeroSuggestionPanel);

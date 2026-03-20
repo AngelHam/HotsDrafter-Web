@@ -87,6 +87,29 @@ export default function TutorialOverlay({ steps, storageKey, onClose }: Tutorial
     if (currentStep > 0) setCurrentStep(s => s - 1);
   };
 
+  // Focus trap for modal
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+    const focusable = card.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    first?.focus();
+
+    const trapHandler = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
+    };
+    window.addEventListener('keydown', trapHandler);
+    return () => window.removeEventListener('keydown', trapHandler);
+  }, [currentStep]);
+
   // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -130,6 +153,9 @@ export default function TutorialOverlay({ steps, storageKey, onClose }: Tutorial
   return (
     <div
       className="fixed inset-0 z-[9999]"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Tutorial: ${step.title}`}
       style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.2s ease' }}
     >
       {/* Overlay with spotlight cutout */}

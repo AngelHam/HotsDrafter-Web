@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback, Suspense, useDeferredValue } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { ALL_HEROES, ALL_MAPS, findHeroByName } from '@/data/HeroData';
 import { DraftingTool, DRAFT_TEAM_ORDER, DRAFT_IS_BAN, matchesRoleFilter } from '@/data/DraftingTool';
 import { HeroSuggestionEngine } from '@/data/HeroSuggestionEngine';
@@ -17,8 +18,9 @@ import RoleFilterBar, { ROLE_COLORS } from '@/components/RoleFilterBar';
 import HeroSuggestionPanel from '@/components/HeroSuggestionPanel';
 import TeamPanel from '@/components/TeamPanel';
 import DraftProgressBar from '@/components/DraftProgressBar';
-import HeroDetailPopup from '@/components/HeroDetailPopup';
-import TutorialOverlay, { DRAFT_TUTORIAL_STEPS, DRAFT_STORAGE_KEY, shouldShowDraftTutorial } from '@/components/TutorialOverlay';
+const HeroDetailPopup = dynamic(() => import('@/components/HeroDetailPopup'), { ssr: false });
+const TutorialOverlay = dynamic(() => import('@/components/TutorialOverlay').then(mod => ({ default: mod.default })), { ssr: false });
+import { DRAFT_TUTORIAL_STEPS, DRAFT_STORAGE_KEY, shouldShowDraftTutorial } from '@/components/TutorialOverlay';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import { HeroRelationships } from '@/data/HeroRelationships';
@@ -138,6 +140,7 @@ function DraftPageInner() {
   const [team2Bans, setTeam2Bans] = useState<Hero[]>([]);
   const [roleFilter, setRoleFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const [heroView, setHeroView] = useState<'grid' | 'roles'>('grid');
   const [detailHero, setDetailHero] = useState<Hero | null>(null);
   const [lastAction, setLastAction] = useState<{ heroName: string; type: 'pick' | 'ban' } | null>(null);
@@ -150,6 +153,7 @@ function DraftPageInner() {
   const [timeLeft, setTimeLeft] = useState(25);
   const hasSavedDraft = useRef(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const heroGridRef = useRef<HTMLDivElement>(null);
   const [settingsVersion, setSettingsVersion] = useState(0);
   const [heroGridReady, setHeroGridReady] = useState(false);
   const [showShortcutHelp, setShowShortcutHelp] = useState(false);
@@ -271,15 +275,15 @@ function DraftPageInner() {
   }, [heroSort, icyVeins, map.name]);
   const filtered = useMemo(() => allHeroesSorted.filter(h => {
     if (!matchesRoleFilter(h, roleFilter)) return false;
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
+    if (deferredSearchQuery) {
+      const q = deferredSearchQuery.toLowerCase();
       if (h.nicknames.some(n => n.toLowerCase().includes(q)) || h.name.toLowerCase().includes(q)) return true;
       if (h.role.toLowerCase().includes(q)) return true;
       if (h.specialties.some(s => specialtyToString(s).toLowerCase().includes(q))) return true;
       return false;
     }
     return true;
-  }), [allHeroesSorted, roleFilter, searchQuery]);
+  }), [allHeroesSorted, roleFilter, deferredSearchQuery]);
 
   const groupedByRole = useMemo(() => {
     const order = ['Tank', 'Healer', 'Offlane', 'DPS', 'Mage', 'Specialist'];
@@ -369,9 +373,9 @@ function DraftPageInner() {
   );
 
   const searchMatches = useMemo(() => {
-    if (!searchQuery || searchQuery.length < 2) return [];
+    if (!deferredSearchQuery || deferredSearchQuery.length < 2) return [];
     return filtered.filter(h => !bannedNames.has(h.name) && !team1PickNames.has(h.name) && !team2PickNames.has(h.name)).slice(0, 5);
-  }, [searchQuery, filtered, bannedNames, team1PickNames, team2PickNames]);
+  }, [deferredSearchQuery, filtered, bannedNames, team1PickNames, team2PickNames]);
 
   const handleHeroClick = useCallback((hero: Hero) => {
     if (isComplete) return;
@@ -422,7 +426,7 @@ function DraftPageInner() {
       if (e.key === 'Escape') {
         if (showShortcutHelp) { setShowShortcutHelp(false); return; }
         if (detailHero) { setDetailHero(null); return; }
-        if (isInput && searchQuery) { setSearchQuery(''); searchInputRef.current?.blur(); return; }
+        if (isInput && searchQuery) { setSearchQuery(''); searchInputRef.current?.blur(); heroGridRef.current?.focus(); return; }
         if (isInput) { searchInputRef.current?.blur(); return; }
         router.push('/');
         return;
@@ -561,10 +565,10 @@ function DraftPageInner() {
     : `${isYourTurn ? '🟢 Your' : '🔴 Enemy'} Turn — ${isBan ? '🚫 BAN' : `✅ PICK ${team1Picks.length + team2Picks.length + 1}/10`} (${step + 1}/${totalSteps})`;
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden page-enter pb-14">
+    <main id="main-content" className="h-screen flex flex-col overflow-hidden page-enter pb-14">
       {showDraftTutorial && <TutorialOverlay steps={DRAFT_TUTORIAL_STEPS} storageKey={DRAFT_STORAGE_KEY} onClose={() => setShowDraftTutorial(false)} />}
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 flex-wrap gap-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
+      <header className="flex items-center justify-between px-4 py-2 flex-wrap gap-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <div className="flex items-center gap-3">
           <button onClick={() => router.push('/')} className="text-sm px-3 py-1 rounded hover:bg-white/10" style={{ color: '#00FFFF', border: '1px solid #00FFFF33' }} title="Return to main menu">
             ← Back
@@ -613,9 +617,7 @@ function DraftPageInner() {
           </button>
           <RoleFilterBar activeFilter={roleFilter} onFilterChange={(f) => { setRoleFilter(f); document.querySelector('[data-hero-grid]')?.scrollTo(0, 0); }} />
         </div>
-      </div>
-
-      {/* Map Tip Bar */}
+      </header>
       {MAP_TIPS[map.name] && (
         <div className="px-4 py-1 text-center" style={{ background: 'rgba(255,215,0,0.04)', borderBottom: '1px solid rgba(255,215,0,0.1)' }}>
           <span className="text-[10px]" style={{ color: '#FFD700', opacity: 0.7 }}>
@@ -627,10 +629,10 @@ function DraftPageInner() {
       {/* Status + Progress */}
       <div className="flex flex-col items-center gap-1.5 sm:gap-2 py-2 sm:py-3 px-2" style={{ background: 'rgba(20, 25, 45, 0.5)' }}>
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center text-center">
-          <span className="text-sm font-bold" style={{ color: isReplaying ? '#FF8C00' : isBan ? '#FF6666' : (isYourTurn ? '#00FFFF' : '#FF6666') }}>
+          <span className="text-sm font-bold" aria-live="polite" style={{ color: isReplaying ? '#FF8C00' : isBan ? '#FF6666' : (isYourTurn ? '#00FFFF' : '#FF6666') }}>
             {isReplaying ? `🎬 Replaying — Step ${replayStep + 1}/16` : statusText}
           </span>
-          {!isReplaying && phaseName && <span className="text-[10px] px-1.5 py-0.5 rounded opacity-60" style={{ background: 'rgba(255,255,255,0.05)', color: isBan ? '#FF6666' : '#00FFFF' }}>{phaseName}</span>}
+          {!isReplaying && phaseName && <span className="text-[10px] px-1.5 py-0.5 rounded opacity-70" aria-live="polite" style={{ background: 'rgba(255,255,255,0.05)', color: isBan ? '#FF6666' : '#00FFFF' }}>{phaseName}</span>}
           {team1Picks.length > 0 && (
             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(144,238,144,0.1)', color: '#90EE90', border: '1px solid #90EE9022' }}>
               Score: {computeCompScore(team1Picks)}
@@ -741,7 +743,7 @@ function DraftPageInner() {
       {/* Coaching Tip */}
       {!isComplete && coachingTipsVisible && (team1Picks.length + team1Bans.length > 0 || step > 0) && (
         <div className="px-4 py-1 flex items-center justify-center gap-2" style={{ background: 'rgba(0,255,255,0.03)' }}>
-          <span className="text-[10px] opacity-50 flex-1 text-center">
+          <span className="text-[10px] opacity-70 flex-1 text-center">
             💡 {(() => {
               if (isBan && !isYourTurn) {
                 const sTier = icyVeins.getSTierHeroes(map.name).filter(name => {
@@ -783,15 +785,15 @@ function DraftPageInner() {
         const visible = threats.filter(t => !dismissedWarnings.has(`threat-${t.threat}-${t.target}`)).slice(0, 3);
         if (visible.length === 0) return null;
         return (
-          <div className="px-4 py-1.5 flex items-center gap-2 flex-wrap justify-center warning-fade-in" style={{ background: 'rgba(255,99,71,0.1)', borderBottom: '1px solid #FF634733' }}>
+          <div className="px-4 py-1.5 flex items-center gap-2 flex-wrap justify-center warning-fade-in" role="alert" aria-live="assertive" style={{ background: 'rgba(255,99,71,0.1)', borderBottom: '1px solid #FF634733' }}>
             <span className="text-[10px] font-bold" style={{ color: '#FF6347' }}>⚠️ THREATS:</span>
             {visible.map(t => (
               <span key={`${t.threat}-${t.target}`} className="text-[10px] px-1.5 py-0.5 rounded inline-flex items-center gap-1" style={{ background: 'rgba(255,99,71,0.15)', color: '#FF6347', border: '1px solid #FF634722' }}>
                 ⚠ {t.threat} counters your {t.target}{t.score >= 3 ? ' (strong)' : ''}
-                <button onClick={() => dismissWarning(`threat-${t.threat}-${t.target}`)} className="ml-0.5 opacity-50 hover:opacity-100" style={{ lineHeight: 1 }}>✕</button>
+                <button onClick={() => dismissWarning(`threat-${t.threat}-${t.target}`)} className="ml-0.5 opacity-70 hover:opacity-100" aria-label={`Dismiss threat: ${t.threat} counters ${t.target}`} style={{ lineHeight: 1 }}>✕</button>
               </span>
             ))}
-            {threats.length > 3 && <span className="text-[10px] opacity-50">+{threats.length - 3} more</span>}
+            {threats.length > 3 && <span className="text-[10px] opacity-70">+{threats.length - 3} more</span>}
           </div>
         );
       })()}
@@ -806,7 +808,7 @@ function DraftPageInner() {
             {visible.map(s => (
               <span key={`${s.hero1}-${s.hero2}`} className="text-[10px] px-1.5 py-0.5 rounded inline-flex items-center gap-1" style={{ background: 'rgba(0,200,100,0.12)', color: '#00C864', border: '1px solid rgba(0,200,100,0.15)' }}>
                 ⚡ {s.hero1} + {s.hero2} synergy!{s.reason ? ` — ${s.reason}` : ''}
-                <button onClick={() => dismissWarning(`syn-${s.hero1}-${s.hero2}`)} className="ml-0.5 opacity-50 hover:opacity-100" style={{ lineHeight: 1 }}>✕</button>
+                <button onClick={() => dismissWarning(`syn-${s.hero1}-${s.hero2}`)} className="ml-0.5 opacity-70 hover:opacity-100" aria-label={`Dismiss synergy: ${s.hero1} and ${s.hero2}`} style={{ lineHeight: 1 }}>✕</button>
               </span>
             ))}
           </div>
@@ -916,7 +918,7 @@ function DraftPageInner() {
 
           {/* Hero Search + Grid */}
           {!isComplete && (
-            <div data-hero-grid data-tutorial-target="heroGrid" className="flex-1 min-h-[220px] overflow-auto p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
+            <div ref={heroGridRef} tabIndex={-1} data-hero-grid data-tutorial-target="heroGrid" className="flex-1 min-h-[220px] overflow-auto p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }} role="region" aria-label="Hero selection grid">
               {!heroGridReady ? (
                 /* Loading skeleton */
                 <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
@@ -957,6 +959,7 @@ function DraftPageInner() {
                   }}
                   className="w-full px-3 py-1.5 rounded text-sm focus:outline-none"
                   style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff' }}
+                  aria-label="Search heroes by name, role, or specialty"
                 />
                 {searchQuery && (
                   <span className="absolute right-8 top-2 text-[10px]" style={{ color: '#87CEEB' }}>
@@ -1025,13 +1028,13 @@ function DraftPageInner() {
                   <option value="role">Role</option>
                   <option value="tier">Tier ↓</option>
                 </select>
-                <span className="text-[10px] ml-auto opacity-50">
+                <span className="text-[10px] ml-auto opacity-70">
                   {filtered.filter(h => draft.isAvailable(h)).length}/{filtered.length}
                 </span>
               </div>
 
               {heroView === 'grid' ? (
-                <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
+                <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))', willChange: 'transform' }}>
                   {filtered.map(hero => {
                     const isAvail = draft.isAvailable(hero);
                     const isBanned = bannedNames.has(hero.name);
@@ -1040,6 +1043,7 @@ function DraftPageInner() {
                     return (
                       <div key={hero.name} onContextMenu={e => { e.preventDefault(); setDetailHero(hero); }}
                         className="rounded" style={{
+                          contain: 'layout style paint',
                           ...(tier === 'S' && isAvail ? { boxShadow: '0 0 6px rgba(255,215,0,0.3)', background: 'rgba(255,215,0,0.05)' } : {}),
                           ...(isBanned ? { opacity: 0.4, cursor: 'not-allowed' } : {}),
                           ...(pickedByTeam ? { opacity: 0.7, border: `2px solid ${pickedByTeam === 1 ? '#00FFFF' : '#FF6666'}`, borderRadius: '6px' } : {}),
@@ -1051,7 +1055,7 @@ function DraftPageInner() {
                           banned={isBanned}
                           showName
                           tierBadge={tier !== 'B' ? tier : undefined}
-                          highlightQuery={searchQuery || undefined}
+                          highlightQuery={deferredSearchQuery || undefined}
                           onClick={isAvail ? () => handleHeroClick(hero) : undefined}
                         />
                       </div>
@@ -1064,14 +1068,14 @@ function DraftPageInner() {
                     <div key={group.role}>
                       <h4 className="text-xs font-bold mb-1 flex items-center gap-2" style={{ color: ROLE_COLORS[group.role] || '#FFD700' }}>
                         {group.role}
-                        <span className="opacity-50 font-normal">({group.heroes.filter(h => draft.isAvailable(h)).length}/{group.heroes.length})</span>
+                        <span className="opacity-70 font-normal">({group.heroes.filter(h => draft.isAvailable(h)).length}/{group.heroes.length})</span>
                         {group.heroes.filter(h => draft.isAvailable(h) && icyVeins.getHeroTierOnMap(h.nicknames[0], map.name) === 'S').length > 0 && (
                           <span className="text-[9px] px-1 rounded" style={{ background: 'rgba(255,215,0,0.15)', color: '#FFD700' }}>
                             ★{group.heroes.filter(h => draft.isAvailable(h) && icyVeins.getHeroTierOnMap(h.nicknames[0], map.name) === 'S').length}
                           </span>
                         )}
                       </h4>
-                      <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
+                      <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))', willChange: 'transform' }}>
                         {group.heroes.map(hero => {
                           const isAvail = draft.isAvailable(hero);
                           const isBanned = bannedNames.has(hero.name);
@@ -1080,6 +1084,7 @@ function DraftPageInner() {
                           return (
                             <div key={hero.name} onContextMenu={e => { e.preventDefault(); setDetailHero(hero); }}
                               style={{
+                                contain: 'layout style paint',
                                 ...(isBanned ? { opacity: 0.4, cursor: 'not-allowed' } : {}),
                                 ...(pickedByTeam ? { opacity: 0.7, border: `2px solid ${pickedByTeam === 1 ? '#00FFFF' : '#FF6666'}`, borderRadius: '6px' } : {}),
                               }}>
@@ -1090,7 +1095,7 @@ function DraftPageInner() {
                                 banned={isBanned}
                                 showName
                                 tierBadge={tier !== 'B' ? tier : undefined}
-                                highlightQuery={searchQuery || undefined}
+                                highlightQuery={deferredSearchQuery || undefined}
                                 onClick={isAvail ? () => handleHeroClick(hero) : undefined}
                               />
                             </div>
@@ -1292,7 +1297,7 @@ function DraftPageInner() {
                 </div>
                 {/* Win condition strength comparison bar */}
                 <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                  <p className="text-[10px] opacity-50 text-center mb-2">Win Condition Strength</p>
+                  <p className="text-[10px] opacity-70 text-center mb-2">Win Condition Strength</p>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] w-20 text-right" style={{ color: '#4488FF' }}>{winConditionToString(analysis.team1.primary)}</span>
                     <div className="flex-1 flex h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
@@ -1353,7 +1358,7 @@ function DraftPageInner() {
                           <div style={{ width: `${(t2c / 5) * 50}%`, background: '#FF666699' }} />
                         </div>
                         <div className="w-8" style={{ color: t2c > t1c ? '#FF6666' : t2c === t1c ? '#888' : '#666' }}>{t2c}</div>
-                        <span className="w-16 opacity-50">{label}</span>
+                        <span className="w-16 opacity-70">{label}</span>
                       </div>
                     );
                   })}
@@ -1515,7 +1520,7 @@ function DraftPageInner() {
       {/* Hero Detail Popup */}
       {/* Keyboard Shortcut Help Modal */}
       {showShortcutHelp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0, 0, 0, 0.6)' }} onClick={() => setShowShortcutHelp(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts" style={{ background: 'rgba(0, 0, 0, 0.6)' }} onClick={() => setShowShortcutHelp(false)}>
           <div className="rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl" style={{ background: 'rgba(15, 20, 40, 0.95)', border: '1px solid #00FFFF44' }} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold" style={{ color: '#00FFFF' }}>⌨️ Keyboard Shortcuts</h2>
@@ -1544,7 +1549,7 @@ function DraftPageInner() {
       )}
 
       {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}
-    </div>
+    </main>
   );
 }
 

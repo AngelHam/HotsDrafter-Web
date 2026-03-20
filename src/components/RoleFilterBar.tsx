@@ -26,7 +26,7 @@ interface RoleFilterBarProps {
 
 export default function RoleFilterBar({ activeFilter, onFilterChange }: RoleFilterBarProps) {
   return (
-    <div className="flex gap-1.5 flex-wrap">
+    <div className="flex gap-1.5 flex-wrap" role="group" aria-label="Filter heroes by role">
       {ROLES.map(({ key, label, icon, color }) => (
         <button
           key={key}
@@ -37,9 +37,11 @@ export default function RoleFilterBar({ activeFilter, onFilterChange }: RoleFilt
             color: activeFilter === key ? '#000' : color,
             border: `1px solid ${activeFilter === key ? color : 'rgba(68, 102, 136, 0.5)'}`,
           }}
+          aria-label={`Filter by ${label} role`}
+          aria-pressed={activeFilter === key}
           title={`Filter heroes by ${label}`}
         >
-          {icon} {label}
+          <span aria-hidden="true">{icon}</span> {label}
         </button>
       ))}
     </div>
