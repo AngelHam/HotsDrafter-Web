@@ -219,3 +219,11 @@ body {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 6px;
 }
+
+@keyframes warningFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.warning-fade-in {
+  animation: warningFadeIn 0.3s ease-out;
+}

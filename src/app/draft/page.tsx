@@ -18,8 +18,10 @@ import HeroSuggestionPanel from '@/components/HeroSuggestionPanel';
 import TeamPanel from '@/components/TeamPanel';
 import DraftProgressBar from '@/components/DraftProgressBar';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
+import TutorialOverlay, { DRAFT_TUTORIAL_STEPS, DRAFT_STORAGE_KEY, shouldShowDraftTutorial } from '@/components/TutorialOverlay';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
+import { HeroRelationships } from '@/data/HeroRelationships';
 import type { Hero } from '@/data/Hero';
 import type { HeroSuggestion } from '@/data/SuggestionTypes';
 
@@ -95,6 +97,8 @@ function DraftPageInner() {
   const [isReplaying, setIsReplaying] = useState(false);
   const [replayStep, setReplayStep] = useState(0);
   const [showMapInfo, setShowMapInfo] = useState(false);
+  const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set());
+  const [showDraftTutorial, setShowDraftTutorial] = useState(false);
 
   useEffect(() => {
     DraftSettings.load();
@@ -103,6 +107,14 @@ function DraftPageInner() {
     // Brief delay for skeleton to show, then reveal grid
     const timer = setTimeout(() => setHeroGridReady(true), 150);
     return () => { unsub(); clearTimeout(timer); };
+  }, []);
+
+  // Show draft tutorial on first visit (1s delay)
+  useEffect(() => {
+    const tutTimer = setTimeout(() => {
+      if (shouldShowDraftTutorial()) setShowDraftTutorial(true);
+    }, 1000);
+    return () => clearTimeout(tutTimer);
   }, []);
 
   const isQuickDraft = DraftSettings.quickDraft;
@@ -125,10 +137,67 @@ function DraftPageInner() {
 
   const engine = useMemo(() => new HeroSuggestionEngine(draft, map), [draft, map]);
   const icyVeins = useMemo(() => IcyVeinsDatabase.getInstance(), []);
+  const rels = useMemo(() => HeroRelationships.getInstance(), []);
 
   const currentTeam = realStep < 16 ? teamOrder[realStep] : 0;
   const isBan = realStep < 16 ? DRAFT_IS_BAN[realStep] : false;
   const isComplete = step >= totalSteps;
+
+  // Counter threat warnings: enemy picks that counter your heroes
+  const threats = useMemo(() => {
+    const myPicks = team1Picks;
+    const enemyPicks = team2Picks;
+    const warnings: { threat: string; target: string; score: number; reason: string }[] = [];
+    for (const enemy of enemyPicks) {
+      for (const ally of myPicks) {
+        const score = rels.getCounterScore(enemy, ally);
+        if (score >= 2 || icyVeins.counters(enemy.nicknames[0], ally.nicknames[0])) {
+          const reason = rels.getCounterReason(enemy, ally);
+          warnings.push({ threat: enemy.nicknames[0], target: ally.nicknames[0], score: Math.max(score, 2), reason });
+        }
+      }
+    }
+    return warnings.sort((a, b) => b.score - a.score);
+  }, [team1Picks, team2Picks, rels, icyVeins]);
+
+  // Synergy notifications: your picks that synergize with each other
+  const synergies = useMemo(() => {
+    const myPicks = team1Picks;
+    const pairs: { hero1: string; hero2: string; score: number; reason: string }[] = [];
+    for (let i = 0; i < myPicks.length; i++) {
+      for (let j = i + 1; j < myPicks.length; j++) {
+        const score = rels.getSynergyScore(myPicks[i], myPicks[j]);
+        if (score >= 2) {
+          const reason = rels.getSynergyReason(myPicks[i], myPicks[j]);
+          pairs.push({ hero1: myPicks[i].nicknames[0], hero2: myPicks[j].nicknames[0], score, reason });
+        }
+      }
+    }
+    return pairs.sort((a, b) => b.score - a.score);
+  }, [team1Picks, rels]);
+
+  // Role composition warnings
+  const roleWarnings = useMemo(() => {
+    if (isBan) return [];
+    const picks = team1Picks;
+    const warnings: string[] = [];
+    const hasTank = picks.some(h => h.role === 'Tank');
+    const hasHealer = picks.some(h => h.role === 'Healer');
+    const hasDPS = picks.some(h => h.role === 'DPS' || h.role === 'Mage' || h.role === 'Ranged Assassin' || h.role === 'Melee Assassin');
+    if (picks.length >= 3 && !hasTank) warnings.push('⚠ No Tank drafted yet');
+    if (picks.length >= 4 && !hasHealer) warnings.push('⚠ No Healer drafted yet — consider picking one');
+    if (picks.length >= 5 && !hasDPS) warnings.push('⚠ Missing DPS — team may lack damage');
+    return warnings;
+  }, [team1Picks, isBan]);
+
+  // Reset dismissed warnings when picks change
+  useEffect(() => {
+    setDismissedWarnings(new Set());
+  }, [team1Picks.length, team2Picks.length]);
+
+  const dismissWarning = useCallback((key: string) => {
+    setDismissedWarnings(prev => new Set(prev).add(key));
+  }, []);
 
   // Show ALL heroes, mark unavailable as dimmed
   const [heroSort, setHeroSort] = useState<'name' | 'role' | 'tier'>('name');
@@ -420,6 +489,7 @@ function DraftPageInner() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden page-enter pb-14">
+      {showDraftTutorial && <TutorialOverlay steps={DRAFT_TUTORIAL_STEPS} storageKey={DRAFT_STORAGE_KEY} onClose={() => setShowDraftTutorial(false)} />}
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 flex-wrap gap-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
         <div className="flex items-center gap-3">
@@ -503,7 +573,9 @@ function DraftPageInner() {
             </span>
           )}
         </div>
+        <div data-tutorial-target="progressBar">
         <DraftProgressBar currentStep={isReplaying ? replayStep + 1 : step} teamOrder={teamOrder} />
+        </div>
 
         <div className="flex items-center gap-2 flex-wrap justify-center">
           <button
@@ -618,28 +690,50 @@ function DraftPageInner() {
       )}
 
       {/* Counter Threat Warnings */}
-      {!isComplete && team1Picks.length > 0 && team2Picks.length > 0 && (() => {
-        const threats: string[] = [];
-        for (const enemy of team2Picks) {
-          for (const ally of team1Picks) {
-            if (icyVeins.counters(enemy.nicknames[0], ally.nicknames[0])) {
-              threats.push(`${enemy.nicknames[0]} counters your ${ally.nicknames[0]}`);
-            }
-          }
-        }
-        if (threats.length === 0) return null;
+      {!isComplete && !isBan && threats.length > 0 && (() => {
+        const visible = threats.filter(t => !dismissedWarnings.has(`threat-${t.threat}-${t.target}`)).slice(0, 3);
+        if (visible.length === 0) return null;
         return (
-          <div className="px-4 py-1.5 flex items-center gap-2 flex-wrap justify-center" style={{ background: 'rgba(255,99,71,0.1)', borderBottom: '1px solid #FF634733' }}>
+          <div className="px-4 py-1.5 flex items-center gap-2 flex-wrap justify-center warning-fade-in" style={{ background: 'rgba(255,99,71,0.1)', borderBottom: '1px solid #FF634733' }}>
             <span className="text-[10px] font-bold" style={{ color: '#FF6347' }}>⚠️ THREATS:</span>
-            {threats.slice(0, 3).map(t => (
-              <span key={t} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,99,71,0.15)', color: '#FF6347', border: '1px solid #FF634722' }}>
-                {t}
+            {visible.map(t => (
+              <span key={`${t.threat}-${t.target}`} className="text-[10px] px-1.5 py-0.5 rounded inline-flex items-center gap-1" style={{ background: 'rgba(255,99,71,0.15)', color: '#FF6347', border: '1px solid #FF634722' }}>
+                ⚠ {t.threat} counters your {t.target}{t.score >= 3 ? ' (strong)' : ''}
+                <button onClick={() => dismissWarning(`threat-${t.threat}-${t.target}`)} className="ml-0.5 opacity-50 hover:opacity-100" style={{ lineHeight: 1 }}>✕</button>
               </span>
             ))}
             {threats.length > 3 && <span className="text-[10px] opacity-50">+{threats.length - 3} more</span>}
           </div>
         );
       })()}
+
+      {/* Synergy Notifications */}
+      {!isComplete && !isBan && synergies.length > 0 && (() => {
+        const visible = synergies.filter(s => !dismissedWarnings.has(`syn-${s.hero1}-${s.hero2}`)).slice(0, 2);
+        if (visible.length === 0) return null;
+        return (
+          <div className="px-4 py-1.5 flex items-center gap-2 flex-wrap justify-center warning-fade-in" style={{ background: 'rgba(0,200,100,0.08)', borderBottom: '1px solid rgba(0,200,100,0.2)' }}>
+            <span className="text-[10px] font-bold" style={{ color: '#00C864' }}>⚡ SYNERGY:</span>
+            {visible.map(s => (
+              <span key={`${s.hero1}-${s.hero2}`} className="text-[10px] px-1.5 py-0.5 rounded inline-flex items-center gap-1" style={{ background: 'rgba(0,200,100,0.12)', color: '#00C864', border: '1px solid rgba(0,200,100,0.15)' }}>
+                ⚡ {s.hero1} + {s.hero2} synergy!{s.reason ? ` — ${s.reason}` : ''}
+                <button onClick={() => dismissWarning(`syn-${s.hero1}-${s.hero2}`)} className="ml-0.5 opacity-50 hover:opacity-100" style={{ lineHeight: 1 }}>✕</button>
+              </span>
+            ))}
+          </div>
+        );
+      })()}
+
+      {/* Role Composition Warnings */}
+      {!isComplete && !isBan && roleWarnings.length > 0 && (
+        <div className="px-4 py-1.5 flex items-center gap-2 flex-wrap justify-center warning-fade-in" style={{ background: 'rgba(255,191,0,0.08)', borderBottom: '1px solid rgba(255,191,0,0.2)' }}>
+          {roleWarnings.map(w => (
+            <span key={w} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,191,0,0.12)', color: '#FFB800', border: '1px solid rgba(255,191,0,0.15)' }}>
+              {w}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Mobile Team Panels */}
       <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-2 px-3 py-2" style={{ background: 'rgba(20, 25, 45, 0.35)' }}>
@@ -705,7 +799,7 @@ function DraftPageInner() {
 
           {/* Suggestions (hidden when draft complete) */}
           {!isComplete && (
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0" data-tutorial-target="suggestions">
             <button
               onClick={() => setSuggestionsCollapsed(c => !c)}
               className="w-full text-left text-xs font-semibold px-3 py-1.5 rounded-t flex items-center justify-between lg:hidden"
@@ -733,7 +827,7 @@ function DraftPageInner() {
 
           {/* Hero Search + Grid */}
           {!isComplete && (
-            <div data-hero-grid className="flex-1 min-h-[220px] overflow-auto p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
+            <div data-hero-grid data-tutorial-target="heroGrid" className="flex-1 min-h-[220px] overflow-auto p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }}>
               {!heroGridReady ? (
                 /* Loading skeleton */
                 <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>

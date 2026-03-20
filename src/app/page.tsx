@@ -6,7 +6,7 @@ import { ALL_MAPS, ALL_HEROES } from '@/data/HeroData';
 import { DraftSettings } from '@/data/DraftSettings';
 import MapCard from '@/components/MapCard';
 import HeroPortrait from '@/components/HeroPortrait';
-import FirstRunTutorial, { shouldShowTutorial } from '@/components/FirstRunTutorial';
+import TutorialOverlay, { HOME_TUTORIAL_STEPS, HOME_STORAGE_KEY, shouldShowHomeTutorial } from '@/components/TutorialOverlay';
 import { loadHistory } from '@/data/DraftHistory';
 import type { Hero } from '@/data/Hero';
 
@@ -41,9 +41,12 @@ export default function StartupPage() {
     DraftSettings.load();
     setSelectedMapIdx(DraftSettings.selectedMapIndex);
     setUseRandom(DraftSettings.useRandomMap);
-    if (shouldShowTutorial()) setShowTutorial(true);
     setSpotlightIdx(Math.floor(Math.random() * ALL_HEROES.length));
     setDraftCount(loadHistory().length);
+    const tutTimer = setTimeout(() => {
+      if (shouldShowHomeTutorial()) setShowTutorial(true);
+    }, 1000);
+    return () => clearTimeout(tutTimer);
   }, []);
 
   useEffect(() => {
@@ -81,7 +84,7 @@ export default function StartupPage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center px-3 sm:px-4 py-6 sm:py-8 pb-20 page-enter" role="main" aria-label="HotsDrafter main menu">
-      {showTutorial && <FirstRunTutorial onClose={() => setShowTutorial(false)} />}
+      {showTutorial && <TutorialOverlay steps={HOME_TUTORIAL_STEPS} storageKey={HOME_STORAGE_KEY} onClose={() => setShowTutorial(false)} />}
       <div className="animate-fade-slide-up" style={{ animationDelay: '0ms' }}>
         <h1 className="text-2xl sm:text-4xl font-bold tracking-wider mb-2 text-center" style={{ color: '#00FFFF' }}>
           HOTS DRAFTER
@@ -116,7 +119,7 @@ export default function StartupPage() {
         </div>
       </div>
 
-      <div className="animate-fade-slide-up w-full max-w-4xl" style={{ animationDelay: '100ms' }}>
+      <div className="animate-fade-slide-up w-full max-w-4xl" style={{ animationDelay: '100ms' }} data-tutorial-target="mapGrid">
         <h2 className="text-lg font-semibold mb-3" style={{ color: '#4488FF' }}>Select Map</h2>
         <div className="grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
           <div className="card-enter" style={{ animationDelay: '0ms' }}>
@@ -130,7 +133,7 @@ export default function StartupPage() {
         </div>
       </div>
 
-      <div className="animate-fade-slide-up mt-6 sm:mt-8 grid grid-cols-2 min-[480px]:grid-cols-3 sm:grid-cols-4 lg:flex lg:flex-wrap gap-2 justify-center w-full max-w-4xl" style={{ animationDelay: '350ms' }}>
+      <div className="animate-fade-slide-up mt-6 sm:mt-8 grid grid-cols-2 min-[480px]:grid-cols-3 sm:grid-cols-4 lg:flex lg:flex-wrap gap-2 justify-center w-full max-w-4xl" style={{ animationDelay: '350ms' }} data-tutorial-target="actionButtons">
         <ActionButton label="Interactive Draft" icon="⚔️" color="#00FFFF" onClick={() => router.push(`/draft?map=${getMapParam()}`)} primary
           tooltip={useRandom ? 'Start a draft with a random map' : `Draft on ${ALL_MAPS[selectedMapIdx]?.name}`} />
         <ActionButton label="Sample Draft" icon="🎲" color="#FFD700" onClick={() => router.push(`/sample?map=${getMapParam()}`)}

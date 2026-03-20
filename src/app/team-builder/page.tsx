@@ -13,6 +13,7 @@ import HeroPortrait from '@/components/HeroPortrait';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { Specialty, specialtyToString } from '@/data/Specialty';
+import { EffectiveRange } from '@/data/Hero';
 import type { Hero } from '@/data/Hero';
 
 const SLOT_ROLE_HINTS = ['🛡️ Tank', '✚ Healer', '⚔️ DPS', '🏹 Offlane', '✦ Flex'];
@@ -353,6 +354,36 @@ export default function TeamBuilderPage() {
                   );
                 })()}
               </div>
+
+              {/* ═══ Specialty Coverage Comparison ═══ */}
+              <SpecialtyCoverageChart
+                team1={team1.filter(Boolean) as Hero[]}
+                team2={team2.filter(Boolean) as Hero[]}
+              />
+
+              {/* ═══ Counter Matchup Matrix ═══ */}
+              <CounterMatchupMatrix
+                team1={team1.filter(Boolean) as Hero[]}
+                team2={team2.filter(Boolean) as Hero[]}
+              />
+
+              {/* ═══ Map Recommendations ═══ */}
+              <MapRecommendations
+                team1={team1.filter(Boolean) as Hero[]}
+                team2={team2.filter(Boolean) as Hero[]}
+              />
+
+              {/* ═══ Damage Type Balance ═══ */}
+              <DamageTypeBalance
+                team1={team1.filter(Boolean) as Hero[]}
+                team2={team2.filter(Boolean) as Hero[]}
+              />
+
+              {/* ═══ Team Range Profile ═══ */}
+              <TeamRangeProfile
+                team1={team1.filter(Boolean) as Hero[]}
+                team2={team2.filter(Boolean) as Hero[]}
+              />
             </>
           ) : (
             <div className="p-4 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
@@ -500,6 +531,435 @@ function scoreToGrade(score: number): { grade: string; color: string } {
   if (score >= 55) return { grade: 'C', color: '#FFD700' };
   if (score >= 40) return { grade: 'D', color: '#FFA500' };
   return { grade: 'F', color: '#FF6666' };
+}
+
+// ══════════════════════════════════════════════════════
+// 1. Specialty Coverage Comparison (side-by-side bars)
+// ══════════════════════════════════════════════════════
+const COVERAGE_SPECIALTIES: { key: Specialty; label: string }[] = [
+  { key: Specialty.WAVECLEAR, label: 'Waveclear' },
+  { key: Specialty.ENGAGE, label: 'Engage' },
+  { key: Specialty.HARD_CC, label: 'Hard CC' },
+  { key: Specialty.BURST_DAMAGE, label: 'Burst' },
+  { key: Specialty.POKE, label: 'Poke' },
+  { key: Specialty.SELF_SUSTAIN, label: 'Sustain' },
+  { key: Specialty.GLOBAL_PRESENCE, label: 'Global' },
+];
+
+function SpecialtyCoverageChart({ team1, team2 }: { team1: Hero[]; team2: Hero[] }) {
+  const data = COVERAGE_SPECIALTIES.map(({ key, label }) => {
+    const t1 = team1.filter(h => h.specialties.includes(key)).length;
+    const t2 = team2.filter(h => h.specialties.includes(key)).length;
+    return { label, t1, t2, max: Math.max(t1, t2, 1) };
+  });
+  const globalMax = Math.max(...data.map(d => d.max), 1);
+
+  return (
+    <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+      <h3 className="font-bold mb-3 text-sm" style={{ color: '#00FFFF' }}>Specialty Coverage</h3>
+      <div className="flex gap-4 mb-2 text-[10px]">
+        <span style={{ color: '#4488FF' }}>● Team 1</span>
+        <span style={{ color: '#FF6666' }}>● Team 2</span>
+      </div>
+      <div className="space-y-2">
+        {data.map(({ label, t1, t2 }) => {
+          const advantage = t1 > t2 ? 1 : t2 > t1 ? 2 : 0;
+          return (
+            <div key={label}>
+              <div className="flex items-center justify-between mb-0.5">
+                <span className="text-[10px] w-16" style={{ color: advantage === 1 ? '#00FFFF' : advantage === 2 ? '#FF8888' : '#999' }}>
+                  {label}
+                </span>
+                <span className="text-[9px]" style={{ color: '#666' }}>{t1} vs {t2}</span>
+              </div>
+              <div className="flex gap-1 items-center">
+                {/* T1 bar (right-aligned, grows left) */}
+                <div className="flex-1 flex justify-end">
+                  <div
+                    className="h-3 rounded-l transition-all"
+                    style={{
+                      width: `${(t1 / globalMax) * 100}%`,
+                      minWidth: t1 > 0 ? '4px' : '0',
+                      background: advantage === 1
+                        ? 'linear-gradient(90deg, #4488FF, #66BBFF)'
+                        : '#4488FF',
+                      boxShadow: advantage === 1 ? '0 0 6px rgba(0,255,255,0.3)' : 'none',
+                    }}
+                  />
+                </div>
+                <div className="w-px h-4" style={{ background: 'rgba(68,102,136,0.5)' }} />
+                {/* T2 bar (left-aligned, grows right) */}
+                <div className="flex-1">
+                  <div
+                    className="h-3 rounded-r transition-all"
+                    style={{
+                      width: `${(t2 / globalMax) * 100}%`,
+                      minWidth: t2 > 0 ? '4px' : '0',
+                      background: advantage === 2
+                        ? 'linear-gradient(90deg, #FF8888, #FF6666)'
+                        : '#FF6666',
+                      boxShadow: advantage === 2 ? '0 0 6px rgba(0,255,255,0.3)' : 'none',
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+// 2. Counter Matchup Matrix
+// ══════════════════════════════════════════════════════
+function CounterMatchupMatrix({ team1, team2 }: { team1: Hero[]; team2: Hero[] }) {
+  if (team1.length < 3 || team2.length < 3) return null;
+
+  const rels = HeroRelationships.getInstance();
+
+  type CellValue = 'counters' | 'countered' | 'neutral';
+  const matrix: { row: Hero; cells: { col: Hero; value: CellValue; score: number }[] }[] =
+    team1.map(t1Hero => ({
+      row: t1Hero,
+      cells: team2.map(t2Hero => {
+        const counterScore = rels.getCounterScore(t1Hero, t2Hero);
+        const counteredScore = rels.getCounterScore(t2Hero, t1Hero);
+        let value: CellValue = 'neutral';
+        let score = 0;
+        if (counterScore >= 2 && counterScore > counteredScore) {
+          value = 'counters';
+          score = counterScore;
+        } else if (counteredScore >= 2 && counteredScore > counterScore) {
+          value = 'countered';
+          score = counteredScore;
+        }
+        return { col: t2Hero, value, score };
+      }),
+    }));
+
+  const cellStyle = (val: CellValue) => {
+    switch (val) {
+      case 'counters': return { bg: 'rgba(0,255,0,0.12)', color: '#90EE90', symbol: '✓' };
+      case 'countered': return { bg: 'rgba(255,0,0,0.12)', color: '#FF6666', symbol: '✗' };
+      default: return { bg: 'transparent', color: '#555', symbol: '—' };
+    }
+  };
+
+  return (
+    <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+      <h3 className="font-bold mb-3 text-sm" style={{ color: '#00FFFF' }}>Counter Matrix</h3>
+      <div className="overflow-x-auto">
+        <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: '2px' }}>
+          <thead>
+            <tr>
+              <th className="text-[9px] p-1" style={{ color: '#666' }}>T1 ↓ / T2 →</th>
+              {team2.map(h => (
+                <th key={h.name} className="text-[9px] p-1 text-center" style={{ color: '#FF6666' }}>
+                  {h.nicknames[0].length > 8 ? h.nicknames[0].slice(0, 7) + '…' : h.nicknames[0]}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {matrix.map(({ row, cells }) => (
+              <tr key={row.name}>
+                <td className="text-[9px] p-1" style={{ color: '#4488FF' }}>
+                  {row.nicknames[0].length > 8 ? row.nicknames[0].slice(0, 7) + '…' : row.nicknames[0]}
+                </td>
+                {cells.map(({ col, value }) => {
+                  const s = cellStyle(value);
+                  return (
+                    <td key={col.name} className="text-center p-1 rounded"
+                      title={value === 'counters' ? `${row.nicknames[0]} counters ${col.nicknames[0]}` : value === 'countered' ? `${col.nicknames[0]} counters ${row.nicknames[0]}` : 'Neutral'}
+                      style={{ background: s.bg, color: s.color, fontSize: '11px', fontWeight: value !== 'neutral' ? 700 : 400 }}>
+                      {s.symbol}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex gap-3 mt-2 text-[9px]">
+        <span style={{ color: '#90EE90' }}>✓ = T1 counters</span>
+        <span style={{ color: '#FF6666' }}>✗ = T2 counters</span>
+        <span style={{ color: '#555' }}>— = Neutral</span>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+// 3. Map Recommendations
+// ══════════════════════════════════════════════════════
+function MapRecommendations({ team1, team2 }: { team1: Hero[]; team2: Hero[] }) {
+  if (team1.length < 2 || team2.length < 2) return null;
+
+  const mapScores = ALL_MAPS.map(m => {
+    const t1Score = m.scoreTeam(team1);
+    const t2Score = m.scoreTeam(team2);
+    return { name: m.name, t1Score, t2Score, diff: t1Score - t2Score };
+  });
+
+  // Sort by T1 advantage (highest diff first)
+  const sorted = [...mapScores].sort((a, b) => b.diff - a.diff);
+  const bestForT1 = sorted.slice(0, 3);
+  const bestForT2 = sorted.slice(-3).reverse().map(m => ({ ...m, diff: -m.diff }));
+  const maxScore = Math.max(...mapScores.map(m => Math.max(m.t1Score, m.t2Score)), 1);
+
+  return (
+    <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+      <h3 className="font-bold mb-3 text-sm" style={{ color: '#00FFFF' }}>Map Recommendations</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Best maps for T1 */}
+        <div>
+          <p className="text-[10px] font-semibold mb-2" style={{ color: '#4488FF' }}>Best for Team 1</p>
+          {bestForT1.map(m => (
+            <div key={m.name} className="mb-2 p-2 rounded" style={{ background: 'rgba(68,136,255,0.08)', border: '1px solid rgba(68,136,255,0.2)' }}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-semibold" style={{ color: '#ccc' }}>{m.name}</span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded"
+                  style={{ background: m.diff > 0 ? 'rgba(0,255,0,0.1)' : 'rgba(255,0,0,0.1)', color: m.diff > 0 ? '#90EE90' : '#FF6666' }}>
+                  {m.diff > 0 ? '+' : ''}{m.diff.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex gap-1 items-center">
+                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${(m.t1Score / maxScore) * 100}%`, background: '#4488FF' }} />
+                </div>
+                <span className="text-[8px] w-6 text-right" style={{ color: '#4488FF' }}>{m.t1Score.toFixed(1)}</span>
+              </div>
+              <div className="flex gap-1 items-center mt-0.5">
+                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${(m.t2Score / maxScore) * 100}%`, background: '#FF6666' }} />
+                </div>
+                <span className="text-[8px] w-6 text-right" style={{ color: '#FF6666' }}>{m.t2Score.toFixed(1)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Best maps for T2 */}
+        <div>
+          <p className="text-[10px] font-semibold mb-2" style={{ color: '#FF6666' }}>Best for Team 2</p>
+          {bestForT2.map(m => (
+            <div key={m.name} className="mb-2 p-2 rounded" style={{ background: 'rgba(255,102,102,0.08)', border: '1px solid rgba(255,102,102,0.2)' }}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-semibold" style={{ color: '#ccc' }}>{m.name}</span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded"
+                  style={{ background: m.diff > 0 ? 'rgba(0,255,0,0.1)' : 'rgba(255,0,0,0.1)', color: m.diff > 0 ? '#90EE90' : '#FF6666' }}>
+                  +{m.diff.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex gap-1 items-center">
+                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${(m.t1Score / maxScore) * 100}%`, background: '#4488FF' }} />
+                </div>
+                <span className="text-[8px] w-6 text-right" style={{ color: '#4488FF' }}>{m.t1Score.toFixed(1)}</span>
+              </div>
+              <div className="flex gap-1 items-center mt-0.5">
+                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${(m.t2Score / maxScore) * 100}%`, background: '#FF6666' }} />
+                </div>
+                <span className="text-[8px] w-6 text-right" style={{ color: '#FF6666' }}>{m.t2Score.toFixed(1)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+// 4. Damage Type Balance
+// ══════════════════════════════════════════════════════
+const MAGICAL_SPECS = [Specialty.SPELL_DAMAGE, Specialty.BURST_DAMAGE, Specialty.AOE_DAMAGE];
+const PHYSICAL_SPECS = [Specialty.AUTO_ATTACK, Specialty.EXECUTE_DAMAGE];
+
+function classifyDamageType(hero: Hero): 'physical' | 'magical' | 'mixed' {
+  const hasMagical = hero.specialties.some(s => MAGICAL_SPECS.includes(s));
+  const hasPhysical = hero.specialties.some(s => PHYSICAL_SPECS.includes(s));
+  if (hasMagical && hasPhysical) return 'mixed';
+  if (hasMagical) return 'magical';
+  if (hasPhysical) return 'physical';
+  // Default: Tanks/Healers default to physical unless they have spell damage
+  return hero.role === 'Mage' ? 'magical' : 'physical';
+}
+
+function DamageTypeBalance({ team1, team2 }: { team1: Hero[]; team2: Hero[] }) {
+  const classify = (heroes: Hero[]) => {
+    let phys = 0, mag = 0, mix = 0;
+    heroes.forEach(h => {
+      const t = classifyDamageType(h);
+      if (t === 'physical') phys++;
+      else if (t === 'magical') mag++;
+      else mix++;
+    });
+    const total = Math.max(heroes.length, 1);
+    return {
+      physical: phys, magical: mag, mixed: mix,
+      physPct: (phys / total) * 100,
+      magPct: (mag / total) * 100,
+      mixPct: (mix / total) * 100,
+    };
+  };
+
+  const t1 = classify(team1);
+  const t2 = classify(team2);
+
+  const DamageBar = ({ data, color }: { data: ReturnType<typeof classify>; color: string }) => (
+    <div>
+      <div className="flex h-4 rounded overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        {data.physPct > 0 && (
+          <div className="h-full flex items-center justify-center transition-all" title={`Physical: ${data.physical}`}
+            style={{ width: `${data.physPct}%`, background: '#E8A83E', minWidth: '16px' }}>
+            <span className="text-[8px] font-bold text-black">⚔</span>
+          </div>
+        )}
+        {data.magPct > 0 && (
+          <div className="h-full flex items-center justify-center transition-all" title={`Magical: ${data.magical}`}
+            style={{ width: `${data.magPct}%`, background: '#8B5CF6', minWidth: '16px' }}>
+            <span className="text-[8px] font-bold text-white">✦</span>
+          </div>
+        )}
+        {data.mixPct > 0 && (
+          <div className="h-full flex items-center justify-center transition-all" title={`Mixed: ${data.mixed}`}
+            style={{ width: `${data.mixPct}%`, background: 'linear-gradient(90deg, #E8A83E, #8B5CF6)', minWidth: '16px' }}>
+            <span className="text-[8px] font-bold text-white">⚡</span>
+          </div>
+        )}
+      </div>
+      <div className="flex gap-2 mt-1 text-[9px]">
+        <span style={{ color: '#E8A83E' }}>⚔ Phys {data.physical}</span>
+        <span style={{ color: '#8B5CF6' }}>✦ Magic {data.magical}</span>
+        {data.mixed > 0 && <span style={{ color: '#ccc' }}>⚡ Mixed {data.mixed}</span>}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+      <h3 className="font-bold mb-3 text-sm" style={{ color: '#00FFFF' }}>Damage Type Balance</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <p className="text-[10px] font-semibold mb-1.5" style={{ color: '#4488FF' }}>Team 1</p>
+          <DamageBar data={t1} color="#4488FF" />
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold mb-1.5" style={{ color: '#FF6666' }}>Team 2</p>
+          <DamageBar data={t2} color="#FF6666" />
+        </div>
+      </div>
+      {((t1.physPct >= 80 && t1.physical >= 3) || (t2.physPct >= 80 && t2.physical >= 3)) && (
+        <p className="text-[9px] mt-2 px-2 py-1 rounded" style={{ background: 'rgba(255,165,0,0.1)', color: '#FFA500', border: '1px solid rgba(255,165,0,0.2)' }}>
+          ⚠ {t1.physPct >= 80 && t1.physical >= 3 ? 'Team 1' : 'Team 2'} is heavily physical — vulnerable to Physical Armor.
+        </p>
+      )}
+      {((t1.magPct >= 80 && t1.magical >= 3) || (t2.magPct >= 80 && t2.magical >= 3)) && (
+        <p className="text-[9px] mt-2 px-2 py-1 rounded" style={{ background: 'rgba(255,165,0,0.1)', color: '#FFA500', border: '1px solid rgba(255,165,0,0.2)' }}>
+          ⚠ {t1.magPct >= 80 && t1.magical >= 3 ? 'Team 1' : 'Team 2'} is heavily magical — vulnerable to Spell Armor.
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+// 5. Team Range Profile
+// ══════════════════════════════════════════════════════
+const RANGE_LABELS: Record<number, string> = {
+  [EffectiveRange.MELEE]: 'Melee',
+  [EffectiveRange.SHORT_RANGE]: 'Short',
+  [EffectiveRange.MEDIUM_RANGE]: 'Medium',
+  [EffectiveRange.LONG_RANGE]: 'Long',
+  [EffectiveRange.EXTREME_RANGE]: 'Extreme',
+};
+
+function TeamRangeProfile({ team1, team2 }: { team1: Hero[]; team2: Hero[] }) {
+  const rangeProfile = (heroes: Hero[]) => {
+    if (heroes.length === 0) return { avg: 0, label: 'N/A', counts: {} as Record<number, number> };
+    const counts: Record<number, number> = {};
+    let sum = 0;
+    heroes.forEach(h => {
+      const r = h.effectiveRange;
+      counts[r] = (counts[r] || 0) + 1;
+      sum += r;
+    });
+    const avg = sum / heroes.length;
+    const label = avg <= 1.5 ? 'Melee-Heavy'
+      : avg <= 2.5 ? 'Short-Range'
+      : avg <= 3.5 ? 'Balanced'
+      : avg <= 4.5 ? 'Ranged-Heavy'
+      : 'Extreme Range';
+    return { avg, label, counts };
+  };
+
+  const t1 = rangeProfile(team1);
+  const t2 = rangeProfile(team2);
+
+  const RangeIndicator = ({ profile, color }: { profile: ReturnType<typeof rangeProfile>; color: string }) => (
+    <div>
+      <div className="flex items-center gap-2 mb-1.5">
+        <span className="text-xs font-bold" style={{ color }}>{profile.label}</span>
+        <span className="text-[9px]" style={{ color: '#666' }}>avg {profile.avg.toFixed(1)}</span>
+      </div>
+      {/* Range spectrum bar */}
+      <div className="relative h-5 rounded overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        {/* Segments for each range tier */}
+        {[1, 2, 3, 4, 5].map(r => (
+          <div key={r} className="absolute top-0 h-full flex items-center justify-center text-[7px]"
+            style={{
+              left: `${((r - 1) / 5) * 100}%`,
+              width: '20%',
+              borderRight: r < 5 ? '1px solid rgba(68,102,136,0.3)' : 'none',
+              color: '#555',
+            }}>
+            {RANGE_LABELS[r]}
+          </div>
+        ))}
+        {/* Marker for average */}
+        <div className="absolute top-0 h-full w-1 rounded transition-all"
+          style={{
+            left: `${((profile.avg - 1) / 4) * 100}%`,
+            background: color,
+            boxShadow: `0 0 6px ${color}`,
+          }}
+        />
+      </div>
+      {/* Hero dots by range */}
+      <div className="flex gap-1 mt-1.5 flex-wrap">
+        {[1, 2, 3, 4, 5].map(r => {
+          const count = profile.counts[r] || 0;
+          if (count === 0) return null;
+          return (
+            <span key={r} className="text-[8px] px-1.5 py-0.5 rounded"
+              style={{ background: color + '15', color, border: `1px solid ${color}33` }}>
+              {RANGE_LABELS[r]}: {count}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="p-4 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
+      <h3 className="font-bold mb-3 text-sm" style={{ color: '#00FFFF' }}>Team Range Profile</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <p className="text-[10px] font-semibold mb-1.5" style={{ color: '#4488FF' }}>Team 1</p>
+          <RangeIndicator profile={t1} color="#4488FF" />
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold mb-1.5" style={{ color: '#FF6666' }}>Team 2</p>
+          <RangeIndicator profile={t2} color="#FF6666" />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function TeamSlots({ label, color, slots, onSlotClick, onClear, onClearAll, onHeroDetail, mapName }: {
