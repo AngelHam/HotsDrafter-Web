@@ -89,7 +89,11 @@ export default function TierListPage() {
       return { hero, tier, score: totalScore, sTierMaps, aTierMaps } as HeroTierEntry;
     })
     .filter(e => roleFilter === 'All' || e.hero.role === roleFilter)
-    .filter(e => !searchQuery || e.hero.nicknames.some(n => n.toLowerCase().includes(searchQuery.toLowerCase())))
+    .filter(e => {
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return e.hero.nicknames.some(n => n.toLowerCase().includes(q)) || e.hero.name.toLowerCase().includes(q) || e.hero.role.toLowerCase().includes(q) || e.hero.specialties.some(s => specialtyToString(s).toLowerCase().includes(q));
+    })
     .sort((a, b) => b.score - a.score);
   }, [selectedMap, roleFilter, searchQuery, icyVeins]);
 
@@ -214,7 +218,7 @@ export default function TierListPage() {
                       animationDelay: `${i * 30}ms`,
                     }}
                     title={`${e.hero.nicknames[0]} (${e.hero.role}) — Score: ${e.score.toFixed(1)}${selectedMap === 'all' ? ` | S-tier: ${e.sTierMaps} maps, A-tier: ${e.aTierMaps} maps` : ''}`}>
-                    <HeroPortrait hero={e.hero} size="md" showName />
+                    <HeroPortrait hero={e.hero} size="md" showName highlightQuery={searchQuery || undefined} />
                     <span className="text-[8px] px-1.5 py-0.5 rounded mt-0.5" style={{ background: (ROLE_COLORS[e.hero.role] || '#888') + '22', color: ROLE_COLORS[e.hero.role] || '#888', border: `1px solid ${(ROLE_COLORS[e.hero.role] || '#888')}33` }}>
                       {e.hero.role}
                     </span>

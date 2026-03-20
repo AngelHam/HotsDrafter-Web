@@ -30,6 +30,7 @@ interface HeroPortraitProps {
   dimmed?: boolean;
   showName?: boolean;
   tierBadge?: string;
+  highlightQuery?: string;
   onClick?: () => void;
 }
 
@@ -39,7 +40,7 @@ const TIER_COLORS: Record<string, string> = {
   S: '#FFD700', A: '#90EE90', B: '#87CEEB', C: '#FFA500', D: '#FF6666',
 };
 
-export default function HeroPortrait({ hero, size = 'md', selected, banned, dimmed, showName, tierBadge, onClick }: HeroPortraitProps) {
+export default function HeroPortrait({ hero, size = 'md', selected, banned, dimmed, showName, tierBadge, highlightQuery, onClick }: HeroPortraitProps) {
   const px = SIZE_MAP[size];
   const borderColor = selected ? '#FFD700' : banned ? '#FF6666' : ROLE_COLORS[hero.role] || '#666';
   const [imgError, setImgError] = useState(false);
@@ -96,7 +97,12 @@ export default function HeroPortrait({ hero, size = 'md', selected, banned, dimm
       </Tag>
       {showName && (
         <span className="text-[9px] mt-0.5 text-center w-full leading-tight" style={{ opacity: dimmed ? 0.3 : 0.7, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-          {hero.nicknames[0]}
+          {highlightQuery ? (() => {
+            const name = hero.nicknames[0];
+            const idx = name.toLowerCase().indexOf(highlightQuery.toLowerCase());
+            if (idx === -1) return name;
+            return <>{name.slice(0, idx)}<span style={{ color: '#00FFFF', fontWeight: 'bold' }}>{name.slice(idx, idx + highlightQuery.length)}</span>{name.slice(idx + highlightQuery.length)}</>;
+          })() : hero.nicknames[0]}
         </span>
       )}
     </div>

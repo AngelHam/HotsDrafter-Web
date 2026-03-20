@@ -145,6 +145,7 @@ export default function TeamBuilderPage() {
                   {Object.keys(TEAM_TEMPLATES).map(name => (
                     <button
                       key={`t1-${name}`}
+                      data-testid={`t1-template-${name}`}
                       onClick={() => applyTemplate(1, name)}
                       className="text-xs px-2 py-1 rounded hover:bg-white/10"
                       style={{ color: '#4488FF', border: '1px solid #4488FF44' }}
@@ -161,6 +162,7 @@ export default function TeamBuilderPage() {
                   {Object.keys(TEAM_TEMPLATES).map(name => (
                     <button
                       key={`t2-${name}`}
+                      data-testid={`t2-template-${name}`}
                       onClick={() => applyTemplate(2, name)}
                       className="text-xs px-2 py-1 rounded hover:bg-white/10"
                       style={{ color: '#FF6666', border: '1px solid #FF666644' }}

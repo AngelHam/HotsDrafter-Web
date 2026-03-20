@@ -24,6 +24,52 @@ import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import { HeroRelationships } from '@/data/HeroRelationships';
 import type { Hero } from '@/data/Hero';
 import type { HeroSuggestion } from '@/data/SuggestionTypes';
+import type { HotsMap } from '@/data/Map';
+
+function getCoachingTip(step: number, realStep: number, isBan: boolean, isYourTurn: boolean, team1Picks: Hero[], team2Picks: Hero[], map: HotsMap): string {
+  // Ban phase tips
+  if (isBan) {
+    if (realStep < 4) return "Ban heroes that are strong on " + map.name + " or that counter your planned composition.";
+    return "Second ban phase: target heroes that would complete the enemy's composition.";
+  }
+
+  const myPicks = team1Picks;
+  const enemyPicks = team2Picks;
+
+  // Composition warnings — urgent, shown regardless of pick count
+  if (myPicks.length >= 3 && !myPicks.some(h => h.role === 'Healer'))
+    return "⚠ You still don't have a Healer. Pick one soon!";
+  if (myPicks.length >= 4 && !myPicks.some(h => h.role === 'Tank'))
+    return "⚠ No Tank yet — your team will struggle in teamfights.";
+
+  // Pick phase tips based on progression
+  if (myPicks.length === 0)
+    return "First pick: secure a high-value flex pick that doesn't reveal your strategy.";
+  if (myPicks.length === 1 && !myPicks.some(h => h.role === 'Tank'))
+    return "Consider picking your Tank early to establish frontline.";
+  if (myPicks.length === 2 && !myPicks.some(h => h.role === 'Healer'))
+    return "You may want to secure a Healer before they're countered.";
+  if (myPicks.length === 4)
+    return "Last pick: fill any missing roles and consider countering the enemy.";
+
+  // Mid-draft synergy/counter tips
+  if (myPicks.length >= 2 && enemyPicks.length >= 2) {
+    const enemyHasHealer = enemyPicks.some(h => h.role === 'Healer');
+    if (!enemyHasHealer) return "Enemy has no Healer yet — burst damage can punish this.";
+  }
+  if (myPicks.length >= 2 && !myPicks.some(h => h.specialties?.includes(Specialty.WAVECLEAR)))
+    return "Your team lacks waveclear — consider a hero with strong lane push.";
+
+  // Damage balance
+  const rangedDPS = myPicks.filter(h => h.effectiveRange && h.effectiveRange >= 3).length;
+  const meleeDPS = myPicks.filter(h => h.effectiveRange && h.effectiveRange <= 2 && h.role !== 'Tank').length;
+  if (myPicks.length >= 3 && rangedDPS === 0)
+    return "All melee so far — add a ranged damage dealer for balance.";
+  if (myPicks.length >= 3 && meleeDPS === 0 && !myPicks.some(h => h.role === 'Tank'))
+    return "All ranged — you'll need a frontline hero.";
+
+  return "Check suggestions for optimal synergy picks.";
+}
 
 const MAP_TIPS: Record<string, string> = {
   'Alterac Pass': 'Push with cavalry after winning objectives. Sustain and waveclear matter.',
@@ -64,6 +110,19 @@ function computeCompScore(picks: Hero[]): number {
   return Math.max(0, Math.min(100, score));
 }
 
+function highlightMatch(name: string, query: string) {
+  if (!query) return name;
+  const idx = name.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return name;
+  return (
+    <>
+      {name.slice(0, idx)}
+      <span style={{ color: '#00FFFF', fontWeight: 'bold' }}>{name.slice(idx, idx + query.length)}</span>
+      {name.slice(idx + query.length)}
+    </>
+  );
+}
+
 function DraftPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -97,6 +156,7 @@ function DraftPageInner() {
   const [isReplaying, setIsReplaying] = useState(false);
   const [replayStep, setReplayStep] = useState(0);
   const [showMapInfo, setShowMapInfo] = useState(false);
+  const [coachingTipsVisible, setCoachingTipsVisible] = useState(() => DraftSettings.showCoachingTips);
   const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set());
   const [showDraftTutorial, setShowDraftTutorial] = useState(false);
 
@@ -213,7 +273,10 @@ function DraftPageInner() {
     if (!matchesRoleFilter(h, roleFilter)) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      return h.nicknames.some(n => n.toLowerCase().includes(q)) || h.name.toLowerCase().includes(q);
+      if (h.nicknames.some(n => n.toLowerCase().includes(q)) || h.name.toLowerCase().includes(q)) return true;
+      if (h.role.toLowerCase().includes(q)) return true;
+      if (h.specialties.some(s => specialtyToString(s).toLowerCase().includes(q))) return true;
+      return false;
     }
     return true;
   }), [allHeroesSorted, roleFilter, searchQuery]);
@@ -299,6 +362,16 @@ function DraftPageInner() {
   const bannedNames = useMemo(() => new Set([...team1Bans, ...team2Bans].map(h => h.name)), [team1Bans, team2Bans]);
   const team1PickNames = useMemo(() => new Set(team1Picks.map(h => h.name)), [team1Picks]);
   const team2PickNames = useMemo(() => new Set(team2Picks.map(h => h.name)), [team2Picks]);
+
+  const roleFilteredCount = useMemo(() =>
+    allHeroesSorted.filter(h => matchesRoleFilter(h, roleFilter)).length,
+    [allHeroesSorted, roleFilter]
+  );
+
+  const searchMatches = useMemo(() => {
+    if (!searchQuery || searchQuery.length < 2) return [];
+    return filtered.filter(h => !bannedNames.has(h.name) && !team1PickNames.has(h.name) && !team2PickNames.has(h.name)).slice(0, 5);
+  }, [searchQuery, filtered, bannedNames, team1PickNames, team2PickNames]);
 
   const handleHeroClick = useCallback((hero: Hero) => {
     if (isComplete) return;
@@ -666,9 +739,9 @@ function DraftPageInner() {
       })()}
 
       {/* Coaching Tip */}
-      {!isComplete && (team1Picks.length + team1Bans.length > 0 || step > 0) && (
-        <div className="px-4 py-1 text-center" style={{ background: 'rgba(0,255,255,0.03)' }}>
-          <span className="text-[10px] opacity-50">
+      {!isComplete && coachingTipsVisible && (team1Picks.length + team1Bans.length > 0 || step > 0) && (
+        <div className="px-4 py-1 flex items-center justify-center gap-2" style={{ background: 'rgba(0,255,255,0.03)' }}>
+          <span className="text-[10px] opacity-50 flex-1 text-center">
             💡 {(() => {
               if (isBan && !isYourTurn) {
                 const sTier = icyVeins.getSTierHeroes(map.name).filter(name => {
@@ -677,15 +750,31 @@ function DraftPageInner() {
                 if (sTier.length > 0) return `Enemy may ban: ${sTier.slice(0, 3).join(', ')}`;
                 return 'Enemy is banning — watch for targeted bans';
               }
-              if (isBan && team1Bans.length === 0) return 'Ban high-impact heroes your team struggles against';
-              if (isBan) return 'Consider banning heroes that counter your planned composition';
-              if (team1Picks.length === 0) return 'Secure a strong tank or high-priority pick first';
-              if (!team1Picks.some(h => h.role === 'Tank') && team1Picks.length >= 2) return 'Your team needs a Tank — prioritize one soon';
-              if (!team1Picks.some(h => h.role === 'Healer') && team1Picks.length >= 3) return 'No Healer yet — draft one before it\'s too late';
-              if (team1Picks.length >= 4) return 'Last pick — fill the remaining role gap';
-              return 'Check suggestions for optimal synergy picks';
+              return getCoachingTip(step, realStep, isBan, isYourTurn, team1Picks, team2Picks, map);
             })()}
           </span>
+          <button
+            onClick={() => {
+              setCoachingTipsVisible(false);
+              DraftSettings.showCoachingTips = false;
+              DraftSettings.save();
+            }}
+            className="text-[9px] opacity-30 hover:opacity-60 shrink-0"
+            title="Hide coaching tips (re-enable in Settings)"
+          >✕</button>
+        </div>
+      )}
+      {!isComplete && !coachingTipsVisible && (
+        <div className="px-4 py-0.5 text-center">
+          <button
+            onClick={() => {
+              setCoachingTipsVisible(true);
+              DraftSettings.showCoachingTips = true;
+              DraftSettings.save();
+            }}
+            className="text-[9px] opacity-25 hover:opacity-50"
+            title="Show coaching tips"
+          >💡 Tips</button>
         </div>
       )}
 
@@ -853,16 +942,27 @@ function DraftPageInner() {
                   );
                 })}
               </div>
-              <div className="relative">
+              <div className="relative mb-2">
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="🔍 Search heroes... (press / to focus)"
+                  placeholder="🔍 Search heroes, roles, specialties... (/ to focus)"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full px-3 py-1.5 mb-2 rounded text-sm focus:outline-none"
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && searchMatches.length > 0) {
+                      e.preventDefault();
+                      handleHeroClick(searchMatches[0]);
+                    }
+                  }}
+                  className="w-full px-3 py-1.5 rounded text-sm focus:outline-none"
                   style={{ background: 'rgba(30, 40, 70, 0.8)', border: '1px solid rgba(68,102,136,0.5)', color: '#fff' }}
                 />
+                {searchQuery && (
+                  <span className="absolute right-8 top-2 text-[10px]" style={{ color: '#87CEEB' }}>
+                    {filtered.length}/{roleFilteredCount}
+                  </span>
+                )}
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
@@ -872,6 +972,26 @@ function DraftPageInner() {
                   >
                     ✕
                   </button>
+                )}
+                {searchQuery && searchQuery.length >= 2 && searchMatches.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full z-30 rounded-b shadow-lg overflow-hidden"
+                    style={{ background: 'rgba(15, 20, 40, 0.97)', border: '1px solid rgba(0,255,255,0.3)', borderTop: '1px solid rgba(0,255,255,0.15)' }}>
+                    {searchMatches.map((hero, i) => (
+                      <button key={hero.name}
+                        onClick={() => handleHeroClick(hero)}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-left hover:bg-white/10 transition-colors"
+                        style={i === 0 ? { background: 'rgba(0,255,255,0.08)' } : undefined}>
+                        <HeroPortrait hero={hero} size="xs" />
+                        <span className="text-xs flex-1 truncate">{highlightMatch(hero.nicknames[0], searchQuery)}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: (ROLE_COLORS[hero.role] || '#888') + '22', color: ROLE_COLORS[hero.role] || '#888' }}>
+                          {hero.role}
+                        </span>
+                      </button>
+                    ))}
+                    <div className="px-3 py-1 text-[9px] opacity-40" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                      ↵ Enter to {isBan ? 'ban' : 'pick'} first · Esc to close
+                    </div>
+                  </div>
                 )}
               </div>
               <div className="flex items-center gap-2 mb-2">
@@ -931,6 +1051,7 @@ function DraftPageInner() {
                           banned={isBanned}
                           showName
                           tierBadge={tier !== 'B' ? tier : undefined}
+                          highlightQuery={searchQuery || undefined}
                           onClick={isAvail ? () => handleHeroClick(hero) : undefined}
                         />
                       </div>
@@ -969,6 +1090,7 @@ function DraftPageInner() {
                                 banned={isBanned}
                                 showName
                                 tierBadge={tier !== 'B' ? tier : undefined}
+                                highlightQuery={searchQuery || undefined}
                                 onClick={isAvail ? () => handleHeroClick(hero) : undefined}
                               />
                             </div>
@@ -1403,6 +1525,7 @@ function DraftPageInner() {
               {[
                 ['1 – 7', 'Quick-pick suggestion'],
                 ['/ or F', 'Focus search'],
+                ['Enter', 'Pick/ban first search match'],
                 ['Esc', 'Clear search / Go back'],
                 ['G', 'Grid view'],
                 ['R', 'Role view'],

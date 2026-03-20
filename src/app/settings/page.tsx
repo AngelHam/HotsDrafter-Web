@@ -77,6 +77,7 @@ export default function SettingsPage() {
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>(AnalysisMode.Full);
   const [quickDraft, setQuickDraft] = useState(false);
   const [firstPickTeam, setFirstPickTeam] = useState(1);
+  const [showCoachingTips, setShowCoachingTips] = useState(true);
   const [hoveredWeight, setHoveredWeight] = useState<string | null>(null);
 
   useEffect(() => {
@@ -85,6 +86,7 @@ export default function SettingsPage() {
     setAnalysisMode(DraftSettings.currentAnalysisMode);
     setQuickDraft(DraftSettings.quickDraft);
     setFirstPickTeam(DraftSettings.firstPickTeam);
+    setShowCoachingTips(DraftSettings.showCoachingTips);
   }, []);
 
   const roleCounts = useMemo(() => {
@@ -128,6 +130,7 @@ export default function SettingsPage() {
     setAnalysisMode(AnalysisMode.Full);
     setQuickDraft(false);
     setFirstPickTeam(1);
+    setShowCoachingTips(true);
   };
 
   return (
@@ -321,6 +324,30 @@ export default function SettingsPage() {
             >
               {quickDraft ? '✅ Enabled' : 'Disabled'}
               <p className="text-xs opacity-60 mt-1">Skip bans — 10 picks only</p>
+            </button>
+          </div>
+
+          {/* ── Coaching Tips Toggle ── */}
+          <div className="p-4 rounded" style={CARD}>
+            <h3 className="font-bold mb-2" style={{ color: '#00FFFF' }}>💡 Coaching Tips</h3>
+            <p className="text-xs opacity-50 mb-3">Show contextual tips during the draft to help with bans, picks, and composition</p>
+            <button
+              onClick={() => {
+                const next = !showCoachingTips;
+                setShowCoachingTips(next);
+                DraftSettings.showCoachingTips = next;
+                DraftSettings.save();
+              }}
+              className="px-4 py-2 rounded font-semibold transition-all hover:bg-white/10"
+              style={{
+                background: showCoachingTips ? '#FFD70022' : 'transparent',
+                border: `2px solid ${showCoachingTips ? '#FFD700' : 'rgba(68,102,136,0.5)'}`,
+                color: showCoachingTips ? '#FFD700' : '#888',
+              }}
+              title="Toggle coaching tips during draft"
+            >
+              {showCoachingTips ? '✅ Enabled' : 'Disabled'}
+              <p className="text-xs opacity-60 mt-1">Contextual advice for each draft phase</p>
             </button>
           </div>
 

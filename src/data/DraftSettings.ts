@@ -12,6 +12,7 @@ export class DraftSettings {
   static suggestionCount = 5;
   static firstPickTeam = 1;
   static quickDraft = false;
+  static showCoachingTips = true;
 
   private static _listeners: (() => void)[] = [];
 
@@ -33,6 +34,7 @@ export class DraftSettings {
       suggestionCount: this.suggestionCount,
       firstPickTeam: this.firstPickTeam,
       quickDraft: this.quickDraft,
+      showCoachingTips: this.showCoachingTips,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     this._notify();
@@ -50,6 +52,7 @@ export class DraftSettings {
       if (data.suggestionCount !== undefined) this.suggestionCount = data.suggestionCount;
       if (data.firstPickTeam !== undefined) this.firstPickTeam = data.firstPickTeam;
       if (data.quickDraft !== undefined) this.quickDraft = data.quickDraft;
+      if (data.showCoachingTips !== undefined) this.showCoachingTips = data.showCoachingTips;
     } catch { /* ignore parse errors */ }
   }
 
@@ -60,6 +63,7 @@ export class DraftSettings {
     this.suggestionCount = 5;
     this.firstPickTeam = 1;
     this.quickDraft = false;
+    this.showCoachingTips = true;
     if (typeof window !== 'undefined') {
       localStorage.removeItem(STORAGE_KEY);
     }
