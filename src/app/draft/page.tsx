@@ -561,7 +561,7 @@ function DraftPageInner() {
   const phaseName = isComplete ? '' : realStep <= 3 ? 'Ban Phase 1' : realStep <= 8 ? 'Pick Phase 1' : realStep <= 10 ? 'Ban Phase 2' : 'Pick Phase 2';
 
   return (
-    <main id="main-content" className="h-screen flex flex-col overflow-hidden page-enter pb-16">
+    <main id="main-content" className="min-h-screen flex flex-col page-enter pb-16">
       {showDraftTutorial && <TutorialOverlay steps={DRAFT_TUTORIAL_STEPS} storageKey={DRAFT_STORAGE_KEY} onClose={() => setShowDraftTutorial(false)} />}
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 flex-wrap gap-2" style={{ background: 'rgba(20, 25, 45, 0.9)', borderBottom: '1px solid rgba(68,102,136,0.5)' }}>
@@ -726,7 +726,7 @@ function DraftPageInner() {
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-col lg:flex-row flex-1 gap-2 sm:gap-3 p-2 sm:p-3 overflow-hidden">
+      <div className="flex flex-col lg:flex-row gap-2 sm:gap-3 p-2 sm:p-3">
         {/* Team 1 Panel - hidden on mobile */}
         <div className="w-48 flex-shrink-0 hidden lg:block">
           <TeamPanel teamNumber={1} picks={isReplaying && replayPartials ? [...replayPartials.team1Picks] : [...team1Picks]} bans={isReplaying && replayPartials ? [...replayPartials.team1Bans] : [...team1Bans]} isActive={isReplaying ? replayTimeline[replayStep]?.team === 1 : !isComplete && currentTeam === 1} enemyPicks={isReplaying && replayPartials ? [...replayPartials.team2Picks] : [...team2Picks]} onHeroClick={h => setDetailHero(h)} flashHero={isReplaying ? replayFlashHero : lastAction} />
@@ -792,7 +792,7 @@ function DraftPageInner() {
               <span>{isBan ? 'Ban Suggestions' : 'Pick Suggestions'} ({suggestions.length})</span>
               <span>{suggestionsCollapsed ? '▶' : '▼'}</span>
             </button>
-            <div className={`${suggestionsCollapsed ? 'hidden lg:block' : ''} max-h-[340px] overflow-y-auto`}>
+            <div className={`${suggestionsCollapsed ? 'hidden lg:block' : ''} flex-shrink-0`}>
               {suggestions.length === 0 ? (
                 <div className="p-4 rounded text-center" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
                   <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>No heroes match current filters</p>
@@ -811,7 +811,7 @@ function DraftPageInner() {
 
           {/* Hero Search + Grid */}
           {!isComplete && (
-            <div ref={heroGridRef} tabIndex={-1} data-hero-grid data-tutorial-target="heroGrid" className="flex-1 min-h-[220px] overflow-auto p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }} role="region" aria-label="Hero selection grid">
+            <div ref={heroGridRef} tabIndex={-1} data-hero-grid data-tutorial-target="heroGrid" className="p-2 rounded" style={{ background: 'rgba(20, 25, 45, 0.5)', border: '1px solid rgba(68,102,136,0.3)' }} role="region" aria-label="Hero selection grid">
               {!heroGridReady ? (
                 /* Loading skeleton */
                 <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(56px, 1fr))' }}>
@@ -1104,7 +1104,7 @@ function DraftPageInner() {
             })();
 
             return (
-            <div className="space-y-4 overflow-y-auto summary-enter" style={{ animation: 'summarySlideIn 0.5s ease-out' }}>
+            <div className="space-y-4 summary-enter" style={{ animation: 'summarySlideIn 0.5s ease-out' }}>
               <style>{`
                 @keyframes summarySlideIn {
                   from { opacity: 0; transform: translateY(20px); }

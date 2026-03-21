@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ALL_MAPS, ALL_HEROES } from '@/data/HeroData';
 import { DraftSettings } from '@/data/DraftSettings';
@@ -28,34 +28,9 @@ const HERO_TIPS: Record<string, string> = {
   Specialist: 'Create unique advantages with unconventional play.',
 };
 
-export default function StartupPage() {
-  const router = useRouter();
-  const [selectedMapIdx, setSelectedMapIdx] = useState(-1);
-  const [useRandom, setUseRandom] = useState(true);
-  const [showTutorial, setShowTutorial] = useState(false);
-  const [spotlightIdx, setSpotlightIdx] = useState(0);
+const HeroSpotlight = React.memo(function HeroSpotlight() {
+  const [spotlightIdx, setSpotlightIdx] = useState(() => Math.floor(Math.random() * ALL_HEROES.length));
   const [spotlightVisible, setSpotlightVisible] = useState(true);
-  const [draftCount, setDraftCount] = useState(0);
-  const [firstPick, setFirstPick] = useState(1);
-
-  useEffect(() => {
-    DraftSettings.load();
-    setSelectedMapIdx(DraftSettings.selectedMapIndex);
-    setUseRandom(DraftSettings.useRandomMap);
-    setFirstPick(DraftSettings.firstPickTeam);
-    setSpotlightIdx(Math.floor(Math.random() * ALL_HEROES.length));
-    setDraftCount(loadHistory().length);
-    const tutTimer = setTimeout(() => {
-      if (shouldShowHomeTutorial()) setShowTutorial(true);
-    }, 1000);
-    return () => clearTimeout(tutTimer);
-  }, []);
-
-  const handleFirstPickToggle = (team: number) => {
-    setFirstPick(team);
-    DraftSettings.firstPickTeam = team;
-    DraftSettings.save();
-  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -69,6 +44,96 @@ export default function StartupPage() {
   }, []);
 
   const spotlightHero = ALL_HEROES[spotlightIdx];
+
+  return (
+    <div className="flex items-center justify-center mb-6 w-full max-w-md px-2 sm:px-0">
+      <div className="hero-spotlight-fade flex flex-col sm:flex-row items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3 sm:py-4 rounded-xl w-full transition-all hover:brightness-110"
+        style={{ background: 'rgba(30, 40, 70, 0.7)', border: `1px solid ${ROLE_COLORS[spotlightHero.role] || '#446688'}55`, opacity: spotlightVisible ? 1 : 0 }}>
+        <HeroPortrait hero={spotlightHero} size="lg" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-bold text-base" style={{ color: '#FFD700' }}>{spotlightHero.nicknames[0]}</span>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+              style={{ background: `${ROLE_COLORS[spotlightHero.role] || '#888'}33`, color: ROLE_COLORS[spotlightHero.role] || '#888', border: `1px solid ${ROLE_COLORS[spotlightHero.role] || '#888'}55` }}>
+              {spotlightHero.role}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-1 mt-1.5">
+            {spotlightHero.specialties.slice(0, 2).map(s => (
+              <span key={s} className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.08)', color: '#ccc' }}>
+                {formatSpecialty(s)}
+              </span>
+            ))}
+          </div>
+          <p className="text-[10px] opacity-50 mt-1.5 leading-snug">
+            {HERO_TIPS[spotlightHero.role] || 'A versatile hero for any team composition.'}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+const FirstPickToggle = React.memo(function FirstPickToggle() {
+  const [firstPick, setFirstPick] = useState(1);
+
+  useEffect(() => {
+    DraftSettings.load();
+    setFirstPick(DraftSettings.firstPickTeam);
+  }, []);
+
+  const handleToggle = (team: number) => {
+    setFirstPick(team);
+    DraftSettings.firstPickTeam = team;
+    DraftSettings.save();
+  };
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="text-xs opacity-60" style={{ color: '#A9A9A9' }}>First Pick:</span>
+      <button onClick={() => handleToggle(1)}
+        className="text-xs px-2.5 py-1 rounded-l transition-colors"
+        style={{
+          background: firstPick === 1 ? 'rgba(0,255,255,0.18)' : 'rgba(30,40,70,0.7)',
+          color: firstPick === 1 ? '#00FFFF' : '#667788',
+          border: `1px solid ${firstPick === 1 ? '#00FFFF88' : '#44668833'}`,
+          borderRight: 'none',
+          fontWeight: firstPick === 1 ? 600 : 400,
+        }}>
+        Team 1 (You) {firstPick === 1 ? '▸' : ''}
+      </button>
+      <button onClick={() => handleToggle(2)}
+        className="text-xs px-2.5 py-1 rounded-r transition-colors"
+        style={{
+          background: firstPick === 2 ? 'rgba(0,255,255,0.18)' : 'rgba(30,40,70,0.7)',
+          color: firstPick === 2 ? '#00FFFF' : '#667788',
+          border: `1px solid ${firstPick === 2 ? '#00FFFF88' : '#44668833'}`,
+          borderLeft: 'none',
+          fontWeight: firstPick === 2 ? 600 : 400,
+        }}>
+        {firstPick === 2 ? '◂' : ''} Team 2 (Enemy)
+      </button>
+    </div>
+  );
+});
+
+export default function StartupPage() {
+  const router = useRouter();
+  const [selectedMapIdx, setSelectedMapIdx] = useState(-1);
+  const [useRandom, setUseRandom] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [draftCount, setDraftCount] = useState(0);
+
+  useEffect(() => {
+    DraftSettings.load();
+    setSelectedMapIdx(DraftSettings.selectedMapIndex);
+    setUseRandom(DraftSettings.useRandomMap);
+    setDraftCount(loadHistory().length);
+    const tutTimer = setTimeout(() => {
+      if (shouldShowHomeTutorial()) setShowTutorial(true);
+    }, 1000);
+    return () => clearTimeout(tutTimer);
+  }, []);
 
   const handleMapSelect = (idx: number) => {
     if (idx === -1) {
@@ -100,31 +165,7 @@ export default function StartupPage() {
         <p className="text-center text-sm opacity-60 mb-4">
           Heroes of the Storm Draft Assistant
         </p>
-        <div className="flex items-center justify-center mb-6 w-full max-w-md px-2 sm:px-0">
-          <div className="hero-spotlight-fade flex flex-col sm:flex-row items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3 sm:py-4 rounded-xl w-full transition-all hover:brightness-110"
-            style={{ background: 'rgba(30, 40, 70, 0.7)', border: `1px solid ${ROLE_COLORS[spotlightHero.role] || '#446688'}55`, opacity: spotlightVisible ? 1 : 0 }}>
-            <HeroPortrait hero={spotlightHero} size="lg" />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-bold text-base" style={{ color: '#FFD700' }}>{spotlightHero.nicknames[0]}</span>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                  style={{ background: `${ROLE_COLORS[spotlightHero.role] || '#888'}33`, color: ROLE_COLORS[spotlightHero.role] || '#888', border: `1px solid ${ROLE_COLORS[spotlightHero.role] || '#888'}55` }}>
-                  {spotlightHero.role}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-1 mt-1.5">
-                {spotlightHero.specialties.slice(0, 2).map(s => (
-                  <span key={s} className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.08)', color: '#ccc' }}>
-                    {formatSpecialty(s)}
-                  </span>
-                ))}
-              </div>
-              <p className="text-[10px] opacity-50 mt-1.5 leading-snug">
-                {HERO_TIPS[spotlightHero.role] || 'A versatile hero for any team composition.'}
-              </p>
-            </div>
-          </div>
-        </div>
+        <HeroSpotlight />
       </div>
 
       <div className="animate-fade-slide-up w-full max-w-4xl" style={{ animationDelay: '100ms' }} data-tutorial-target="mapGrid">
@@ -144,31 +185,7 @@ export default function StartupPage() {
       <div className="animate-fade-slide-up mt-6 sm:mt-8 flex flex-col items-center gap-3 w-full max-w-4xl" style={{ animationDelay: '350ms' }} data-tutorial-target="actionButtons">
         {/* First Pick Toggle + Interactive Draft */}
         <div className="flex flex-wrap items-center justify-center gap-3" title="Choose which team picks first in the draft">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs opacity-60" style={{ color: '#A9A9A9' }}>First Pick:</span>
-            <button onClick={() => handleFirstPickToggle(1)}
-              className="text-xs px-2.5 py-1 rounded-l transition-all"
-              style={{
-                background: firstPick === 1 ? 'rgba(0,255,255,0.18)' : 'rgba(30,40,70,0.7)',
-                color: firstPick === 1 ? '#00FFFF' : '#667788',
-                border: `1px solid ${firstPick === 1 ? '#00FFFF88' : '#44668833'}`,
-                borderRight: 'none',
-                fontWeight: firstPick === 1 ? 600 : 400,
-              }}>
-              Team 1 (You) {firstPick === 1 ? '▸' : ''}
-            </button>
-            <button onClick={() => handleFirstPickToggle(2)}
-              className="text-xs px-2.5 py-1 rounded-r transition-all"
-              style={{
-                background: firstPick === 2 ? 'rgba(0,255,255,0.18)' : 'rgba(30,40,70,0.7)',
-                color: firstPick === 2 ? '#00FFFF' : '#667788',
-                border: `1px solid ${firstPick === 2 ? '#00FFFF88' : '#44668833'}`,
-                borderLeft: 'none',
-                fontWeight: firstPick === 2 ? 600 : 400,
-              }}>
-              {firstPick === 2 ? '◂' : ''} Team 2 (Enemy)
-            </button>
-          </div>
+          <FirstPickToggle />
           <ActionButton label="Interactive Draft" icon="⚔️" color="#00FFFF" onClick={() => router.push(`/draft?map=${getMapParam()}`)} primary
             tooltip={useRandom ? 'Start a draft with a random map' : `Draft on ${ALL_MAPS[selectedMapIdx]?.name}`} />
         </div>
