@@ -36,11 +36,13 @@ export default function StartupPage() {
   const [spotlightIdx, setSpotlightIdx] = useState(0);
   const [spotlightVisible, setSpotlightVisible] = useState(true);
   const [draftCount, setDraftCount] = useState(0);
+  const [firstPick, setFirstPick] = useState(1);
 
   useEffect(() => {
     DraftSettings.load();
     setSelectedMapIdx(DraftSettings.selectedMapIndex);
     setUseRandom(DraftSettings.useRandomMap);
+    setFirstPick(DraftSettings.firstPickTeam);
     setSpotlightIdx(Math.floor(Math.random() * ALL_HEROES.length));
     setDraftCount(loadHistory().length);
     const tutTimer = setTimeout(() => {
@@ -48,6 +50,12 @@ export default function StartupPage() {
     }, 1000);
     return () => clearTimeout(tutTimer);
   }, []);
+
+  const handleFirstPickToggle = (team: number) => {
+    setFirstPick(team);
+    DraftSettings.firstPickTeam = team;
+    DraftSettings.save();
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -133,19 +141,51 @@ export default function StartupPage() {
         </div>
       </div>
 
-      <div className="animate-fade-slide-up mt-6 sm:mt-8 grid grid-cols-2 min-[480px]:grid-cols-3 sm:grid-cols-4 lg:flex lg:flex-wrap gap-2 justify-center w-full max-w-4xl" style={{ animationDelay: '350ms' }} data-tutorial-target="actionButtons">
-        <ActionButton label="Interactive Draft" icon="⚔️" color="#00FFFF" onClick={() => router.push(`/draft?map=${getMapParam()}`)} primary
-          tooltip={useRandom ? 'Start a draft with a random map' : `Draft on ${ALL_MAPS[selectedMapIdx]?.name}`} />
-        <ActionButton label="Sample Draft" icon="🎲" color="#FFD700" onClick={() => router.push(`/sample?map=${getMapParam()}`)}
-          tooltip="Watch an AI-generated random draft with analysis" />
-        <ActionButton label="Team Builder" icon="🏗️" color="#90EE90" onClick={() => router.push('/team-builder')}
-          tooltip="Manually build 5v5 teams and compare compositions" />
-        <ActionButton label="Hero Compare" icon="⚖️" color="#87CEEB" onClick={() => router.push('/compare')}
-          tooltip="Compare two heroes side by side" />
-        <ActionButton label="Tier List" icon="🏆" color="#FFD700" onClick={() => router.push('/tier-list')}
-          tooltip="View hero rankings across all maps" />
-        <ActionButton label="Draft History" icon="📜" color="#BA55D3" onClick={() => router.push('/history')}
-          tooltip="View your previously completed drafts" />
+      <div className="animate-fade-slide-up mt-6 sm:mt-8 flex flex-col items-center gap-3 w-full max-w-4xl" style={{ animationDelay: '350ms' }} data-tutorial-target="actionButtons">
+        {/* First Pick Toggle + Interactive Draft */}
+        <div className="flex flex-wrap items-center justify-center gap-3" title="Choose which team picks first in the draft">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs opacity-60" style={{ color: '#A9A9A9' }}>First Pick:</span>
+            <button onClick={() => handleFirstPickToggle(1)}
+              className="text-xs px-2.5 py-1 rounded-l transition-all"
+              style={{
+                background: firstPick === 1 ? 'rgba(0,255,255,0.18)' : 'rgba(30,40,70,0.7)',
+                color: firstPick === 1 ? '#00FFFF' : '#667788',
+                border: `1px solid ${firstPick === 1 ? '#00FFFF88' : '#44668833'}`,
+                borderRight: 'none',
+                fontWeight: firstPick === 1 ? 600 : 400,
+              }}>
+              Team 1 (You) {firstPick === 1 ? '▸' : ''}
+            </button>
+            <button onClick={() => handleFirstPickToggle(2)}
+              className="text-xs px-2.5 py-1 rounded-r transition-all"
+              style={{
+                background: firstPick === 2 ? 'rgba(0,255,255,0.18)' : 'rgba(30,40,70,0.7)',
+                color: firstPick === 2 ? '#00FFFF' : '#667788',
+                border: `1px solid ${firstPick === 2 ? '#00FFFF88' : '#44668833'}`,
+                borderLeft: 'none',
+                fontWeight: firstPick === 2 ? 600 : 400,
+              }}>
+              {firstPick === 2 ? '◂' : ''} Team 2 (Enemy)
+            </button>
+          </div>
+          <ActionButton label="Interactive Draft" icon="⚔️" color="#00FFFF" onClick={() => router.push(`/draft?map=${getMapParam()}`)} primary
+            tooltip={useRandom ? 'Start a draft with a random map' : `Draft on ${ALL_MAPS[selectedMapIdx]?.name}`} />
+        </div>
+
+        {/* Other action buttons */}
+        <div className="grid grid-cols-2 min-[480px]:grid-cols-3 sm:grid-cols-5 gap-2 justify-center w-full">
+          <ActionButton label="Sample Draft" icon="🎲" color="#FFD700" onClick={() => router.push(`/sample?map=${getMapParam()}`)}
+            tooltip="Watch an AI-generated random draft with analysis" />
+          <ActionButton label="Team Builder" icon="🏗️" color="#90EE90" onClick={() => router.push('/team-builder')}
+            tooltip="Manually build 5v5 teams and compare compositions" />
+          <ActionButton label="Hero Compare" icon="⚖️" color="#87CEEB" onClick={() => router.push('/compare')}
+            tooltip="Compare two heroes side by side" />
+          <ActionButton label="Tier List" icon="🏆" color="#FFD700" onClick={() => router.push('/tier-list')}
+            tooltip="View hero rankings across all maps" />
+          <ActionButton label="Draft History" icon="📜" color="#BA55D3" onClick={() => router.push('/history')}
+            tooltip="View your previously completed drafts" />
+        </div>
       </div>
 
       {/* Quick Actions */}

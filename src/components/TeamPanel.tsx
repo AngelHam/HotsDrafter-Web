@@ -10,6 +10,10 @@ const ROLE_COLORS_MAP: Record<string, string> = {
   Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347', Mage: '#BA55D3', Offlane: '#FFA500', Specialist: '#A9A9A9',
 };
 
+const ROLE_CHECK_COLORS: Record<string, string> = {
+  Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347', Mage: '#BA55D3', Offlane: '#FFA500', Specialist: '#A9A9A9',
+};
+
 interface TeamPanelProps {
   teamNumber: number;
   picks: Hero[];
@@ -23,9 +27,10 @@ interface TeamPanelProps {
 const ROLE_CHECKS = [
   { label: 'Tank', icon: '🛡️', check: (h: Hero) => h.role === 'Tank' },
   { label: 'Healer', icon: '✚', check: (h: Hero) => h.role === 'Healer' },
-  { label: 'DPS', icon: '⚔️', check: (h: Hero) => h.role === 'DPS' || h.role === 'Mage' },
-  { label: 'Offlane', icon: '⚙️', check: (h: Hero) => h.role === 'Offlane' || h.specialties.includes(Specialty.DOUBLE_SOAKING) },
-  { label: 'Waveclear', icon: '🌊', check: (h: Hero) => h.specialties.includes(Specialty.WAVECLEAR) },
+  { label: 'DPS', icon: '⚔️', check: (h: Hero) => h.role === 'DPS' },
+  { label: 'Mage', icon: '✦', check: (h: Hero) => h.role === 'Mage' },
+  { label: 'Offlane', icon: '⚙️', check: (h: Hero) => h.role === 'Offlane' },
+  { label: 'Specialist', icon: '☆', check: (h: Hero) => h.role === 'Specialist' },
 ];
 
 function TeamPanel({ teamNumber, picks, bans, isActive, enemyPicks = [], onHeroClick, flashHero }: TeamPanelProps) {
@@ -58,12 +63,15 @@ function TeamPanel({ teamNumber, picks, bans, isActive, enemyPicks = [], onHeroC
 
       {/* Role Coverage */}
       {picks.length > 0 && (
-        <div className="flex gap-1 mb-2 flex-wrap">
+        <div className="grid grid-cols-3 gap-1 mb-2">
           {ROLE_CHECKS.map(({ label, icon, check }) => {
-            const filled = picks.some(check);
+            const matchingHeroes = picks.filter(check);
+            const filled = matchingHeroes.length > 0;
+            const roleColor = ROLE_CHECK_COLORS[label] || '#888';
+            const tooltipText = filled ? `${label}: ${matchingHeroes.map(h => h.nicknames[0]).join(', ')}` : `${label}: Missing`;
             return (
-              <span key={label} className="text-xs px-1 py-0.5 rounded" title={label}
-                style={{ background: filled ? 'rgba(0,255,0,0.15)' : 'rgba(255,0,0,0.15)', color: filled ? '#90EE90' : '#FF6666', border: `1px solid ${filled ? '#90EE9044' : '#FF666644'}` }}>
+              <span key={label} className="text-xs px-1 py-0.5 rounded text-center" title={tooltipText}
+                style={{ background: filled ? `${roleColor}22` : 'rgba(255,0,0,0.10)', color: filled ? roleColor : '#FF666688', border: `1px solid ${filled ? roleColor + '44' : '#FF666633'}` }}>
                 {icon}{filled ? '✓' : '✗'}
               </span>
             );

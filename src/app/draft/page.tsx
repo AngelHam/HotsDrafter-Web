@@ -558,12 +558,7 @@ function DraftPageInner() {
   const yourTeam = firstPick === 2 ? 2 : 1;
   const isYourTurn = currentTeam === yourTeam;
 
-  // Determine draft phase name
   const phaseName = isComplete ? '' : realStep <= 3 ? 'Ban Phase 1' : realStep <= 8 ? 'Pick Phase 1' : realStep <= 10 ? 'Ban Phase 2' : 'Pick Phase 2';
-
-  const statusText = isComplete
-    ? '✅ Draft Complete!'
-    : `${isYourTurn ? 'Your Turn' : 'Enemy Turn'} — ${isBan ? 'Ban Phase' : 'Pick Phase'}`;
 
   return (
     <main id="main-content" className="h-screen flex flex-col overflow-hidden page-enter pb-16">
@@ -583,7 +578,7 @@ function DraftPageInner() {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold cursor-help" style={{ color: '#FFD700' }}
-            title={`${map.name}\nS-tier: ${icyVeins.getSTierHeroes(map.name).slice(0, 5).join(', ') || 'None listed'}`}>
+            title={`${map.name}${MAP_TIPS[map.name] ? '\n🗺️ ' + MAP_TIPS[map.name] : ''}\nS-tier: ${icyVeins.getSTierHeroes(map.name).slice(0, 5).join(', ') || 'None listed'}`}>
             📍 {map.name}
           </span>
           <button
@@ -613,222 +608,116 @@ function DraftPageInner() {
             {showHeaderMenu && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowHeaderMenu(false)} />
-                <div className="absolute right-0 top-full mt-1 z-50 rounded shadow-lg py-1 min-w-[140px]" style={{ background: 'rgba(15,20,40,0.97)', border: '1px solid rgba(68,102,136,0.5)' }}>
+                <div className="absolute right-0 top-full mt-1 z-50 rounded shadow-lg py-1 min-w-[160px]" style={{ background: 'rgba(15,20,40,0.97)', border: '1px solid rgba(68,102,136,0.5)' }}>
+                  <button onClick={() => {
+                    setTimerEnabled(prev => {
+                      const next = !prev;
+                      if (next) setTimeLeft(timerDuration);
+                      return next;
+                    });
+                    setShowHeaderMenu(false);
+                  }} className="w-full text-left text-xs px-3 py-1.5 hover:bg-white/10 flex items-center gap-2" style={{ color: timerEnabled ? '#90EE90' : '#A9A9A9' }}>
+                    <span>⏱️</span> Timer {timerEnabled ? 'On' : 'Off'}
+                  </button>
+                  {timerEnabled && (
+                    <div className="flex items-center gap-1 px-3 py-1.5">
+                      <button onClick={() => setTimerDuration(v => Math.max(10, v - 5))} className="text-[10px] px-1.5 py-0.5 rounded hover:bg-white/10" style={{ color: '#FFD700', border: '1px solid #FFD70033' }}>-5s</button>
+                      <span className="text-[10px] flex-1 text-center" style={{ color: timeLeft <= 5 ? '#FF6666' : '#00FFFF' }}>{timeLeft}s / {timerDuration}s</span>
+                      <button onClick={() => setTimerDuration(v => Math.min(90, v + 5))} className="text-[10px] px-1.5 py-0.5 rounded hover:bg-white/10" style={{ color: '#FFD700', border: '1px solid #FFD70033' }}>+5s</button>
+                    </div>
+                  )}
                   <button onClick={() => { setShowShortcutHelp(true); setShowHeaderMenu(false); }} className="w-full text-left text-xs px-3 py-1.5 hover:bg-white/10 flex items-center gap-2" style={{ color: '#A9A9A9' }}>
                     <span>?</span> Keyboard Shortcuts
                   </button>
                   <button onClick={() => { router.push('/settings'); setShowHeaderMenu(false); }} className="w-full text-left text-xs px-3 py-1.5 hover:bg-white/10 flex items-center gap-2" style={{ color: '#A9A9A9' }}>
                     <span>⚙️</span> Settings
                   </button>
+                  <div className="border-t my-1" style={{ borderColor: 'rgba(68,102,136,0.3)' }} />
+                  <div className="px-3 py-1.5">
+                    <span className="text-[10px] opacity-60" style={{ color: '#A9A9A9' }}>First Pick Team</span>
+                    <div className="flex gap-1 mt-1">
+                      <button onClick={() => { DraftSettings.firstPickTeam = 1; DraftSettings.save(); setShowHeaderMenu(false); }}
+                        className="text-[10px] flex-1 px-1.5 py-0.5 rounded transition-all"
+                        style={{ background: firstPick === 1 ? 'rgba(0,255,255,0.18)' : 'transparent', color: firstPick === 1 ? '#00FFFF' : '#667788', border: `1px solid ${firstPick === 1 ? '#00FFFF66' : '#44668833'}` }}>
+                        T1 (You)
+                      </button>
+                      <button onClick={() => { DraftSettings.firstPickTeam = 2; DraftSettings.save(); setShowHeaderMenu(false); }}
+                        className="text-[10px] flex-1 px-1.5 py-0.5 rounded transition-all"
+                        style={{ background: firstPick === 2 ? 'rgba(0,255,255,0.18)' : 'transparent', color: firstPick === 2 ? '#00FFFF' : '#667788', border: `1px solid ${firstPick === 2 ? '#00FFFF66' : '#44668833'}` }}>
+                        T2 (Enemy)
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </>
             )}
           </div>
         </div>
       </header>
-      {MAP_TIPS[map.name] && (
-        <div className="px-4 py-1 text-center" style={{ background: 'rgba(255,215,0,0.04)', borderBottom: '1px solid rgba(255,215,0,0.1)' }}>
-          <span className="text-[10px]" style={{ color: '#FFD700', opacity: 0.7 }}>
-            🗺️ {MAP_TIPS[map.name]}
+      {/* Row 1: Compact progress bar with integrated status */}
+      <div className="flex items-center gap-3 px-4 py-1" style={{ background: 'rgba(20,25,45,0.5)', borderBottom: '1px solid rgba(68,102,136,0.3)' }}>
+        <span className="text-xs font-bold whitespace-nowrap" aria-live="polite" style={{ color: isReplaying ? '#FF8C00' : isComplete ? '#90EE90' : (isBan ? '#FF6666' : (isYourTurn ? '#00FFFF' : '#FF6666')) }}>
+          {isReplaying ? `🎬 ${replayStep + 1}/16` : isComplete ? '✅ Done' : `${isYourTurn ? 'Your Turn' : 'Enemy Turn'} — ${isBan ? 'Ban' : 'Pick'}`}
+        </span>
+        {team1Picks.length > 0 && (
+          <span className="flex gap-0.5">
+            {['Tank', 'Healer', 'DPS', 'Mage', 'Offlane'].map(r => {
+              const c: Record<string, string> = { Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347', Mage: '#BA55D3', Offlane: '#FFA500' };
+              const has = team1Picks.some(h => h.role === r);
+              return <span key={r} className="w-1.5 h-1.5 rounded-full" style={{ background: has ? c[r] : 'rgba(255,255,255,0.1)' }} title={`${r}: ${has ? '✓' : '✗'}`} />;
+            })}
           </span>
+        )}
+        <div className="flex-1 flex justify-center" data-tutorial-target="progressBar">
+          <DraftProgressBar currentStep={isReplaying ? replayStep + 1 : step} teamOrder={teamOrder} />
         </div>
-      )}
-
-      {/* Status + Progress */}
-      <div className="flex flex-col items-center gap-1.5 sm:gap-2 py-2 sm:py-3 px-2" style={{ background: 'rgba(20, 25, 45, 0.5)' }}>
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center text-center">
-          <span className="text-sm font-semibold opacity-90" aria-live="polite" style={{ color: isReplaying ? '#FF8C00' : (isYourTurn ? '#00FFFF' : '#FF6666') }}>
-            {isReplaying ? `🎬 Replaying — Step ${replayStep + 1}/16` : statusText}
-          </span>
-          {team1Picks.length > 0 && (
-            <span className="text-[10px] flex gap-0.5">
-              {['Tank', 'Healer', 'DPS', 'Mage', 'Offlane'].map(r => {
-                const c: Record<string, string> = { Tank: '#6495ED', Healer: '#90EE90', DPS: '#FF6347', Mage: '#BA55D3', Offlane: '#FFA500' };
-                const has = team1Picks.some(h => h.role === r);
-                return <span key={r} className="w-2 h-2 rounded-full" style={{ background: has ? c[r] : 'rgba(255,255,255,0.1)' }} title={`${r}: ${has ? '✓' : '✗'}`} />;
-              })}
-            </span>
-          )}
-        </div>
-        <div data-tutorial-target="progressBar">
-        <DraftProgressBar currentStep={isReplaying ? replayStep + 1 : step} teamOrder={teamOrder} />
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap justify-center">
-          <button
-            onClick={() => {
-              setTimerEnabled(prev => {
-                const next = !prev;
-                if (next) {
-                  setTimeLeft(timerDuration);
-                }
-                return next;
-              });
-            }}
-            className="text-xs px-2 py-1 rounded hover:bg-white/10"
-            style={{
-              color: timerEnabled ? '#90EE90' : '#A9A9A9',
-              border: `1px solid ${timerEnabled ? '#90EE9055' : '#A9A9A955'}`,
-            }}
-            title={timerEnabled ? 'Disable draft timer' : 'Enable draft timer'}
+        {timerEnabled && !isComplete && (
+          <span
+            className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${timeLeft <= 5 ? 'animate-pulse' : ''}`}
+            style={{ color: timeLeft <= 5 ? '#FF6666' : timeLeft <= 10 ? '#FFA500' : '#00FFFF' }}
           >
-            ⏱️ Timer {timerEnabled ? 'On' : 'Off'}
-          </button>
-          {timerEnabled && (
-            <>
-              <button
-                onClick={() => setTimerDuration(v => Math.max(10, v - 5))}
-                className="text-xs px-2 py-1 rounded hover:bg-white/10"
-                style={{ color: '#FFD700', border: '1px solid #FFD70055' }}
-                title="Decrease timer duration"
-              >
-                -5s
-              </button>
-              <button
-                onClick={() => setTimerDuration(v => Math.min(90, v + 5))}
-                className="text-xs px-2 py-1 rounded hover:bg-white/10"
-                style={{ color: '#FFD700', border: '1px solid #FFD70055' }}
-                title="Increase timer duration"
-              >
-                +5s
-              </button>
-              <span
-                className={`text-xs font-semibold px-2 py-1 rounded ${timeLeft <= 5 ? 'animate-pulse' : ''}`}
-                style={{
-                  color: timeLeft <= 5 ? '#FF6666' : timeLeft <= 10 ? '#FFA500' : '#00FFFF',
-                  border: `1px solid ${timeLeft <= 5 ? '#FF666655' : timeLeft <= 10 ? '#FFA50055' : '#00FFFF55'}`,
-                  background: timeLeft <= 5 ? 'rgba(255,102,102,0.1)' : 'rgba(255,255,255,0.04)',
-                }}
-                title="Per-step draft countdown"
-              >
-                <span className="flex items-center gap-1">
-                  <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0">
-                    <circle cx="7" cy="7" r="5.5" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
-                    <circle cx="7" cy="7" r="5.5" fill="none"
-                      stroke={timeLeft <= 5 ? '#FF6666' : timeLeft <= 10 ? '#FFA500' : '#00FFFF'}
-                      strokeWidth="1.5" strokeLinecap="round"
-                      strokeDasharray={`${(timeLeft / timerDuration) * 34.56} 34.56`}
-                      transform="rotate(-90 7 7)" />
-                  </svg>
-                  {timeLeft}s
-                </span>
-              </span>
-            </>
-          )}
-        </div>
+            ⏱ {timeLeft}s
+          </span>
+        )}
+        {(() => {
+          const dispT1Bans = isReplaying && replayPartials ? replayPartials.team1Bans : team1Bans;
+          const dispT2Bans = isReplaying && replayPartials ? replayPartials.team2Bans : team2Bans;
+          return (dispT1Bans.length > 0 || dispT2Bans.length > 0) ? (
+            <div className="text-[10px] opacity-70 flex gap-2 whitespace-nowrap">
+              {dispT1Bans.length > 0 && <span className={isReplaying && replayFlashHero && dispT1Bans.some(h => h.name === replayFlashHero.heroName) ? 'hero-ban-flash' : ''}>T1: {dispT1Bans.map(h => h.nicknames[0]).join(', ')}</span>}
+              {dispT2Bans.length > 0 && <span className={isReplaying && replayFlashHero && dispT2Bans.some(h => h.name === replayFlashHero.heroName) ? 'hero-ban-flash' : ''}>T2: {dispT2Bans.map(h => h.nicknames[0]).join(', ')}</span>}
+            </div>
+          ) : null;
+        })()}
       </div>
 
-      {/* Banned Heroes Strip */}
+      {/* Row 2: Consolidated warnings bar (only when warnings exist) */}
       {(() => {
-        const dispT1Bans = isReplaying && replayPartials ? replayPartials.team1Bans : team1Bans;
-        const dispT2Bans = isReplaying && replayPartials ? replayPartials.team2Bans : team2Bans;
-        return (dispT1Bans.length > 0 || dispT2Bans.length > 0) ? (
-        <div className="flex items-center justify-center gap-3 px-4 py-1" style={{ background: 'rgba(255,102,102,0.04)' }}>
-          {dispT1Bans.length > 0 && (
-            <div className="flex items-center gap-1">
-              <span className="text-[9px] opacity-40">T1 bans:</span>
-              {dispT1Bans.map(h => (
-                <span key={h.name} className={`text-[9px] px-1 rounded ${isReplaying && replayFlashHero?.heroName === h.name ? 'hero-ban-flash' : ''}`} style={{ background: 'rgba(255,102,102,0.1)', color: '#FF6666' }}>{h.nicknames[0]}</span>
-              ))}
-            </div>
-          )}
-          {dispT2Bans.length > 0 && (
-            <div className="flex items-center gap-1">
-              <span className="text-[9px] opacity-40">T2 bans:</span>
-              {dispT2Bans.map(h => (
-                <span key={h.name} className={`text-[9px] px-1 rounded ${isReplaying && replayFlashHero?.heroName === h.name ? 'hero-ban-flash' : ''}`} style={{ background: 'rgba(255,102,102,0.1)', color: '#FF6666' }}>{h.nicknames[0]}</span>
-              ))}
-            </div>
-          )}
-        </div>
-        ) : null;
-      })()}
-
-      {/* Coaching Tip */}
-      {!isComplete && coachingTipsVisible && (team1Picks.length + team1Bans.length > 0 || step > 0) && (
-        <div className="px-4 py-1 flex items-center justify-center gap-2" style={{ background: 'rgba(0,255,255,0.03)' }}>
-          <span className="text-[10px] opacity-70 flex-1 text-center">
-            💡 {(() => {
-              if (isBan && !isYourTurn) {
-                const sTier = icyVeins.getSTierHeroes(map.name).filter(name => {
-                  return allHeroesSorted.some(h => h.nicknames[0] === name && draft.isAvailable(h));
-                });
-                if (sTier.length > 0) return `Enemy may ban: ${sTier.slice(0, 3).join(', ')}`;
-                return 'Enemy is banning — watch for targeted bans';
-              }
-              return getCoachingTip(step, realStep, isBan, isYourTurn, team1Picks, team2Picks, map);
-            })()}
-          </span>
-          <button
-            onClick={() => {
-              setCoachingTipsVisible(false);
-              DraftSettings.showCoachingTips = false;
-              DraftSettings.save();
-            }}
-            className="text-[9px] opacity-30 hover:opacity-60 shrink-0"
-            title="Hide coaching tips (re-enable in Settings)"
-          >✕</button>
-        </div>
-      )}
-      {!isComplete && !coachingTipsVisible && (
-        <div className="px-4 py-0.5 text-center">
-          <button
-            onClick={() => {
-              setCoachingTipsVisible(true);
-              DraftSettings.showCoachingTips = true;
-              DraftSettings.save();
-            }}
-            className="text-[9px] opacity-25 hover:opacity-50"
-            title="Show coaching tips"
-          >💡 Tips</button>
-        </div>
-      )}
-
-      {/* Counter Threat Warnings */}
-      {!isComplete && !isBan && threats.length > 0 && (() => {
-        const visible = threats.filter(t => !dismissedWarnings.has(`threat-${t.threat}-${t.target}`)).slice(0, 3);
-        if (visible.length === 0) return null;
+        if (isComplete) return null;
+        const allDismissed = dismissedWarnings.has('all');
+        const coachTip = !allDismissed && coachingTipsVisible && (team1Picks.length + team1Bans.length > 0 || step > 0) ? (() => {
+          if (isBan && !isYourTurn) {
+            const sTier = icyVeins.getSTierHeroes(map.name).filter(name => allHeroesSorted.some(h => h.nicknames[0] === name && draft.isAvailable(h)));
+            if (sTier.length > 0) return `Enemy may ban: ${sTier.slice(0, 3).join(', ')}`;
+            return 'Enemy is banning — watch for targeted bans';
+          }
+          return getCoachingTip(step, realStep, isBan, isYourTurn, team1Picks, team2Picks, map);
+        })() : null;
+        const visThreats = !allDismissed && !isBan ? threats.filter(t => !dismissedWarnings.has(`threat-${t.threat}-${t.target}`)).slice(0, 2) : [];
+        const visSynergies = !allDismissed && !isBan ? synergies.filter(s => !dismissedWarnings.has(`syn-${s.hero1}-${s.hero2}`)).slice(0, 2) : [];
+        const visRoleWarnings = !allDismissed && !isBan ? roleWarnings.slice(0, 1) : [];
+        const hasAny = coachTip || visThreats.length > 0 || visSynergies.length > 0 || visRoleWarnings.length > 0;
+        if (!hasAny) return null;
         return (
-          <div className="px-4 py-1.5 flex items-center gap-2 flex-wrap justify-center warning-fade-in" role="alert" aria-live="assertive" style={{ background: 'rgba(255,99,71,0.1)', borderBottom: '1px solid #FF634733' }}>
-            <span className="text-[10px] font-bold" style={{ color: '#FF6347' }}>⚠️ THREATS:</span>
-            {visible.map(t => (
-              <span key={`${t.threat}-${t.target}`} className="text-[10px] px-1.5 py-0.5 rounded inline-flex items-center gap-1" style={{ background: 'rgba(255,99,71,0.15)', color: '#FF6347', border: '1px solid #FF634722' }}>
-                ⚠ {t.threat} counters your {t.target}{t.score >= 3 ? ' (strong)' : ''}
-                <button onClick={() => dismissWarning(`threat-${t.threat}-${t.target}`)} className="ml-0.5 opacity-70 hover:opacity-100" aria-label={`Dismiss threat: ${t.threat} counters ${t.target}`} style={{ lineHeight: 1 }}>✕</button>
-              </span>
-            ))}
-            {threats.length > 3 && <span className="text-[10px] opacity-70">+{threats.length - 3} more</span>}
+          <div className="flex items-center gap-1.5 px-4 py-0.5 overflow-x-auto text-[10px]" style={{ borderBottom: '1px solid rgba(68,102,136,0.2)' }}>
+            {coachTip && <span className="px-1.5 py-0.5 rounded whitespace-nowrap" style={{ color: '#FFD700', background: 'rgba(255,215,0,0.08)' }}>💡 {coachTip}</span>}
+            {visThreats.map(t => <span key={`${t.threat}-${t.target}`} className="px-1.5 py-0.5 rounded whitespace-nowrap" style={{ color: '#FF6347', background: 'rgba(255,99,71,0.1)' }}>⚠ {t.threat} counters {t.target}</span>)}
+            {visSynergies.map(s => <span key={`${s.hero1}-${s.hero2}`} className="px-1.5 py-0.5 rounded whitespace-nowrap" style={{ color: '#90EE90', background: 'rgba(144,238,144,0.08)' }}>⚡ {s.hero1} + {s.hero2}</span>)}
+            {visRoleWarnings.map(w => <span key={w} className="px-1.5 py-0.5 rounded whitespace-nowrap" style={{ color: '#FFB800', background: 'rgba(255,191,0,0.08)' }}>{w}</span>)}
+            <button onClick={() => setDismissedWarnings(new Set(['all']))} className="ml-auto opacity-40 hover:opacity-80 shrink-0 px-1" title="Dismiss all warnings">✕</button>
           </div>
         );
       })()}
-
-      {/* Synergy Notifications */}
-      {!isComplete && !isBan && synergies.length > 0 && (() => {
-        const visible = synergies.filter(s => !dismissedWarnings.has(`syn-${s.hero1}-${s.hero2}`)).slice(0, 2);
-        if (visible.length === 0) return null;
-        return (
-          <div className="px-4 py-1.5 flex items-center gap-2 flex-wrap justify-center warning-fade-in" style={{ background: 'rgba(0,200,100,0.08)', borderBottom: '1px solid rgba(0,200,100,0.2)' }}>
-            <span className="text-[10px] font-bold" style={{ color: '#00C864' }}>⚡ SYNERGY:</span>
-            {visible.map(s => (
-              <span key={`${s.hero1}-${s.hero2}`} className="text-[10px] px-1.5 py-0.5 rounded inline-flex items-center gap-1" style={{ background: 'rgba(0,200,100,0.12)', color: '#00C864', border: '1px solid rgba(0,200,100,0.15)' }}>
-                ⚡ {s.hero1} + {s.hero2} synergy!{s.reason ? ` — ${s.reason}` : ''}
-                <button onClick={() => dismissWarning(`syn-${s.hero1}-${s.hero2}`)} className="ml-0.5 opacity-70 hover:opacity-100" aria-label={`Dismiss synergy: ${s.hero1} and ${s.hero2}`} style={{ lineHeight: 1 }}>✕</button>
-              </span>
-            ))}
-          </div>
-        );
-      })()}
-
-      {/* Role Composition Warnings */}
-      {!isComplete && !isBan && roleWarnings.length > 0 && (
-        <div className="px-4 py-1.5 flex items-center gap-2 flex-wrap justify-center warning-fade-in" style={{ background: 'rgba(255,191,0,0.08)', borderBottom: '1px solid rgba(255,191,0,0.2)' }}>
-          {roleWarnings.map(w => (
-            <span key={w} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,191,0,0.12)', color: '#FFB800', border: '1px solid rgba(255,191,0,0.15)' }}>
-              {w}
-            </span>
-          ))}
-        </div>
-      )}
 
       {/* Mobile Team Panels */}
       <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-2 px-3 py-2" style={{ background: 'rgba(20, 25, 45, 0.35)' }}>
