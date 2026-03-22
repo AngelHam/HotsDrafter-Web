@@ -4,6 +4,7 @@ import { DraftingTool, matchesRoleFilter } from './DraftingTool';
 import type { HotsMap } from './Map';
 import { HeroRelationships } from './HeroRelationships';
 import { IcyVeinsDatabase } from './IcyVeinsData';
+import { HeroesProfileDatabase } from './HeroesProfileData';
 import { ALL_HEROES, ALL_MAPS } from './HeroData';
 import { WinCondition, type HeroSuggestion, type RangeAnalysis, type TeamNeeds, type HeroCategories } from './SuggestionTypes';
 import { DraftSettings, AnalysisMode } from './DraftSettings';
@@ -16,6 +17,7 @@ export class HeroSuggestionEngine {
   private map: HotsMap | null;
   private relationships: HeroRelationships;
   private icyVeins: IcyVeinsDatabase;
+  private heroesProfile: HeroesProfileDatabase;
 
   private heroIndex: Map<string, number> = new Map();
   private mapIndex: Map<string, number> = new Map();
@@ -57,6 +59,8 @@ export class HeroSuggestionEngine {
     this.map = map;
     this.relationships = HeroRelationships.getInstance();
     this.icyVeins = IcyVeinsDatabase.getInstance();
+    this.heroesProfile = HeroesProfileDatabase.getInstance();
+    this.heroesProfile.loadSync();
     this.buildLookupMatrix();
   }
 
@@ -230,10 +234,22 @@ export class HeroSuggestionEngine {
         };
       }
 
+      // Small winrate bonus as tiebreaker: (winrate - 50) * 0.1
+      const wr = this.heroesProfile.getWinrate(hero.nicknames[0]);
+      if (wr !== null) {
+        suggestion.totalScore += (wr - 50) * 0.1;
+      }
+
       suggestions.push(suggestion);
     }
 
-    suggestions.sort((a, b) => b.totalScore - a.totalScore);
+    suggestions.sort((a, b) => {
+      if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
+      // Tiebreaker: prefer higher winrate
+      const wrA = this.heroesProfile.getWinrate(a.hero.nicknames[0]) ?? 50;
+      const wrB = this.heroesProfile.getWinrate(b.hero.nicknames[0]) ?? 50;
+      return wrB - wrA;
+    });
     return suggestions.slice(0, topN);
   }
 

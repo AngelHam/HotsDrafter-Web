@@ -4,6 +4,7 @@ import { useMemo, useEffect, useRef } from 'react';
 import type { Hero } from '@/data/Hero';
 import { Specialty, specialtyToString } from '@/data/Specialty';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
+import { HeroesProfileDatabase } from '@/data/HeroesProfileData';
 import { ALL_MAPS, ALL_HEROES } from '@/data/HeroData';
 import { heroMatchesName } from '@/data/Hero';
 import HeroPortrait from './HeroPortrait';
@@ -86,6 +87,7 @@ function RelationSection({ title, color, names, limit }: { title: string; color:
 
 export default function HeroDetailPopup({ hero, onClose }: HeroDetailPopupProps) {
   const icyVeins = IcyVeinsDatabase.getInstance();
+  const heroesProfile = (() => { const db = HeroesProfileDatabase.getInstance(); db.loadSync(); return db; })();
   const synergies = icyVeins.getSynergies(hero.nicknames[0]);
   const counters = icyVeins.getCounters(hero.nicknames[0]);
   const countersFor = icyVeins.getCountersFor(hero.nicknames[0]);
@@ -199,6 +201,45 @@ export default function HeroDetailPopup({ hero, onClose }: HeroDetailPopupProps)
             </div>
           </div>
         </div>
+
+        {/* Win Rate Stats */}
+        {(() => {
+          const wrData = heroesProfile.getData(hero.nicknames[0]);
+          if (!wrData) return null;
+          const wrColor = wrData.overall > 53 ? '#66DD88' : wrData.overall >= 50 ? '#ccc' : wrData.overall >= 47 ? '#FFA500' : '#FF6666';
+          const popLabel = heroesProfile.getPopularityLabel(hero.nicknames[0]);
+          return (
+            <div className="px-5 pb-3">
+              <div className="rounded-lg p-3" style={{ background: 'rgba(30, 40, 70, 0.5)', border: '1px solid rgba(68,102,136,0.25)' }}>
+                <h3 className="text-[10px] font-bold mb-2 uppercase tracking-widest opacity-60">Win Rate Stats</h3>
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="flex flex-col items-center">
+                    <span className="text-lg font-black" style={{ color: wrColor }}>{wrData.overall.toFixed(1)}%</span>
+                    <span className="text-[9px] opacity-50">Win Rate</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-sm font-bold" style={{ color: '#87CEEB' }}>{wrData.pickrate.toFixed(1)}%</span>
+                    <span className="text-[9px] opacity-50">Pick Rate</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-sm font-bold" style={{ color: '#FF8888' }}>{wrData.banrate.toFixed(1)}%</span>
+                    <span className="text-[9px] opacity-50">Ban Rate</span>
+                  </div>
+                  {popLabel && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full ml-auto"
+                      style={{
+                        background: wrData.pickrate >= 8 ? 'rgba(0,255,255,0.12)' : wrData.pickrate >= 5 ? 'rgba(135,206,235,0.12)' : 'rgba(255,187,85,0.12)',
+                        border: `1px solid ${wrData.pickrate >= 8 ? 'rgba(0,255,255,0.3)' : wrData.pickrate >= 5 ? 'rgba(135,206,235,0.3)' : 'rgba(255,187,85,0.3)'}`,
+                        color: wrData.pickrate >= 8 ? '#00FFFF' : wrData.pickrate >= 5 ? '#87CEEB' : '#FFBB55',
+                      }}>
+                      {popLabel}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Synergy & Counter Sections */}
         <div className="px-5 pb-3 grid grid-cols-1 gap-2">

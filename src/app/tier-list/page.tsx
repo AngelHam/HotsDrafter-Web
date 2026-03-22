@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { ALL_HEROES, ALL_MAPS, DATA_LAST_UPDATED, DATA_SOURCE } from '@/data/HeroData';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
+import { HeroesProfileDatabase } from '@/data/HeroesProfileData';
 import { specialtyToString } from '@/data/Specialty';
 import HeroPortrait from '@/components/HeroPortrait';
 import HeroDetailPopup from '@/components/HeroDetailPopup';
@@ -59,6 +60,7 @@ export default function TierListPage() {
   const [detailHero, setDetailHero] = useState<Hero | null>(null);
 
   const icyVeins = useMemo(() => IcyVeinsDatabase.getInstance(), []);
+  const heroesProfile = useMemo(() => { const db = HeroesProfileDatabase.getInstance(); db.loadSync(); return db; }, []);
 
   const entries = useMemo(() => {
     return ALL_HEROES.map(hero => {
@@ -237,6 +239,17 @@ export default function TierListPage() {
                       }}>{e.tier}</span>
                     </div>
                     <HeroPortrait hero={e.hero} size="md" showName highlightQuery={searchQuery || undefined} />
+                    {/* Winrate badge */}
+                    {(() => {
+                      const wr = heroesProfile.getWinrate(e.hero.nicknames[0]);
+                      if (wr === null) return null;
+                      const wrColor = wr > 53 ? '#66DD88' : wr >= 50 ? '#ccc' : wr >= 47 ? '#FFA500' : '#FF6666';
+                      return (
+                        <span className="text-[8px] font-semibold mt-0.5" style={{ color: wrColor }}>
+                          {wr.toFixed(1)}% WR
+                        </span>
+                      );
+                    })()}
                     {/* Role + Range row */}
                     <div className="flex items-center gap-1 mt-0.5">
                       <span className="text-[8px] px-1.5 py-0.5 rounded" style={{ background: (ROLE_COLORS[e.hero.role] || '#888') + '22', color: ROLE_COLORS[e.hero.role] || '#888', border: `1px solid ${(ROLE_COLORS[e.hero.role] || '#888')}33` }}>
@@ -268,7 +281,7 @@ export default function TierListPage() {
             </div>
           );
         })}
-        <p className="text-center text-[10px] opacity-40 mt-6 mb-4">📊 Tier data from {DATA_SOURCE} • Last updated {DATA_LAST_UPDATED}</p>
+        <p className="text-center text-[10px] opacity-40 mt-6 mb-4">📊 Tier data from {DATA_SOURCE} • Win rates from HeroesProfile • Last updated {DATA_LAST_UPDATED}</p>
       </div>
       {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}
     </div>
