@@ -594,6 +594,14 @@ function DraftPageInner() {
           >
             ℹ Map Info
           </button>
+          <button
+            onClick={() => router.push(`/draft/companion?map=${mapIdx}`)}
+            className="text-[10px] px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors"
+            style={{ color: '#FFD700', border: '1px solid #FFD70033' }}
+            title="Switch to compact Companion Mode"
+          >
+            ⚡ Companion →
+          </button>
           {isQuickDraft && (
             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(144,238,144,0.15)', color: '#90EE90', border: '1px solid #90EE9033' }}>
               ⚡ Quick

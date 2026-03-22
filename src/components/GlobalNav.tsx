@@ -8,6 +8,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 const NAV_ITEMS = [
   { href: '/', label: 'Home', emoji: '🏠' },
   { href: '/draft', label: 'Draft', emoji: '⚔️' },
+  { href: '/draft/companion', label: 'Live', emoji: '⚡' },
   { href: '/sample', label: 'Sample', emoji: '🎲' },
   { href: '/team-builder', label: 'Build', emoji: '🏗️' },
   { href: '/compare', label: 'Comp', emoji: '⚖️' },

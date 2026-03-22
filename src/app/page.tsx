@@ -261,6 +261,12 @@ export default function StartupPage() {
             tooltip={useRandom ? 'Start a draft with a random map' : `Draft on ${ALL_MAPS[selectedMapIdx]?.name}`} />
         </div>
 
+        {/* Companion Mode */}
+        <div className="flex justify-center">
+          <ActionButton label="Companion Mode" icon="⚡" color="#FFD700" onClick={() => router.push(`/draft/companion?map=${getMapParam()}`)}
+            tooltip="Compact live draft companion for second monitor" accent="#FFD700" />
+        </div>
+
         {/* Other action buttons */}
         <div className="grid grid-cols-2 min-[480px]:grid-cols-3 sm:grid-cols-5 gap-2 justify-center w-full">
           <ActionButton label="Sample Draft" icon="🎲" color="#FFD700" onClick={() => router.push(`/sample?map=${getMapParam()}`)}
