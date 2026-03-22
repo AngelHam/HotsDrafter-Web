@@ -171,6 +171,15 @@ function CompanionPageInner() {
   const searchRef = useRef<HTMLInputElement>(null);
   const [settingsVersion, setSettingsVersion] = useState(0);
 
+  // Suggestion history: track top suggestions at each draft step
+  const [suggestionHistory, setSuggestionHistory] = useState<Array<{
+    step: number;
+    phase: 'ban' | 'pick';
+    team: number;
+    heroChosen: string;
+    topSuggestions: Array<{ heroName: string; stars: number; reasons: string[] }>;
+  }>>([]);
+
   useEffect(() => {
     DraftSettings.load();
     setSettingsVersion(v => v + 1);
@@ -237,6 +246,20 @@ function CompanionPageInner() {
 
   const handlePick = useCallback((hero: Hero) => {
     if (isComplete) return;
+
+    // Record current suggestions before this pick/ban
+    setSuggestionHistory(prev => [...prev, {
+      step: step,
+      phase: isBan ? 'ban' : 'pick',
+      team: currentTeam,
+      heroChosen: hero.nicknames[0],
+      topSuggestions: suggestions.slice(0, 5).map(s => ({
+        heroName: s.hero.nicknames[0],
+        stars: getStarRating(s.totalScore).filled,
+        reasons: buildReasons(s, team1Picks, team2Picks),
+      })),
+    }]);
+
     if (isBan) {
       draft.banHero(currentTeam, hero);
     } else {
@@ -246,7 +269,7 @@ function CompanionPageInner() {
     setSelectedIdx(0);
     syncDraftState();
     setStep(s => s + 1);
-  }, [draft, isComplete, isBan, currentTeam, syncDraftState]);
+  }, [draft, isComplete, isBan, currentTeam, syncDraftState, step, suggestions, team1Picks, team2Picks]);
 
   const handleUndo = useCallback(() => {
     if (step === 0) return;
@@ -265,6 +288,14 @@ function CompanionPageInner() {
     setSearchQuery('');
     setSelectedIdx(0);
   }, [draft, syncDraftState]);
+
+  // Save suggestion history when draft completes
+  const hasSavedSuggestions = useRef(false);
+  useEffect(() => {
+    if (!isComplete || hasSavedSuggestions.current) return;
+    hasSavedSuggestions.current = true;
+    localStorage.setItem('hotsDrafter-lastDraftSuggestions', JSON.stringify(suggestionHistory));
+  }, [isComplete, suggestionHistory]);
 
   // Re-focus search after every action
   useEffect(() => {

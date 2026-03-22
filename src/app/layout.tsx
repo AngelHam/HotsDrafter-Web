@@ -4,8 +4,20 @@ import GlobalNav from "@/components/GlobalNav";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
 export const metadata: Metadata = {
-  title: "HotsDrafter - Heroes of the Storm Draft Assistant",
-  description: "Intelligent hero drafting assistant for Heroes of the Storm",
+  title: 'HotsDrafter — Heroes of the Storm Draft Assistant',
+  description: 'Smart draft suggestions powered by synergy, counter, and map analysis. Free, no login required.',
+  openGraph: {
+    title: 'HotsDrafter',
+    description: 'Heroes of the Storm draft assistant with smart suggestions, counter analysis, and team composition tools.',
+    siteName: 'HotsDrafter',
+    type: 'website',
+    url: 'https://hots-drafter-web.vercel.app',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'HotsDrafter',
+    description: 'HotS draft assistant with synergy and counter analysis.',
+  },
 };
 
 export default function RootLayout({

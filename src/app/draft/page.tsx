@@ -125,6 +125,24 @@ function highlightMatch(name: string, query: string) {
   );
 }
 
+function getStarCount(score: number): number {
+  if (score >= 80) return 5;
+  if (score >= 65) return 4;
+  if (score >= 50) return 3;
+  if (score >= 35) return 2;
+  return 1;
+}
+
+function buildSuggestionReasons(s: HeroSuggestion): string[] {
+  const reasons: string[] = [];
+  if (s.synergyWith.length > 0) reasons.push(`Synergy w/ ${s.synergyWith.slice(0, 2).join(', ')}`);
+  if (s.countersAgainst.length > 0) reasons.push(`Counters ${s.countersAgainst.slice(0, 2).join(', ')}`);
+  if (s.roleNeedScore > 0.6) reasons.push(`Fills ${s.hero.role} need`);
+  if (s.mapFitnessScore > 0.6) reasons.push('Strong on this map');
+  if (reasons.length === 0) reasons.push('Good pick for this draft');
+  return reasons;
+}
+
 function DraftPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -164,6 +182,15 @@ function DraftPageInner() {
   const [coachingTipsVisible, setCoachingTipsVisible] = useState(() => DraftSettings.showCoachingTips);
   const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set());
   const [showDraftTutorial, setShowDraftTutorial] = useState(false);
+
+  // Suggestion history: track top suggestions at each draft step
+  const [suggestionHistory, setSuggestionHistory] = useState<Array<{
+    step: number;
+    phase: 'ban' | 'pick';
+    team: number;
+    heroChosen: string;
+    topSuggestions: Array<{ heroName: string; stars: number; reasons: string[] }>;
+  }>>([]);
 
   useEffect(() => {
     DraftSettings.load();
@@ -380,6 +407,20 @@ function DraftPageInner() {
 
   const handleHeroClick = useCallback((hero: Hero) => {
     if (isComplete) return;
+
+    // Record current suggestions before this pick/ban
+    setSuggestionHistory(prev => [...prev, {
+      step: step,
+      phase: isBan ? 'ban' : 'pick',
+      team: currentTeam,
+      heroChosen: hero.nicknames[0],
+      topSuggestions: suggestions.slice(0, 5).map(s => ({
+        heroName: s.hero.nicknames[0],
+        stars: getStarCount(s.totalScore),
+        reasons: buildSuggestionReasons(s),
+      })),
+    }]);
+
     if (isBan) {
       draft.banHero(currentTeam, hero);
       setLastAction({ heroName: hero.name, type: 'ban' });
@@ -393,7 +434,7 @@ function DraftPageInner() {
     setTeam1Bans([...draft.team1Bans]);
     setTeam2Bans([...draft.team2Bans]);
     setStep(s => s + 1);
-  }, [draft, isComplete, isBan, currentTeam]);
+  }, [draft, isComplete, isBan, currentTeam, step, suggestions]);
 
   const handleUndo = () => {
     if (step === 0) return;
@@ -502,6 +543,12 @@ function DraftPageInner() {
       team2WinCondition: winConditionToString(a2.primary),
       verdict: `Team 1: ${winConditionToString(a1.primary)} vs Team 2: ${winConditionToString(a2.primary)}`,
     });
+    // Save suggestion history for replay (include map + firstPick for the replay page)
+    localStorage.setItem('hotsDrafter-lastDraftSuggestions', JSON.stringify({
+      map: map.name,
+      firstPick,
+      steps: suggestionHistory,
+    }));
   }, [isComplete, analysis]);
 
   // Replay: reconstruct the pick/ban timeline from draft order
@@ -1420,6 +1467,14 @@ function DraftPageInner() {
                   title="Replay the draft step by step"
                 >
                   ▶ Replay Draft
+                </button>
+                <button
+                  onClick={() => router.push('/draft/replay')}
+                  className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 hover:bg-white/10"
+                  style={{ background: '#E066FF22', border: '2px solid #E066FF', color: '#E066FF' }}
+                  title="Open full replay viewer with suggestions"
+                >
+                  🎬 View Replay
                 </button>
               </div>
             </div>
