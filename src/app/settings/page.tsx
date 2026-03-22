@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { DraftSettings, AnalysisMode } from '@/data/DraftSettings';
 import { clearHistory } from '@/data/DraftHistory';
-import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
+import { ALL_HEROES, ALL_MAPS, DATA_LAST_UPDATED, DATA_SOURCE } from '@/data/HeroData';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const CARD = { background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' } as const;
@@ -516,7 +516,7 @@ export default function SettingsPage() {
             <p className="text-xs font-medium mb-3" style={{ color: '#FFD700', opacity: 0.8 }}>React Edition</p>
             <div className="space-y-1 text-xs opacity-50">
               <p>Built with Next.js, React 19, and Tailwind CSS</p>
-              <p>Data sourced from Icy Veins</p>
+              <p>Data sourced from {DATA_SOURCE}</p>
               <p className="pt-1 font-mono text-[11px] opacity-60">github.com/hotsdrafter</p>
             </div>
             <div className="mt-3 flex justify-center gap-2 text-[10px] opacity-40">
@@ -525,6 +525,10 @@ export default function SettingsPage() {
               <span>{ALL_MAPS.length} Maps</span>
               <span>·</span>
               <span>8 Win Conditions</span>
+            </div>
+            <div className="mt-3 pt-3 text-[10px] opacity-60" style={{ borderTop: '1px solid rgba(68,102,136,0.3)' }}>
+              <p>Data last updated: {DATA_LAST_UPDATED}</p>
+              <p>Sources: {DATA_SOURCE} (hero tiers, synergies, counters)</p>
             </div>
           </div>
 

@@ -298,10 +298,11 @@ function sampleCompScore(picks: Hero[]): number {
 
 function ScoreBadge({ picks }: { picks: Hero[] }) {
   const score = sampleCompScore(picks);
+  const grade = score >= 90 ? 'A+' : score >= 80 ? 'A' : score >= 70 ? 'B+' : score >= 60 ? 'B' : score >= 50 ? 'C' : score >= 40 ? 'D' : 'F';
   const color = score >= 80 ? '#90EE90' : score >= 50 ? '#FFD700' : '#FF6666';
   return (
     <span className="text-xs font-bold px-1.5 py-0.5 rounded ml-2" style={{ background: color + '22', color, border: `1px solid ${color}44` }}>
-      {score}
+      {grade}
     </span>
   );
 }
@@ -382,27 +383,24 @@ function ScoreComparisonBar({ score1, score2 }: { score1: number; score2: number
   let verdict: string;
   let verdictColor: string;
   if (diff <= 5) {
-    verdict = 'Close Match';
+    verdict = 'Close matchup';
     verdictColor = '#FFD700';
   } else if (diff <= 15) {
-    verdict = `Slight Edge: ${leading}`;
+    verdict = `${leading} has the edge`;
     verdictColor = score1 > score2 ? '#4488FF' : '#FF6666';
   } else if (diff <= 30) {
-    verdict = `Clear Advantage: ${leading}`;
+    verdict = `${leading} has clear advantage`;
     verdictColor = score1 > score2 ? '#4488FF' : '#FF6666';
   } else {
-    verdict = `Dominant: ${leading}`;
+    verdict = `${leading} is dominant`;
     verdictColor = score1 > score2 ? '#4488FF' : '#FF6666';
   }
-  const t1Leading = score1 >= score2;
   return (
     <div className="p-3 rounded" style={{ background: 'rgba(30, 40, 70, 0.7)', border: '1px solid rgba(68,102,136,0.5)' }}>
-      <div className="flex justify-between items-center mb-2">
-        <span className={`text-xs font-bold${t1Leading && diff > 5 ? ' score-pulse' : ''}`} style={{ color: '#4488FF' }}>{score1}</span>
+      <div className="flex justify-center items-center mb-2">
         <span className="text-xs font-bold tracking-wide uppercase px-2 py-0.5 rounded-full" style={{ color: verdictColor, background: `${verdictColor}1A`, border: `1px solid ${verdictColor}44` }}>
           {verdict}
         </span>
-        <span className={`text-xs font-bold${!t1Leading && diff > 5 ? ' score-pulse' : ''}`} style={{ color: '#FF6666' }}>{score2}</span>
       </div>
       <div className="w-full h-4 rounded-full overflow-hidden flex" style={{ background: 'rgba(0,0,0,0.3)' }}>
         <div className="h-full transition-all duration-500" style={{ width: `${pct1}%`, background: 'linear-gradient(90deg, #4488FF, #6699FF)' }} />

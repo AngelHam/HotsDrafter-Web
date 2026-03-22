@@ -37,9 +37,10 @@ function TeamPanel({ teamNumber, picks, bans, isActive, enemyPicks = [], onHeroC
   const teamColor = teamNumber === 1 ? '#4488FF' : '#FF6666';
   const teamLabel = teamNumber === 1 ? 'TEAM 1 (You)' : 'TEAM 2 (Enemy)';
 
-  // Compute a simple composition score (0-100)
+  // Compute a simple composition score (0-100) and derive a letter grade
   const compScore = picks.length > 0 ? computeCompScore(picks) : null;
-  const scoreColor = compScore !== null ? (compScore >= 80 ? '#90EE90' : compScore >= 50 ? '#FFD700' : '#FF6666') : '#666';
+  const compGrade = compScore !== null ? (compScore >= 90 ? 'A+' : compScore >= 80 ? 'A' : compScore >= 70 ? 'B+' : compScore >= 60 ? 'B' : compScore >= 50 ? 'C' : compScore >= 40 ? 'D' : 'F') : null;
+  const gradeColor = compScore !== null ? (compScore >= 80 ? '#90EE90' : compScore >= 50 ? '#FFD700' : '#FF6666') : '#666';
 
   return (
     <section aria-label={`Team ${teamNumber} panel`} className={`p-3 rounded transition-all ${isActive ? 'team-panel-active' : ''}`} style={{
@@ -49,17 +50,12 @@ function TeamPanel({ teamNumber, picks, bans, isActive, enemyPicks = [], onHeroC
     }}>
       <div className="flex items-center justify-between mb-1">
         <h3 className="text-sm font-bold" style={{ color: teamColor }}>{teamLabel}</h3>
-        {compScore !== null && (
-          <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ background: scoreColor + '22', color: scoreColor, border: `1px solid ${scoreColor}44` }}>
-            {compScore}
+        {compGrade !== null && (
+          <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ background: gradeColor + '22', color: gradeColor, border: `1px solid ${gradeColor}44` }}>
+            {compGrade}
           </span>
         )}
       </div>
-      {compScore !== null && (
-        <div className="h-1 rounded-full overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.08)' }}>
-          <div className="h-full rounded-full transition-all" style={{ width: `${compScore}%`, background: `linear-gradient(90deg, ${scoreColor}, ${scoreColor}88)` }} />
-        </div>
-      )}
 
       {/* Role Coverage */}
       {picks.length > 0 && (

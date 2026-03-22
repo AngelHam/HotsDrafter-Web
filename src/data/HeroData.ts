@@ -2,6 +2,9 @@ import { Specialty } from './Specialty';
 import { EffectiveRange, type Hero } from './Hero';
 import { HotsMap } from './Map';
 
+export const DATA_LAST_UPDATED = 'March 2026';
+export const DATA_SOURCE = 'Icy Veins';
+
 const S = Specialty;
 const ER = EffectiveRange;
 

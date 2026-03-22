@@ -484,6 +484,7 @@ function DraftPageInner() {
   useEffect(() => {
     if (!isComplete || !analysis || hasSavedDraft.current) return;
     hasSavedDraft.current = true;
+    localStorage.setItem('hotsDrafter-hasCompletedDraft', 'true');
     const t1 = new TeamComposition(team1Picks);
     const t2 = new TeamComposition(team2Picks);
     const a1 = analyzeWinCondition(t1, t2);

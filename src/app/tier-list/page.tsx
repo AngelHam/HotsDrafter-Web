@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
+import { ALL_HEROES, ALL_MAPS, DATA_LAST_UPDATED, DATA_SOURCE } from '@/data/HeroData';
 import { IcyVeinsDatabase } from '@/data/IcyVeinsData';
 import { specialtyToString } from '@/data/Specialty';
 import HeroPortrait from '@/components/HeroPortrait';
@@ -268,7 +268,7 @@ export default function TierListPage() {
             </div>
           );
         })}
-        <p className="text-center text-[10px] opacity-30 mt-6 mb-4">Tier data sourced from Icy Veins community guides</p>
+        <p className="text-center text-[10px] opacity-40 mt-6 mb-4">📊 Tier data from {DATA_SOURCE} • Last updated {DATA_LAST_UPDATED}</p>
       </div>
       {detailHero && <HeroDetailPopup hero={detailHero} onClose={() => setDetailHero(null)} />}
     </div>

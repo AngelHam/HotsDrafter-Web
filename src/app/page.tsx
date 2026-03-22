@@ -117,12 +117,26 @@ const FirstPickToggle = React.memo(function FirstPickToggle() {
   );
 });
 
+const BEGINNER_MAPS = [
+  { name: 'Cursed Hollow', idx: 3, emoji: '💀', desc: 'Balanced & beginner-friendly' },
+  { name: 'Infernal Shrines', idx: 6, emoji: '🔥', desc: 'AoE teamfight focused' },
+  { name: 'Braxis Holdout', idx: 2, emoji: '🧬', desc: 'Intense 2-lane objective' },
+];
+
 export default function StartupPage() {
   const router = useRouter();
   const [selectedMapIdx, setSelectedMapIdx] = useState(-1);
   const [useRandom, setUseRandom] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
   const [draftCount, setDraftCount] = useState(0);
+  const [isNewUser, setIsNewUser] = useState(true);
+  const [newUserMapIdx, setNewUserMapIdx] = useState(-1);
+
+  useEffect(() => {
+    if (localStorage.getItem('hotsDrafter-hasCompletedDraft')) {
+      setIsNewUser(false);
+    }
+  }, []);
 
   useEffect(() => {
     DraftSettings.load();
@@ -154,6 +168,63 @@ export default function StartupPage() {
     }
     return selectedMapIdx.toString();
   };
+
+  const startFirstDraft = () => {
+    const mapIndex = newUserMapIdx >= 0 ? newUserMapIdx : BEGINNER_MAPS[Math.floor(Math.random() * BEGINNER_MAPS.length)].idx;
+    router.push(`/draft?map=${mapIndex}`);
+  };
+
+  if (isNewUser) {
+    return (
+      <main className="min-h-screen flex flex-col items-center justify-center px-4 py-8 pb-20 page-enter" role="main" aria-label="HotsDrafter welcome">
+        <div className="flex flex-col items-center max-w-lg w-full animate-fade-slide-up">
+          <span className="text-4xl mb-3">🏰</span>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-wider mb-2 text-center" style={{ color: '#FFD700' }}>
+            HotsDrafter
+          </h1>
+          <p className="text-center text-sm mb-8" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            Heroes of the Storm Draft Assistant
+          </p>
+
+          <p className="text-center text-sm mb-6" style={{ color: 'rgba(255,255,255,0.6)' }}>
+            Welcome! This tool helps you make better draft picks<br />
+            by analyzing synergies, counters, and map fitness.
+          </p>
+
+          <p className="text-xs font-semibold mb-3 tracking-wide" style={{ color: '#4488FF' }}>
+            Pick a map to start:
+          </p>
+          <div className="grid grid-cols-3 gap-3 mb-6 w-full">
+            {BEGINNER_MAPS.map(m => (
+              <button key={m.idx} onClick={() => setNewUserMapIdx(prev => prev === m.idx ? -1 : m.idx)}
+                className="flex flex-col items-center gap-1.5 px-3 py-4 rounded-xl transition-all duration-200 hover:scale-105"
+                style={{
+                  background: newUserMapIdx === m.idx ? 'rgba(0,255,255,0.15)' : 'rgba(30,40,70,0.7)',
+                  border: `2px solid ${newUserMapIdx === m.idx ? '#00FFFF' : '#44668855'}`,
+                  boxShadow: newUserMapIdx === m.idx ? '0 0 12px rgba(0,255,255,0.2)' : 'none',
+                }}>
+                <span className="text-2xl">{m.emoji}</span>
+                <span className="text-xs font-semibold" style={{ color: newUserMapIdx === m.idx ? '#00FFFF' : '#ccc' }}>{m.name}</span>
+                <span className="text-[10px] opacity-50">{m.desc}</span>
+              </button>
+            ))}
+          </div>
+
+          <button onClick={startFirstDraft}
+            className="px-8 py-4 text-lg font-bold rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-lg mb-4"
+            style={{ background: '#00FFFF', color: '#1a1a2e', boxShadow: '0 0 20px rgba(0,255,255,0.3)' }}>
+            ▶ Start Your First Draft
+          </button>
+
+          <button onClick={() => setIsNewUser(false)}
+            className="text-xs underline transition-opacity hover:opacity-80"
+            style={{ color: 'rgba(255,255,255,0.5)' }}>
+            Skip → Show all features
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen flex flex-col items-center px-3 sm:px-4 py-6 sm:py-8 pb-20 page-enter" role="main" aria-label="HotsDrafter main menu">
