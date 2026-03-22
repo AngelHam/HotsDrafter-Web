@@ -19,11 +19,24 @@ function DraftProgressBar({ currentStep, teamOrder }: DraftProgressBarProps) {
         const isDone = i < currentStep;
         const isFuture = i > currentStep;
 
-        const teamColor = team === 1 ? '#4488FF' : '#FF4444';
+        // Color logic: purple for bans, blue for T1 picks, red for T2 picks
+        const banColor = '#9966CC';
+        const t1Color = '#4488FF';
+        const t2Color = '#FF4444';
+        const stepColor = isBan ? banColor : (team === 1 ? t1Color : t2Color);
+
         let bg: string;
-        if (isCurrent) bg = isBan ? '#FF6666' : teamColor;
-        else if (isDone) bg = isBan ? '#FF666699' : teamColor + '99';
-        else bg = isBan ? '#FF666618' : teamColor + '18';
+        if (isCurrent) bg = stepColor;
+        else if (isDone) bg = stepColor + '99';
+        else bg = stepColor + '18';
+
+        // Label: current shows "B"/"1"/"2", past shows ✓, future shows nothing
+        let label = '';
+        if (isDone) label = '✓';
+        else if (isCurrent || !isFuture) {
+          if (isBan) label = 'B';
+          else label = team === 1 ? '1' : '2';
+        }
 
         return (
           <div
@@ -34,15 +47,15 @@ function DraftProgressBar({ currentStep, teamOrder }: DraftProgressBarProps) {
               width: isCurrent ? 24 : 16,
               height: isCurrent ? 18 : 14,
               background: bg,
-              border: isCurrent ? '1.5px solid #FFD700' : `1px solid ${isDone ? teamColor + '44' : teamColor + '10'}`,
+              border: isCurrent ? '1.5px solid #FFD700' : `1px solid ${isDone ? stepColor + '44' : stepColor + '10'}`,
               boxShadow: isCurrent ? `0 0 8px rgba(255,215,0,0.4)` : 'none',
-              fontSize: 8,
-              color: isDone ? '#fff' : isCurrent ? '#fff' : '#555',
+              fontSize: isCurrent ? 9 : 7,
+              color: isDone ? '#fff' : isCurrent ? '#fff' : stepColor,
               fontWeight: isCurrent ? 'bold' : 'normal',
               opacity: isFuture ? 0.4 : 1,
             }}
           >
-            {isDone ? '✓' : ''}
+            {label}
           </div>
         );
       })}

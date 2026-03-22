@@ -657,8 +657,8 @@ function DraftPageInner() {
       </header>
       {/* Row 1: Compact progress bar with integrated status */}
       <div className="flex items-center gap-3 px-4 py-1" style={{ background: 'rgba(20,25,45,0.5)', borderBottom: '1px solid rgba(68,102,136,0.3)' }}>
-        <span className="text-xs font-bold whitespace-nowrap" aria-live="polite" style={{ color: isReplaying ? '#FF8C00' : isComplete ? '#90EE90' : (isBan ? '#FF6666' : (isYourTurn ? '#00FFFF' : '#FF6666')) }}>
-          {isReplaying ? `🎬 ${replayStep + 1}/16` : isComplete ? '✅ Done' : `${isYourTurn ? 'Your Turn' : 'Enemy Turn'} — ${isBan ? 'Ban' : 'Pick'}`}
+        <span className="text-xs font-bold whitespace-nowrap" aria-live="polite" style={{ color: isReplaying ? '#FF8C00' : isComplete ? '#90EE90' : (isBan ? '#9966CC' : (isYourTurn ? '#4488FF' : '#FF4444')) }}>
+          {isReplaying ? `🎬 ${replayStep + 1}/16` : isComplete ? '✅ Done' : `Team ${isYourTurn ? '1' : '2'} ${isBan ? 'Ban' : 'Pick'}`}
         </span>
         {team1Picks.length > 0 && (
           <span className="flex gap-0.5">

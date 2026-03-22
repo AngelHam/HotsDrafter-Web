@@ -51,7 +51,7 @@ function HeroPortrait({ hero, size = 'md', selected, banned, dimmed, showName, t
     <div className="flex flex-col items-center" style={{ width: showName ? px + 8 : undefined }}>
       <Tag
         onClick={onClick}
-        className="relative flex-shrink-0 rounded transition-all focus:outline-none cursor-pointer hover:scale-110 hover:z-10 hero-glow"
+        className="relative flex-shrink-0 rounded overflow-hidden transition-all focus:outline-none cursor-pointer hover:scale-110 hover:z-10 hero-glow"
         style={{
           width: px, height: px,
           border: `2px solid ${borderColor}`,
@@ -76,7 +76,8 @@ function HeroPortrait({ hero, size = 'md', selected, banned, dimmed, showName, t
           width={px}
           height={px}
           loading="lazy"
-          className="rounded"
+          className="rounded object-cover object-center"
+          style={{ width: px, height: px }}
           onError={() => setImgError(true)}
         />
       )}
