@@ -42,7 +42,7 @@ const TUTORIAL_PAGES = [
   {
     title: 'More Features',
     icon: '🏆',
-    content: 'Explore the Meta Tier List to see hero rankings across all maps. Use Team Builder for freeform composition analysis. Sample Draft generates random matchups with AI analysis. All drafts auto-save to History.',
+    content: 'Explore the Meta Tier List to see hero rankings across all maps. Use Team Builder for freeform composition analysis. Sample Draft generates random matchups with draft analysis. All drafts auto-save to History.',
     highlight: 'Select a map, click Interactive Draft, and start building your perfect team!',
   },
 ];

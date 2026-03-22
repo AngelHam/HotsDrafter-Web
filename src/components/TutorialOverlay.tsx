@@ -326,9 +326,9 @@ export const DRAFT_TUTORIAL_STEPS: TutorialStep[] = [
     target: '[data-tutorial-target="progressBar"]',
   },
   {
-    title: 'AI Suggestions',
-    icon: '🤖',
-    content: 'AI suggestions appear here based on synergies, counters, and map fitness. Each hero gets a composite score — higher is better.',
+    title: 'Smart Suggestions',
+    icon: '💡',
+    content: 'Hero suggestions appear here based on synergies, counters, and map fitness. Each hero gets a composite score — higher is better.',
     target: '[data-tutorial-target="suggestions"]',
   },
   {

@@ -32,7 +32,7 @@ ReactVercelApp/
 | Folder | URL | What It Is | C++ Equivalent |
 |--------|-----|------------|----------------|
 | `page.tsx` | `/` | **Home** — Map selection, hero spotlight, action buttons | `StartupPage` |
-| `draft/page.tsx` | `/draft` | **Interactive Draft** — The main event! Bans, picks, AI suggestions | `InteractiveDraftPage` |
+| `draft/page.tsx` | `/draft` | **Interactive Draft** — The main event! Bans, picks, smart suggestions | `InteractiveDraftPage` |
 | `draft/result/page.tsx` | `/draft/result` | **Draft Results** — Shareable summary after completing a draft | *(new in React)* |
 | `sample/page.tsx` | `/sample` | **Sample Draft** — Random teams with analysis | `SampleDraftPage` |
 | `team-builder/page.tsx` | `/team-builder` | **Team Builder** — Free-form 5v5 builder | `TeamBuilderPage` |
@@ -53,7 +53,7 @@ ReactVercelApp/
 |-----------|-------------|---------|
 | `HeroPortrait.tsx` | Hero image with role border, ban overlay, tier badge | Everywhere |
 | `TeamPanel.tsx` | Team sidebar: picks, bans, role checks, score, synergies | Draft, Sample |
-| `HeroSuggestionPanel.tsx` | AI suggestion cards with scores, reasons, tags | Draft |
+| `HeroSuggestionPanel.tsx` | Suggestion cards with scores, reasons, tags | Draft |
 | `DraftProgressBar.tsx` | The 16-step ban/pick progress bar | Draft |
 | `RoleFilterBar.tsx` | Role filter buttons (All/Tank/Healer/DPS/Mage/Offlane/Spec) | Draft, Compare |
 | `GlobalNav.tsx` | Bottom navigation dock (visible on all pages) | Layout |
@@ -123,7 +123,7 @@ User clicks "Interactive Draft" on Home
         │       └── Uses Map.scoreHero() (map fitness)
         │
         ├── Renders TeamPanel × 2 (left + right)
-        ├── Renders HeroSuggestionPanel (center, AI picks)
+        ├── Renders HeroSuggestionPanel (center, scored suggestions)
         ├── Renders DraftProgressBar (top)
         └── Renders Hero Grid (90 clickable portraits)
                 │

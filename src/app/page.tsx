@@ -193,7 +193,7 @@ export default function StartupPage() {
         {/* Other action buttons */}
         <div className="grid grid-cols-2 min-[480px]:grid-cols-3 sm:grid-cols-5 gap-2 justify-center w-full">
           <ActionButton label="Sample Draft" icon="🎲" color="#FFD700" onClick={() => router.push(`/sample?map=${getMapParam()}`)}
-            tooltip="Watch an AI-generated random draft with analysis" />
+            tooltip="Watch an auto-generated random draft with analysis" />
           <ActionButton label="Team Builder" icon="🏗️" color="#90EE90" onClick={() => router.push('/team-builder')}
             tooltip="Manually build 5v5 teams and compare compositions" />
           <ActionButton label="Hero Compare" icon="⚖️" color="#87CEEB" onClick={() => router.push('/compare')}
@@ -251,7 +251,7 @@ export default function StartupPage() {
       })()}
 
       <div className="animate-fade-slide-up mt-8 grid grid-cols-3 sm:grid-cols-3 gap-2 justify-items-center max-w-md" style={{ animationDelay: '480ms' }}>
-        {['AI Suggestions', 'Ban Predictions', 'Counter Warnings', 'Win Conditions', 'Tier Lists', 'Coaching Tips'].map((f, i) => (
+        {['Smart Suggestions', 'Ban Predictions', 'Counter Warnings', 'Win Conditions', 'Tier Lists', 'Coaching Tips'].map((f, i) => (
           <span key={f} className="animate-bounce-in feature-pill-shimmer text-xs px-3 py-1.5 rounded-full cursor-default transition-all duration-200 hover:scale-110 text-center"
             style={{ color: '#FFD700', border: '1px solid #FFD70025', animationDelay: `${480 + i * 60}ms` }}
             onMouseEnter={e => { (e.target as HTMLElement).style.boxShadow = '0 0 10px 2px rgba(255,215,0,0.2)'; }}
