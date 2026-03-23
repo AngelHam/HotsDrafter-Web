@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ALL_HEROES, ALL_MAPS } from '@/data/HeroData';
+import { ALL_HEROES, ALL_MAPS, findHeroByName } from '@/data/HeroData';
 import { DraftingTool, DRAFT_TEAM_ORDER, DRAFT_IS_BAN } from '@/data/DraftingTool';
 import { HeroSuggestionEngine } from '@/data/HeroSuggestionEngine';
 import { DraftSettings } from '@/data/DraftSettings';
@@ -171,6 +171,12 @@ function CompanionPageInner() {
   const searchRef = useRef<HTMLInputElement>(null);
   const [settingsVersion, setSettingsVersion] = useState(0);
 
+  // WebSocket screen reader state
+  const [wsConnected, setWsConnected] = useState(false);
+  const [wsStatus, setWsStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
+  const wsRef = useRef<WebSocket | null>(null);
+  const [lastAutoDetected, setLastAutoDetected] = useState<string | null>(null);
+
   // Suggestion history: track top suggestions at each draft step
   const [suggestionHistory, setSuggestionHistory] = useState<Array<{
     step: number;
@@ -289,6 +295,74 @@ function CompanionPageInner() {
     setSelectedIdx(0);
   }, [draft, syncDraftState]);
 
+  // ── Screen Reader WebSocket ─────────────────────────────
+
+  const handleScreenReaderEvent = useCallback((data: { event: string; team: number; hero: string; confidence: number }) => {
+    const hero = findHeroByName(data.hero) || ALL_HEROES.find(h =>
+      h.nicknames.some(n => n.replace(/[' ]/g, '').toLowerCase() === data.hero.replace(/[- ]/g, '').toLowerCase())
+    );
+
+    if (!hero) {
+      console.warn(`Screen Reader: unknown hero "${data.hero}"`);
+      return;
+    }
+
+    const alreadyUsed = [...team1Picks, ...team2Picks, ...team1Bans, ...team2Bans].some(h => h.name === hero.name);
+    if (alreadyUsed) return;
+
+    console.log(`Screen Reader: ${data.event} ${hero.nicknames[0]} (T${data.team}, confidence: ${data.confidence})`);
+    handlePick(hero);
+    setLastAutoDetected(hero.nicknames[0]);
+    setTimeout(() => setLastAutoDetected(null), 1500);
+  }, [team1Picks, team2Picks, team1Bans, team2Bans, handlePick]);
+
+  const toggleScreenReader = useCallback(() => {
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+      setWsConnected(false);
+      setWsStatus('disconnected');
+      return;
+    }
+
+    setWsStatus('connecting');
+    const ws = new WebSocket('ws://localhost:3001');
+
+    ws.onopen = () => {
+      setWsConnected(true);
+      setWsStatus('connected');
+      console.log('Screen Reader connected');
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        handleScreenReaderEvent(data);
+      } catch (e) {
+        console.error('WebSocket message error:', e);
+      }
+    };
+
+    ws.onclose = () => {
+      setWsConnected(false);
+      setWsStatus('disconnected');
+      wsRef.current = null;
+    };
+
+    ws.onerror = () => {
+      setWsStatus('disconnected');
+      setWsConnected(false);
+    };
+
+    wsRef.current = ws;
+  }, [handleScreenReaderEvent]);
+
+  useEffect(() => {
+    return () => {
+      if (wsRef.current) wsRef.current.close();
+    };
+  }, []);
+
   // Save suggestion history when draft completes
   const hasSavedSuggestions = useRef(false);
   useEffect(() => {
@@ -374,10 +448,23 @@ function CompanionPageInner() {
               HotsDrafter Companion
             </span>
           </div>
-          <Link href="/draft" className="text-[10px] opacity-50 hover:opacity-80 transition-opacity no-underline"
-            style={{ color: '#00FFFF' }}>
-            Full Draft →
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleScreenReader}
+              className="text-xs px-2 py-1 rounded transition-colors"
+              style={{
+                background: wsConnected ? 'rgba(0,200,100,0.15)' : 'rgba(255,255,255,0.05)',
+                color: wsConnected ? '#00CC66' : '#888',
+                border: `1px solid ${wsConnected ? '#00CC6644' : '#88888822'}`,
+              }}
+            >
+              {wsConnected ? '🟢 Screen Reader' : '📡 Connect Screen Reader'}
+            </button>
+            <Link href="/draft" className="text-[10px] opacity-50 hover:opacity-80 transition-opacity no-underline"
+              style={{ color: '#00FFFF' }}>
+              Full Draft →
+            </Link>
+          </div>
         </div>
 
         {/* ── Map + First Pick + Progress ─────────────────── */}
@@ -426,6 +513,9 @@ function CompanionPageInner() {
               style={{ color: isComplete ? '#90EE90' : '#A9A9A9' }}>
               Step {Math.min(step + 1, 16)}/16
             </span>
+            {wsConnected && (
+              <span className="text-[10px]" style={{ color: '#00CC66' }}>📡 Live</span>
+            )}
             <div className="flex-1">
               <DraftProgressBar currentStep={step} teamOrder={teamOrder} />
             </div>
@@ -588,6 +678,14 @@ function CompanionPageInner() {
             <span>Esc clear</span>
           </div>
         </div>
+
+        {/* ── Screen Reader Auto-Detect Notification ──────── */}
+        {lastAutoDetected && (
+          <div className="fixed top-4 right-4 px-3 py-2 rounded-lg text-sm font-semibold animate-fade-in"
+               style={{ background: 'rgba(0,200,100,0.2)', color: '#00CC66', border: '1px solid #00CC6644' }}>
+            📡 Auto-detected: {lastAutoDetected}
+          </div>
+        )}
       </div>
     </main>
   );
